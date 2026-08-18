@@ -1,0 +1,10 @@
+#!/usr/bin/env python3
+from pathlib import Path
+import sys
+
+repo_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(repo_root))
+
+from course_research.cli import run
+
+raise SystemExit(run())

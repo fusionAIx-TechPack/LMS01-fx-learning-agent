@@ -1,0 +1,48 @@
+services:
+  source-db:
+    image: mariadb:11.4.7
+    environment: &db-env
+      MARIADB_DATABASE: moodle
+      MARIADB_USER: moodle
+      MARIADB_PASSWORD: moodle
+      MARIADB_ROOT_PASSWORD: root
+    healthcheck: &db-health
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    volumes: [source-db:/var/lib/mysql]
+  source:
+    build: docker/moodle
+    depends_on:
+      source-db: {condition: service_healthy}
+    environment:
+      MOODLE_DB_HOST: source-db
+      MOODLE_WWWROOT: http://localhost:8080
+    ports: ["8080:80"]
+    volumes:
+      - source-data:/var/www/moodledata
+      - ./moodle-cli:/opt/course-package:ro
+      - ./artifacts:/artifacts
+  restore-db:
+    image: mariadb:11.4.7
+    environment: *db-env
+    healthcheck: *db-health
+    volumes: [restore-db:/var/lib/mysql]
+  restore:
+    build: docker/moodle
+    depends_on:
+      restore-db: {condition: service_healthy}
+    environment:
+      MOODLE_DB_HOST: restore-db
+      MOODLE_WWWROOT: http://localhost:8081
+    ports: ["8081:80"]
+    volumes:
+      - restore-data:/var/www/moodledata
+      - ./moodle-cli:/opt/course-package:ro
+      - ./artifacts:/artifacts
+volumes:
+  source-db:
+  source-data:
+  restore-db:
+  restore-data:

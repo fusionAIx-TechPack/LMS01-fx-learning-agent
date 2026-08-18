@@ -1,0 +1,211 @@
+#!/usr/bin/env bash
+set -euo pipefail
+repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+cd "$repo_root"
+usage() {
+  echo "Usage: course-package build (--brief FILE --definition-output PATH | --definition FILE) --output PATH [--accept|--reject] | verify --package PATH --definition FILE | down" >&2
+  exit 64
+}
+resolve_readable_path() {
+  local label=$1 input=$2 resolved
+  if ! resolved=$(realpath "$input"); then
+    echo "$label not found: $input" >&2
+    return 66
+  fi
+  if [[ ! -r $resolved ]]; then
+    echo "$label not found: $resolved" >&2
+    return 66
+  fi
+  echo "$resolved"
+}
+command=${1:-}; shift || true
+case "$command" in
+  build|verify) ;;
+  down) docker compose down --volumes; exit ;;
+  *) usage ;;
+esac
+definition_path=
+brief_path=
+definition_output=
+package_path=
+decision=
+while (($#)); do
+  case "$1" in
+    --definition) definition_path=${2:-}; shift 2 ;;
+    --brief) brief_path=${2:-}; shift 2 ;;
+    --definition-output) definition_output=${2:-}; shift 2 ;;
+    --output|--package) package_path=${2:-}; shift 2 ;;
+    --accept) decision=accept; shift ;;
+    --reject) decision=reject; shift ;;
+    *) usage ;;
+  esac
+done
+[[ -n $package_path ]] || usage
+if [[ $command == build ]]; then
+  if [[ -n $brief_path ]]; then
+    [[ -z $definition_path && -n $definition_output ]] || usage
+  else
+    [[ -n $definition_path && -z $definition_output ]] || usage
+  fi
+else
+  [[ -n $definition_path && -z $brief_path && -z $definition_output && -z $decision ]] || usage
+fi
+package_path=$(realpath -m "$package_path")
+if [[ $command == build && -e $package_path ]]; then
+  echo "Output already exists; refusing to overwrite it: $package_path" >&2
+  exit 73
+fi
+if [[ -n $brief_path ]]; then
+  brief_path=$(resolve_readable_path "Course Brief" "$brief_path")
+  definition_output=$(realpath -m "$definition_output")
+  if [[ $definition_output == "$package_path" ]]; then
+    echo "Course Definition and Course Package outputs must use different paths." >&2
+    exit 64
+  fi
+  "$repo_root/bin/course-definition" build --brief "$brief_path" --output "$definition_output"
+  definition_path=$definition_output
+else
+  definition_path=$(resolve_readable_path "Course Definition" "$definition_path")
+fi
+mkdir -p artifacts
+cp "$definition_path" artifacts/course-definition.json
+rm -f artifacts/course-package.mbz artifacts/to-verify.mbz
+wait_for_moodle() {
+  local service=$1
+  for _ in {1..90}; do
+    docker compose exec -T "$service" php admin/cli/cfg.php --name=version >/dev/null 2>&1 && return
+    sleep 2
+  done
+  echo "Moodle service '$service' did not become ready" >&2
+  return 1
+}
+wait_for_http() {
+  local url=$1
+  for _ in {1..60}; do
+    curl -fsS -o /dev/null "$url" 2>/dev/null && return
+    sleep 1
+  done
+  echo "Moodle web interface did not become ready: $url" >&2
+  return 1
+}
+restore_and_verify() {
+  docker compose up -d --build restore
+  wait_for_moodle restore
+  docker compose exec -T restore php /opt/course-package/restore.php /artifacts/to-verify.mbz /artifacts/course-definition.json
+  verification_output=$(docker compose exec -T restore php /opt/course-package/verify.php /artifacts/course-definition.json)
+  echo "$verification_output"
+  if ! learner_output=$(docker compose exec -T restore php /opt/course-package/prepare_learner.php /artifacts/course-definition.json 2>&1); then
+    echo "$learner_output" >&2
+    return 1
+  fi
+  course_id=$(sed -n 's/^COURSE_ID=//p' <<<"$learner_output")
+  activity_id=$(sed -n 's/^ACTIVITY_ID=//p' <<<"$learner_output")
+  learner_id=$(sed -n 's/^LEARNER_ID=//p' <<<"$learner_output")
+  learner_username=$(sed -n 's/^LEARNER_USERNAME=//p' <<<"$learner_output")
+  learner_password=$(sed -n 's/^LEARNER_PASSWORD=//p' <<<"$learner_output")
+  source_url=$(base64 -d <<<"$(sed -n 's/^SOURCE_URL_BASE64=//p' <<<"$learner_output")")
+  [[ $course_id =~ ^[0-9]+$ && $activity_id =~ ^[0-9]+$ && $learner_id =~ ^[0-9]+$ ]] || {
+    echo "Learner verification setup did not identify the restored Course, Learning Activity, and learner." >&2
+    return 1
+  }
+  cookie_jar=artifacts/restore-cookies.txt
+  rm -f "$cookie_jar"
+  wait_for_http http://localhost:8081/login/index.php
+  login_page=$(curl -fsS -c "$cookie_jar" http://localhost:8081/login/index.php)
+  login_token=$(sed -n 's/.*name="logintoken" value="\([^"]*\)".*/\1/p' <<<"$login_page" | head -n 1)
+  test -n "$login_token" || { echo "Could not start a Moodle browser session." >&2; return 1; }
+  curl -fsS -L -o /dev/null -b "$cookie_jar" -c "$cookie_jar" \
+    --data-urlencode "username=$learner_username" --data-urlencode "password=$learner_password" \
+    --data-urlencode "logintoken=$login_token" http://localhost:8081/login/index.php
+  course_page=$(curl -fsS -b "$cookie_jar" "http://localhost:8081/course/view.php?id=$course_id")
+  grep -F "mod/page/view.php?id=$activity_id" <<<"$course_page" >/dev/null || {
+    echo "The restored Learning Activity is not visible to the learner." >&2
+    return 1
+  }
+  while IFS= read -r encoded_text; do
+    expected_text=$(base64 -d <<<"$encoded_text")
+    grep -F "$expected_text" <<<"$course_page" >/dev/null || {
+      echo "The restored Course page does not show expected learner text: $expected_text" >&2
+      return 1
+    }
+  done < <(sed -n 's/^EXPECTED_TEXT_BASE64=//p' <<<"$learner_output")
+  grep -F 'data-action="toggle-manual-completion"' <<<"$course_page" >/dev/null || {
+    echo "The restored Learning Activity does not offer explicit learner completion confirmation." >&2
+    return 1
+  }
+  grep -F "data-cmid=\"$activity_id\"" <<<"$course_page" >/dev/null || {
+    echo "The learner completion confirmation is not associated with the restored Learning Activity." >&2
+    return 1
+  }
+  docker compose exec -T restore php /opt/course-package/verify.php /artifacts/course-definition.json completion-incomplete "$learner_id"
+  activity_page=$(curl -fsS -b "$cookie_jar" "http://localhost:8081/mod/page/view.php?id=$activity_id")
+  python3 "$repo_root/tests/assert_source_activity_page.py" "$source_url" <<<"$activity_page"
+  for completion_text in 'Finish the Source' 'produce the result required by the instructions' 'return to this Course' 'Mark as done'; do
+    grep -F "$completion_text" <<<"$activity_page" >/dev/null || {
+      echo "The learner-visible Source Activity is missing completion guidance: $completion_text" >&2
+      return 1
+    }
+  done
+  docker compose exec -T restore php /opt/course-package/verify.php /artifacts/course-definition.json completion-incomplete "$learner_id"
+  sesskey=$(sed -n 's/.*"sesskey":"\([^"]*\)".*/\1/p' <<<"$course_page" | head -n 1)
+  test -n "$sesskey" || { echo "Could not identify the learner session key for completion confirmation." >&2; return 1; }
+  completion_response=$(curl -fsS -b "$cookie_jar" -H 'Content-Type: application/json' \
+    --data "[{\"index\":0,\"methodname\":\"core_completion_update_activity_completion_status_manually\",\"args\":{\"cmid\":$activity_id,\"completed\":true}}]" \
+    "http://localhost:8081/lib/ajax/service.php?sesskey=$sesskey&info=core_completion_update_activity_completion_status_manually")
+  grep -F '"status":true' <<<"$completion_response" >/dev/null || {
+    echo "The learner completion confirmation was rejected by Moodle: $completion_response" >&2
+    return 1
+  }
+  docker compose exec -T restore php /opt/course-package/verify.php /artifacts/course-definition.json completion-complete "$learner_id"
+  echo "Verified restored Course through learner HTTP session."
+}
+print_manual_import_guidance() {
+  echo "Manual production import: in a compatible Moodle 5.0.x site, use Site administration > Courses > Restore course. Restore the .mbz as a new hidden Course, review it, and publish it manually only when ready."
+}
+if [[ $command == build ]]; then
+  docker compose down --volumes >/dev/null 2>&1 || true
+  docker compose up -d --build source
+  wait_for_moodle source
+  if ! generation_output=$(docker compose exec -T source php /opt/course-package/generate.php /artifacts/course-definition.json 2>&1); then
+    echo "$generation_output" >&2
+    exit 1
+  fi
+  echo "$generation_output"
+  course_id=$(sed -n 's/^COURSE_ID=//p' <<<"$generation_output")
+  [[ $course_id =~ ^[0-9]+$ ]] || { echo "Generation did not identify the Course for review." >&2; exit 1; }
+  if ! reviewer_output=$(docker compose exec -T source php /opt/course-package/prepare_reviewer.php /artifacts/course-definition.json 2>&1); then
+    echo "$reviewer_output" >&2
+    exit 1
+  fi
+  reviewer_username=$(sed -n 's/^REVIEWER_USERNAME=//p' <<<"$reviewer_output")
+  reviewer_password=$(sed -n 's/^REVIEWER_PASSWORD=//p' <<<"$reviewer_output")
+  [[ -n $reviewer_username && -n $reviewer_password ]] || { echo "Review learner setup did not return local credentials." >&2; exit 1; }
+  echo "Review the Course Definition at $definition_path and the hidden local Course at http://localhost:8080/course/view.php?id=$course_id."
+  echo "Local review admin login: admin / LocalOnly-ChangeMe1!"
+  echo "Local review learner login: $reviewer_username / $reviewer_password"
+  if [[ -z $decision ]]; then
+    until [[ $decision == accept || $decision == reject ]]; do
+      printf "Type 'accept' to create and validate the Course Package, or 'reject' to reject it: "
+      read -r decision || { echo "No review decision received." >&2; exit 65; }
+    done
+  fi
+  if [[ $decision != accept ]]; then
+    echo "Course rejected; no accepted Course Package was created." >&2
+    exit 65
+  fi
+  docker compose exec -T source php /opt/course-package/backup.php /artifacts/course-package.mbz /artifacts/course-definition.json
+  test -s artifacts/course-package.mbz
+  cp artifacts/course-package.mbz artifacts/to-verify.mbz
+  docker compose stop source source-db >/dev/null
+  restore_and_verify
+  cp artifacts/course-package.mbz "$package_path"
+  echo "Course Package accepted and validated by clean-Moodle trial restoration: $package_path"
+  print_manual_import_guidance
+else
+  test -s "$package_path" || { echo "Course Package not found: $package_path" >&2; exit 66; }
+  docker compose down --volumes >/dev/null 2>&1 || true
+  cp "$package_path" artifacts/to-verify.mbz
+  restore_and_verify
+  echo "Course Package validated by clean-Moodle trial restoration: $package_path"
+  print_manual_import_guidance
+fi

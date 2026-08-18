@@ -1,0 +1,294 @@
+{
+  "identity": {
+    "fullname": "KYC and CLM Basics for AI Developers",
+    "shortname": "kyc-and-clm-basics-for-ai-developers-beginner",
+    "summary": "A beginner introduction to Know Your Customer and Client Lifecycle Management for technical developers implementing AI solutions in banking. The Course follows customer onboarding, identification, due diligence, ongoing monitoring and sanctions screening before applying controlled AI assistance to a sample workflow."
+  },
+  "settings": {
+    "format": "topics",
+    "visible": false,
+    "completion_tracking": true
+  },
+  "brief": {
+    "topic": "KYC and CLM Basics for AI Developers",
+    "audience": "Technical developers with limited KYC and CLM domain knowledge who implement AI solutions for banks",
+    "entry_level": "beginner",
+    "language": "en-US",
+    "intended_learning_outcome": "Given a sample banking onboarding scenario, explain the principal KYC and CLM stages, identify where AI can assist, and describe the necessary data, human-review, and audit controls.",
+    "learning_time_minutes": 120,
+    "sources": [
+      {
+        "title": "Information on Complying with the Customer Due Diligence (CDD) Final Rule",
+        "activity_name": "Frame KYC and CLM",
+        "url": "https://www.fincen.gov/resources/statutes-and-regulations/cdd-final-rule",
+        "publisher": "Financial Crimes Enforcement Network (FinCEN)",
+        "provider_item_id": "fincen/cdd-final-rule",
+        "source_type": "article",
+        "language": "en-US",
+        "activity_duration_minutes": 10,
+        "duration_minutes": 5,
+        "access": {
+          "free": true,
+          "basis": "Free public FinCEN information page available anonymously without payment or sign-in.",
+          "evidence_url": "https://www.fincen.gov/site-policies-and-notices"
+        },
+        "activity_purpose": "Build a shared vocabulary for KYC, customer due diligence and lifecycle monitoring before modelling technical workflows.",
+        "activity_instructions": "Open the Source and create a compact glossary for customer identification, beneficial ownership, relationship purpose, customer risk profile and ongoing monitoring. Then place each concept at the appropriate point in a simple client lifecycle from onboarding to review."
+      },
+      {
+        "title": "Customer identification programs for banks, savings associations, credit unions, and certain non-Federally regulated banks",
+        "activity_name": "Model Customer Identification",
+        "url": "https://www.ecfr.gov/current/title-31/subtitle-B/chapter-X/part-1020/subpart-B/section-1020.220",
+        "publisher": "Electronic Code of Federal Regulations",
+        "provider_item_id": "31-cfr-1020.220",
+        "source_type": "article",
+        "language": "en-US",
+        "activity_duration_minutes": 22,
+        "duration_minutes": 12,
+        "access": {
+          "free": true,
+          "basis": "Free official current Electronic Code of Federal Regulations section available anonymously without payment or sign-in.",
+          "evidence_url": "https://www.ecfr.gov/reader-aids/using-ecfr/about-the-ecfr"
+        },
+        "activity_purpose": "Turn customer identification obligations into an explicit onboarding process that a developer can model without hiding policy decisions inside AI behavior.",
+        "activity_instructions": "Open the Source and draw an onboarding flow covering required customer data, documentary and non-documentary verification, discrepancies, failed verification, notices, record retention and third-party dependencies. Mark the inputs, systems, decision owners and evidence created at every step."
+      },
+      {
+        "title": "Customer Due Diligence — Overview",
+        "activity_name": "Trace Ongoing Due Diligence",
+        "url": "https://bsaaml.ffiec.gov/docs/manual/06_AssessingComplianceWithBSARegulatoryRequirements/02.pdf",
+        "publisher": "Federal Financial Institutions Examination Council (FFIEC)",
+        "provider_item_id": "ffiec-bsaaml/AssessingComplianceWithBSARegulatoryRequirements/02",
+        "source_type": "article",
+        "language": "en-US",
+        "activity_duration_minutes": 22,
+        "duration_minutes": 13,
+        "access": {
+          "free": true,
+          "basis": "Free official FFIEC BSA/AML manual available anonymously in HTML and PDF without payment or sign-in.",
+          "evidence_url": "https://bsaaml.ffiec.gov/manual"
+        },
+        "activity_purpose": "Connect onboarding to ongoing, risk-based client lifecycle management and make review triggers, responsibilities and evidence explicit.",
+        "activity_instructions": "Open the Source and extend the onboarding flow through initial risk profiling, higher-risk review, ongoing monitoring, event-driven customer updates and escalation. For each transition, record its trigger, required data, responsible decision maker, possible outcomes and retained audit evidence."
+      },
+      {
+        "title": "Introduction to the Office of Foreign Assets Control",
+        "activity_name": "Design Sanctions Screening",
+        "url": "https://ofac.treasury.gov/media/935656/download?inline=",
+        "publisher": "Office of Foreign Assets Control",
+        "provider_item_id": "ofac/introduction-to-ofac-2026",
+        "source_type": "article",
+        "language": "en-US",
+        "activity_duration_minutes": 22,
+        "duration_minutes": 15,
+        "access": {
+          "free": true,
+          "basis": "Free official OFAC introductory guide available anonymously as a public PDF without payment or sign-in.",
+          "evidence_url": "https://ofac.treasury.gov/recent-actions/20260601"
+        },
+        "activity_purpose": "Model sanctions screening as a governed control with deterministic matching rules, review queues, escalation and retained evidence.",
+        "activity_instructions": "Open the Source and add customer and transaction screening to the lifecycle map. Include list updates, screening events, potential matches, false-hit handling, human review, escalation, blocking or rejection outcomes, rescreening and evidence retention. Identify which decisions must remain policy-driven rather than generated by AI."
+      },
+      {
+        "title": "Artificial Intelligence in Financial Services: Report on the Uses, Opportunities, and Risks of Artificial Intelligence in the Financial Services Sector",
+        "activity_name": "Map AI Uses and Risks",
+        "url": "https://home.treasury.gov/system/files/136/Artificial-Intelligence-in-Financial-Services.pdf",
+        "publisher": "U.S. Department of the Treasury",
+        "provider_item_id": "treasury/136/artificial-intelligence-in-financial-services-2024",
+        "source_type": "article",
+        "language": "en-US",
+        "activity_duration_minutes": 44,
+        "duration_minutes": 35,
+        "access": {
+          "free": true,
+          "basis": "Free official U.S. Department of the Treasury report available anonymously as a public PDF without payment or sign-in.",
+          "evidence_url": "https://home.treasury.gov/news/press-releases/jy2760"
+        },
+        "activity_purpose": "Synthesize the KYC and CLM lifecycle into a controlled AI solution design that assists people without replacing regulated decisions or weakening accountability.",
+        "activity_instructions": "Open the Source and complete a solution canvas for the sample onboarding workflow. Identify the AI-assisted steps and expected benefit; required inputs and data quality controls; deterministic policy gates; human review and escalation; privacy, bias and explainability risks; records and audit evidence; vendor dependencies; monitoring measures; and fallback behavior. Finish with a go, revise or stop recommendation and its rationale."
+      }
+    ],
+    "course_description": "A beginner introduction to Know Your Customer and Client Lifecycle Management for technical developers implementing AI solutions in banking. The Course follows customer onboarding, identification, due diligence, ongoing monitoring and sanctions screening before applying controlled AI assistance to a sample workflow.",
+    "learning_path": [
+      {
+        "name": "Understand KYC and CLM",
+        "introduction": "Establish why banks perform customer due diligence and how customer identity, relationship purpose, risk and monitoring connect across the client lifecycle.",
+        "source_provider_item_ids": [
+          "fincen/cdd-final-rule"
+        ]
+      },
+      {
+        "name": "Onboard and Verify Customers",
+        "introduction": "Translate customer identification requirements into an implementable onboarding flow with evidence, decisions, failure paths and retained records.",
+        "source_provider_item_ids": [
+          "31-cfr-1020.220"
+        ]
+      },
+      {
+        "name": "Manage Risk Through the Lifecycle",
+        "introduction": "Extend onboarding into ongoing risk-based due diligence, customer updates, sanctions screening, escalation and auditable lifecycle decisions.",
+        "source_provider_item_ids": [
+          "ffiec-bsaaml/AssessingComplianceWithBSARegulatoryRequirements/02",
+          "ofac/introduction-to-ofac-2026"
+        ]
+      },
+      {
+        "name": "Design Controlled AI Assistance",
+        "introduction": "Map appropriate AI assistance onto the KYC and CLM workflow while retaining deterministic policy gates, accountable human decisions and evidence for monitoring and audit.",
+        "source_provider_item_ids": [
+          "treasury/136/artificial-intelligence-in-financial-services-2024"
+        ]
+      }
+    ]
+  },
+  "general": {
+    "name": "Start here",
+    "introduction": "A beginner introduction to Know Your Customer and Client Lifecycle Management for technical developers implementing AI solutions in banking. The Course follows customer onboarding, identification, due diligence, ongoing monitoring and sanctions screening before applying controlled AI assistance to a sample workflow."
+  },
+  "modules": [
+    {
+      "name": "Understand KYC and CLM",
+      "introduction": "Establish why banks perform customer due diligence and how customer identity, relationship purpose, risk and monitoring connect across the client lifecycle.",
+      "activities": [
+        {
+          "name": "Frame KYC and CLM",
+          "purpose": "Build a shared vocabulary for KYC, customer due diligence and lifecycle monitoring before modelling technical workflows.",
+          "instructions": "Open the Source and create a compact glossary for customer identification, beneficial ownership, relationship purpose, customer risk profile and ongoing monitoring. Then place each concept at the appropriate point in a simple client lifecycle from onboarding to review.",
+          "duration_minutes": 10,
+          "source": {
+            "title": "Information on Complying with the Customer Due Diligence (CDD) Final Rule",
+            "url": "https://www.fincen.gov/resources/statutes-and-regulations/cdd-final-rule",
+            "publisher": "Financial Crimes Enforcement Network (FinCEN)",
+            "provider_item_id": "fincen/cdd-final-rule",
+            "source_type": "article",
+            "language": "en-US",
+            "duration_minutes": 5,
+            "availability": {
+              "status": 200,
+              "checked_at": "2026-08-18T12:37:33.601437+00:00"
+            },
+            "access": {
+              "free": true,
+              "basis": "Free public FinCEN information page available anonymously without payment or sign-in.",
+              "evidence_url": "https://www.fincen.gov/site-policies-and-notices"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Onboard and Verify Customers",
+      "introduction": "Translate customer identification requirements into an implementable onboarding flow with evidence, decisions, failure paths and retained records.",
+      "activities": [
+        {
+          "name": "Model Customer Identification",
+          "purpose": "Turn customer identification obligations into an explicit onboarding process that a developer can model without hiding policy decisions inside AI behavior.",
+          "instructions": "Open the Source and draw an onboarding flow covering required customer data, documentary and non-documentary verification, discrepancies, failed verification, notices, record retention and third-party dependencies. Mark the inputs, systems, decision owners and evidence created at every step.",
+          "duration_minutes": 22,
+          "source": {
+            "title": "Customer identification programs for banks, savings associations, credit unions, and certain non-Federally regulated banks",
+            "url": "https://www.ecfr.gov/current/title-31/subtitle-B/chapter-X/part-1020/subpart-B/section-1020.220",
+            "publisher": "Electronic Code of Federal Regulations",
+            "provider_item_id": "31-cfr-1020.220",
+            "source_type": "article",
+            "language": "en-US",
+            "duration_minutes": 12,
+            "availability": {
+              "status": 200,
+              "checked_at": "2026-08-18T12:37:33.601437+00:00"
+            },
+            "access": {
+              "free": true,
+              "basis": "Free official current Electronic Code of Federal Regulations section available anonymously without payment or sign-in.",
+              "evidence_url": "https://www.ecfr.gov/reader-aids/using-ecfr/about-the-ecfr"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Manage Risk Through the Lifecycle",
+      "introduction": "Extend onboarding into ongoing risk-based due diligence, customer updates, sanctions screening, escalation and auditable lifecycle decisions.",
+      "activities": [
+        {
+          "name": "Trace Ongoing Due Diligence",
+          "purpose": "Connect onboarding to ongoing, risk-based client lifecycle management and make review triggers, responsibilities and evidence explicit.",
+          "instructions": "Open the Source and extend the onboarding flow through initial risk profiling, higher-risk review, ongoing monitoring, event-driven customer updates and escalation. For each transition, record its trigger, required data, responsible decision maker, possible outcomes and retained audit evidence.",
+          "duration_minutes": 22,
+          "source": {
+            "title": "Customer Due Diligence — Overview",
+            "url": "https://bsaaml.ffiec.gov/docs/manual/06_AssessingComplianceWithBSARegulatoryRequirements/02.pdf",
+            "publisher": "Federal Financial Institutions Examination Council (FFIEC)",
+            "provider_item_id": "ffiec-bsaaml/AssessingComplianceWithBSARegulatoryRequirements/02",
+            "source_type": "article",
+            "language": "en-US",
+            "duration_minutes": 13,
+            "availability": {
+              "status": 200,
+              "checked_at": "2026-08-18T12:37:33.601437+00:00"
+            },
+            "access": {
+              "free": true,
+              "basis": "Free official FFIEC BSA/AML manual available anonymously in HTML and PDF without payment or sign-in.",
+              "evidence_url": "https://bsaaml.ffiec.gov/manual"
+            }
+          }
+        },
+        {
+          "name": "Design Sanctions Screening",
+          "purpose": "Model sanctions screening as a governed control with deterministic matching rules, review queues, escalation and retained evidence.",
+          "instructions": "Open the Source and add customer and transaction screening to the lifecycle map. Include list updates, screening events, potential matches, false-hit handling, human review, escalation, blocking or rejection outcomes, rescreening and evidence retention. Identify which decisions must remain policy-driven rather than generated by AI.",
+          "duration_minutes": 22,
+          "source": {
+            "title": "Introduction to the Office of Foreign Assets Control",
+            "url": "https://ofac.treasury.gov/media/935656/download?inline=",
+            "publisher": "Office of Foreign Assets Control",
+            "provider_item_id": "ofac/introduction-to-ofac-2026",
+            "source_type": "article",
+            "language": "en-US",
+            "duration_minutes": 15,
+            "availability": {
+              "status": 200,
+              "checked_at": "2026-08-18T12:37:33.601437+00:00"
+            },
+            "access": {
+              "free": true,
+              "basis": "Free official OFAC introductory guide available anonymously as a public PDF without payment or sign-in.",
+              "evidence_url": "https://ofac.treasury.gov/recent-actions/20260601"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Design Controlled AI Assistance",
+      "introduction": "Map appropriate AI assistance onto the KYC and CLM workflow while retaining deterministic policy gates, accountable human decisions and evidence for monitoring and audit.",
+      "activities": [
+        {
+          "name": "Map AI Uses and Risks",
+          "purpose": "Synthesize the KYC and CLM lifecycle into a controlled AI solution design that assists people without replacing regulated decisions or weakening accountability.",
+          "instructions": "Open the Source and complete a solution canvas for the sample onboarding workflow. Identify the AI-assisted steps and expected benefit; required inputs and data quality controls; deterministic policy gates; human review and escalation; privacy, bias and explainability risks; records and audit evidence; vendor dependencies; monitoring measures; and fallback behavior. Finish with a go, revise or stop recommendation and its rationale.",
+          "duration_minutes": 44,
+          "source": {
+            "title": "Artificial Intelligence in Financial Services: Report on the Uses, Opportunities, and Risks of Artificial Intelligence in the Financial Services Sector",
+            "url": "https://home.treasury.gov/system/files/136/Artificial-Intelligence-in-Financial-Services.pdf",
+            "publisher": "U.S. Department of the Treasury",
+            "provider_item_id": "treasury/136/artificial-intelligence-in-financial-services-2024",
+            "source_type": "article",
+            "language": "en-US",
+            "duration_minutes": 35,
+            "availability": {
+              "status": 200,
+              "checked_at": "2026-08-18T12:37:33.601437+00:00"
+            },
+            "access": {
+              "free": true,
+              "basis": "Free official U.S. Department of the Treasury report available anonymously as a public PDF without payment or sign-in.",
+              "evidence_url": "https://home.treasury.gov/news/press-releases/jy2760"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

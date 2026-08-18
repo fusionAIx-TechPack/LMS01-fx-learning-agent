@@ -1,0 +1,233 @@
+{
+  "topic": "Banking and Financial Services Foundations for AI Solution Teams",
+  "audience": "JavaScript developers, Python developers, Pega architects, technical leads, and AI solution designers with limited banking-domain experience",
+  "entry_level": "beginner",
+  "language": "en-US",
+  "intended_learning_outcome": "Given a banking AI use case, analyse its customer journey, operational process, actors, data, systems, risks, and regulatory controls, then propose an appropriate AI-assisted solution with human oversight and measurable CSAT, cost, speed, and control outcomes.",
+  "learning_time_minutes": 720,
+  "course_description": "A practical banking and financial services foundation for technical teams designing AI-enabled bank operations. The course moves from the banking ecosystem and digital finance through retail, SME and corporate journeys, payments, lending, trade finance, wealth management, KYC and customer lifecycle management, financial crime, conduct, data, risk and resilience, and ends with a controlled AI solution proposal.",
+  "learning_path": [
+    {
+      "name": "Banking Landscape",
+      "introduction": "Establish a high-level map of how banks create value, how digital finance changes distribution and infrastructure, and how supervision shapes every product and operational process.",
+      "source_provider_item_ids": [
+        "digital-finance/overview-digital-finance_en",
+        "ecb-and-you/explainers/html/supervision.en.html"
+      ]
+    },
+    {
+      "name": "Customers, Accounts and Payments",
+      "introduction": "Follow the movement of money across customer channels, accounts, payment actors and operational controls, comparing consumer, SME and corporate needs.",
+      "source_provider_item_ids": [
+        "explainers/money-payments-and-spending"
+      ]
+    },
+    {
+      "name": "Lending, Trade and Wealth",
+      "introduction": "Compare three major value chains: lending, trade finance and wealth management, with attention to decisions, hand-offs, documents, controls and servicing events.",
+      "source_provider_item_ids": [
+        "lending-loan-portfolio-risk-management/pub-ch-lending-loan-portfolio.pdf",
+        "asset-mgmt-ops-controls/index-asset-mgmt-ops-controls.html",
+        "747241468329432546"
+      ]
+    },
+    {
+      "name": "Customer and Control Operations",
+      "introduction": "Connect KYC and customer lifecycle management, financial crime controls, customer outcomes and governed data to the daily operation of a bank.",
+      "source_provider_item_ids": [
+        "aml-cft-risk-factors-consolidated-2023",
+        "firms/consumer-duty/about",
+        "bcbs_nl36"
+      ]
+    },
+    {
+      "name": "Responsible AI Solution Capstone",
+      "introduction": "Integrate the course into one banking AI proposal that improves a measurable operational outcome without weakening human accountability, risk management or resilience.",
+      "source_provider_item_ids": [
+        "financial-stability-in-focus/2025/april-2025"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "title": "Overview of digital finance",
+      "activity_name": "Navigate Digital Banking",
+      "url": "https://finance.ec.europa.eu/digital-finance/overview-digital-finance_en",
+      "publisher": "European Commission",
+      "provider_item_id": "digital-finance/overview-digital-finance_en",
+      "source_type": "article",
+      "language": "en-US",
+      "activity_duration_minutes": 50,
+      "duration_minutes": 35,
+      "activity_purpose": "Create the high-level frame for the course by locating retail, SME, corporate and platform banking within the wider shift toward digital finance.",
+      "activity_instructions": "Open the Source and produce a one-page banking landscape map. Show B2C, B2B/SME and corporate customers; core products; digital channels; open banking, open finance and banking-as-a-service connections; and three places where AI could change an operational journey.",
+      "access": {
+        "free": true,
+        "basis": "Public European Commission policy overview available anonymously without payment or sign-in; EU-owned web content is generally CC BY 4.0 under the legal notice.",
+        "evidence_url": "https://commission.europa.eu/legal-notice_en"
+      }
+    },
+    {
+      "title": "Other vital ECB work: 1. Banking supervision",
+      "activity_name": "Understand Bank Supervision",
+      "url": "https://www.ecb.europa.eu/ecb-and-you/explainers/html/supervision.en.html",
+      "publisher": "European Central Bank",
+      "provider_item_id": "ecb-and-you/explainers/html/supervision.en.html",
+      "source_type": "article",
+      "language": "en-US",
+      "activity_duration_minutes": 60,
+      "duration_minutes": 45,
+      "activity_purpose": "Explain why bank products and AI-enabled operations operate inside a supervisory system rather than as unconstrained software services.",
+      "activity_instructions": "Open the Source and add a supervision layer to your landscape map. Identify the bank, supervisor and central bank roles; connect prudential supervision to capital, liquidity, governance and operational resilience; and record two implications for an AI delivery team.",
+      "access": {
+        "free": true,
+        "basis": "Public ECB learning path available anonymously without payment or sign-in.",
+        "evidence_url": "https://www.ecb.europa.eu/services/using-our-site/disclaimer/html/index.en.html"
+      }
+    },
+    {
+      "title": "Money, payments and spending",
+      "activity_name": "Trace Payments End to End",
+      "url": "https://www.bankofengland.co.uk/explainers/money-payments-and-spending",
+      "publisher": "Bank of England",
+      "provider_item_id": "explainers/money-payments-and-spending",
+      "source_type": "article",
+      "language": "en-US",
+      "activity_duration_minutes": 60,
+      "duration_minutes": 45,
+      "activity_purpose": "Trace how a payment request becomes a controlled transfer of value across customer, bank and payment-system boundaries.",
+      "activity_instructions": "Open the Source and draw an end-to-end payment journey from initiation to confirmation, settlement and exception handling. Label customer, merchant or corporate roles, accounts, channels, payment providers, data, fraud checks and operational failure points; then mark two responsible AI-assistance opportunities.",
+      "access": {
+        "free": true,
+        "basis": "Public Bank of England explainer collection available anonymously without payment or sign-in.",
+        "evidence_url": "https://www.bankofengland.co.uk/legal"
+      }
+    },
+    {
+      "title": "Lending and Loan Portfolio Risk Management, Comptroller's Handbook",
+      "activity_name": "Map the Lending Lifecycle",
+      "url": "https://www.occ.treas.gov/publications-and-resources/publications/comptrollers-handbook/files/lending-loan-portfolio-risk-management/pub-ch-lending-loan-portfolio.pdf",
+      "publisher": "Office of the Comptroller of the Currency",
+      "provider_item_id": "lending-loan-portfolio-risk-management/pub-ch-lending-loan-portfolio.pdf",
+      "source_type": "article",
+      "language": "en-US",
+      "activity_duration_minutes": 135,
+      "duration_minutes": 120,
+      "activity_purpose": "Model lending as a lifecycle of customer needs, credit decisions, documentation, servicing, monitoring and recovery rather than a single approval event.",
+      "activity_instructions": "Open the Source and build a lending lifecycle that compares a consumer loan, an SME facility and a corporate loan. For each phase identify actors, inputs, systems, credit and operational risks, decision rights, human approvals and candidate AI support; distinguish assistance from decisions that require accountable human control.",
+      "access": {
+        "free": true,
+        "basis": "Public US government handbook PDF available anonymously without payment or sign-in.",
+        "evidence_url": "https://www.occ.treas.gov/publications-and-resources/publications/comptrollers-handbook/index-comptrollers-handbook.html"
+      }
+    },
+    {
+      "title": "Asset Management Operations and Controls",
+      "activity_name": "Follow Wealth Operations",
+      "url": "https://www.occ.treas.gov/publications-and-resources/publications/comptrollers-handbook/files/asset-mgmt-ops-controls/index-asset-mgmt-ops-controls.html",
+      "publisher": "Office of the Comptroller of the Currency",
+      "provider_item_id": "asset-mgmt-ops-controls/index-asset-mgmt-ops-controls.html",
+      "source_type": "article",
+      "language": "en-US",
+      "activity_duration_minutes": 90,
+      "duration_minutes": 75,
+      "activity_purpose": "Connect the client-facing wealth journey to the operational controls that protect assets, instructions, transactions and reporting.",
+      "activity_instructions": "Open the Source and map a wealth-management journey from onboarding and mandate through portfolio activity, custody, fees, reporting and closure. Identify suitability or mandate boundaries, front-to-back hand-offs, control evidence and data dependencies, and note how wealth management differs from adjacent markets and treasury functions.",
+      "access": {
+        "free": true,
+        "basis": "Public US government handbook page and downloadable booklet available anonymously without payment or sign-in.",
+        "evidence_url": "https://www.occ.treas.gov/publications-and-resources/publications/comptrollers-handbook/index-comptrollers-handbook.html"
+      }
+    },
+    {
+      "title": "Basic trade finance tools: payment methods in international trade",
+      "activity_name": "Examine Trade Finance Methods",
+      "url": "https://documents.worldbank.org/en/publication/documents-reports/documentdetail/747241468329432546",
+      "publisher": "World Bank",
+      "provider_item_id": "747241468329432546",
+      "source_type": "article",
+      "language": "en-US",
+      "activity_duration_minutes": 65,
+      "duration_minutes": 50,
+      "activity_purpose": "Understand how trade-finance instruments manage payment, performance and documentary risk between commercial counterparties and their banks.",
+      "activity_instructions": "Open the Source and create a swimlane for one documentary trade transaction. Include buyer, seller, issuing and advising banks, payment method, required documents, key hand-offs, exception paths and financial-crime touchpoints; identify one safe document-AI use case and its required human review.",
+      "access": {
+        "free": true,
+        "basis": "Public World Bank document record with the official PDF available anonymously without payment or sign-in.",
+        "evidence_url": "https://www.worldbank.org/en/about/legal"
+      }
+    },
+    {
+      "title": "Guidelines on ML/TF risk factors",
+      "activity_name": "Apply Risk-Based KYC",
+      "url": "https://www.eba.europa.eu/legacy/regulation-and-policy/regulatory-activities/anti-money-laundering-and-countering-financing-1?phase=consolidated&version=2023",
+      "publisher": "European Banking Authority",
+      "provider_item_id": "aml-cft-risk-factors-consolidated-2023",
+      "source_type": "article",
+      "language": "en-US",
+      "activity_duration_minutes": 90,
+      "duration_minutes": 75,
+      "activity_purpose": "Apply a risk-based approach to KYC, customer lifecycle management and wider financial-economic-crime controls without treating every customer or event identically.",
+      "activity_instructions": "Open the Source and design a control map covering onboarding, customer identification and verification, beneficial ownership, risk assessment, enhanced due diligence, periodic and event-driven review, transaction monitoring, investigation and exit. Record the data and evidence required at each stage and where AI output must be explainable, reviewed and auditable.",
+      "access": {
+        "free": true,
+        "basis": "Public EBA guidance page and consolidated PDF available anonymously without payment or sign-in; existing EBA AML/CFT guidance remains valid until replaced by AMLA.",
+        "evidence_url": "https://www.eba.europa.eu/regulation-and-policy/anti-money-laundering-and-countering-financing-terrorism"
+      }
+    },
+    {
+      "title": "About the Consumer Duty",
+      "activity_name": "Design for Good Outcomes",
+      "url": "https://www.fca.org.uk/firms/consumer-duty/about",
+      "publisher": "Financial Conduct Authority",
+      "provider_item_id": "firms/consumer-duty/about",
+      "source_type": "article",
+      "language": "en-US",
+      "activity_duration_minutes": 40,
+      "duration_minutes": 25,
+      "activity_purpose": "Translate customer protection and conduct expectations into testable requirements for digital journeys and AI-assisted service operations.",
+      "activity_instructions": "Open the Source and create a good-outcomes checklist for one retail banking journey. Cover product and service design, price and value, customer understanding, support and vulnerable-customer needs; add evidence and metrics that would reveal whether automation improves or harms the outcome.",
+      "access": {
+        "free": true,
+        "basis": "Public FCA guidance available anonymously without payment or sign-in.",
+        "evidence_url": "https://www.fca.org.uk/firms/consumer-duty/publications-resources"
+      }
+    },
+    {
+      "title": "Implementation of the Principles for effective risk data aggregation and risk reporting (BCBS 239 Principles)",
+      "activity_name": "Govern Banking Data",
+      "url": "https://www.bis.org/publ/bcbs_nl36.htm",
+      "publisher": "Bank for International Settlements, Basel Committee on Banking Supervision",
+      "provider_item_id": "bcbs_nl36",
+      "source_type": "article",
+      "language": "en-US",
+      "activity_duration_minutes": 40,
+      "duration_minutes": 25,
+      "activity_purpose": "Treat governed, traceable and timely data as a prerequisite for banking decisions, regulatory reporting and reliable AI rather than as an integration afterthought.",
+      "activity_instructions": "Open the Source and produce a data-lineage sketch for one risk or customer decision. Trace critical data from origin through transformation, decision, aggregation and report; assign ownership, quality checks, reconciliation, access and retention controls; then identify how an AI component would consume and produce governed data.",
+      "access": {
+        "free": true,
+        "basis": "Public BIS and BCBS newsletter available anonymously without payment or sign-in.",
+        "evidence_url": "https://www.bis.org/terms_conditions.htm"
+      }
+    },
+    {
+      "title": "Financial Stability in Focus: Artificial intelligence in the financial system",
+      "activity_name": "Control Banking AI",
+      "url": "https://www.bankofengland.co.uk/financial-stability-in-focus/2025/april-2025",
+      "publisher": "Bank of England",
+      "provider_item_id": "financial-stability-in-focus/2025/april-2025",
+      "source_type": "article",
+      "language": "en-US",
+      "activity_duration_minutes": 90,
+      "duration_minutes": 50,
+      "activity_purpose": "Synthesize banking-domain knowledge into an AI-assisted solution that improves customer and operational outcomes while preserving safety, accountability and resilience.",
+      "activity_instructions": "Open the Source and complete the capstone. Select one banking use case and produce a concise solution canvas covering customer journey, process and exceptions, actors, systems and data, regulatory and financial-crime controls, model and third-party risks, cyber and operational resilience, human oversight and escalation, audit evidence, and baseline plus target measures for CSAT, cost, speed and control effectiveness. Finish with a go, revise or stop recommendation and its rationale.",
+      "access": {
+        "free": true,
+        "basis": "Public Bank of England report available anonymously without payment or sign-in.",
+        "evidence_url": "https://www.bankofengland.co.uk/legal"
+      }
+    }
+  ]
+}

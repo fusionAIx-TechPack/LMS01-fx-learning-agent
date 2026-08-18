@@ -1,0 +1,42 @@
+{
+  "topic": "Microsoft Copilot Studio",
+  "audience": "employees building their first agent",
+  "entry_level": "beginner",
+  "language": "en-US",
+  "intended_learning_outcome": "Build and publish a first agent",
+  "learning_time_minutes": 90,
+  "sources": [
+    {
+      "title": "What is Microsoft Copilot Studio?",
+      "activity_name": "Explore Copilot Studio",
+      "url": "https://learn.microsoft.com/en-us/microsoft-copilot-studio/fundamentals-what-is-copilot-studio",
+      "publisher": "Microsoft Learn",
+      "provider_item_id": "microsoft-copilot-studio/fundamentals-what-is-copilot-studio",
+      "source_type": "article",
+      "language": "en-US",
+      "activity_duration_minutes": 30,
+      "duration_minutes": 20,
+      "access": {
+        "free": true,
+        "basis": "Public Microsoft Learn Source",
+        "evidence_url": "https://learn.microsoft.com/en-us/legal/termsofuse"
+      }
+    },
+    {
+      "title": "Create and delete agents",
+      "activity_name": "Build a first agent",
+      "url": "https://learn.microsoft.com/en-us/microsoft-copilot-studio/fundamentals-get-started",
+      "publisher": "Microsoft Learn",
+      "provider_item_id": "microsoft-copilot-studio/fundamentals-get-started",
+      "source_type": "article",
+      "language": "en-US",
+      "activity_duration_minutes": 60,
+      "duration_minutes": 45,
+      "access": {
+        "free": true,
+        "basis": "Public Microsoft Learn Source",
+        "evidence_url": "https://learn.microsoft.com/en-us/legal/termsofuse"
+      }
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "identity": {
+    "fullname": "Copilot Studio — practical basics",
+    "shortname": "copilot-studio-practical-basics",
+    "summary": "A practical path through Microsoft Copilot Studio fundamentals."
+  },
+  "settings": {
+    "format": "topics",
+    "visible": false,
+    "completion_tracking": true
+  },
+  "brief": {
+    "language": "en-US"
+  },
+  "general": {
+    "name": "Start here",
+    "introduction": "Learn the Course goal and how to work with external Sources."
+  },
+  "modules": [
+    {
+      "name": "Module 1: Foundations",
+      "introduction": "Build a shared understanding of Copilot Studio.",
+      "activities": [
+        {
+          "name": "Explore Copilot Studio",
+          "purpose": "Recognize the product's core capabilities.",
+          "instructions": "Open the Source and record two applications relevant to your work.",
+          "duration_minutes": 20,
+          "source": {
+            "title": "What is Microsoft & Copilot Studio?",
+            "url": "https://learn.microsoft.com/en-us/microsoft-copilot-studio/fundamentals-what-is-copilot-studio?a=1&b=2",
+            "publisher": "Microsoft <Learn>",
+            "provider_item_id": "microsoft-copilot-studio/fundamentals-what-is-copilot-studio",
+            "source_type": "article",
+            "language": "en-US",
+            "duration_minutes": 20,
+            "access": {"free": true, "basis": "Public Microsoft Learn Source", "evidence_url": "https://learn.microsoft.com/en-us/legal/termsofuse"},
+            "availability": {"status": 200, "checked_at": "2026-08-14T00:00:00Z"}
+          }
+        },
+        {
+          "name": "Plan a first agent",
+          "purpose": "Translate the product's capabilities into a first scenario.",
+          "instructions": "Open the Source and list the inputs your agent needs.",
+          "duration_minutes": 30,
+          "source": {
+            "title": "Copilot Studio guidance",
+            "url": "https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/",
+            "publisher": "Microsoft Learn",
+            "provider_item_id": "microsoft-copilot-studio/guidance",
+            "source_type": "article",
+            "language": "en-US",
+            "duration_minutes": 20,
+            "access": {"free": true, "basis": "Public Microsoft Learn Source", "evidence_url": "https://learn.microsoft.com/en-us/legal/termsofuse"},
+            "availability": {"status": 200, "checked_at": "2026-08-14T00:00:00Z"}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Module 2: Build",
+      "introduction": "Move from an idea to a first agent.",
+      "activities": [
+        {
+          "name": "Build a first agent",
+          "purpose": "Learn the basic creation flow.",
+          "instructions": "Open the Source and compare its steps with your scenario.",
+          "duration_minutes": 55,
+          "source": {
+            "title": "Create and delete agents",
+            "url": "https://learn.microsoft.com/en-us/microsoft-copilot-studio/fundamentals-get-started",
+            "publisher": "Microsoft Learn",
+            "provider_item_id": "microsoft-copilot-studio/fundamentals-get-started",
+            "source_type": "article",
+            "language": "en-US",
+            "duration_minutes": 45,
+            "access": {"free": true, "basis": "Public Microsoft Learn Source", "evidence_url": "https://learn.microsoft.com/en-us/legal/termsofuse"},
+            "availability": {"status": 200, "checked_at": "2026-08-14T00:00:00Z"}
+          }
+        }
+      ]
+    }
+  ]
+}

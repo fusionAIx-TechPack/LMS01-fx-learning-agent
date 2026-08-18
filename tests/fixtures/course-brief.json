@@ -1,0 +1,58 @@
+{
+  "topic": "Microsoft Copilot Studio",
+  "audience": "employees building their first agent",
+  "entry_level": "beginner",
+  "language": "en-US",
+  "intended_learning_outcome": "Build and publish a first agent",
+  "learning_time_minutes": 90,
+  "sources": [
+    {
+      "title": "Microsoft Copilot Studio fundamentals",
+      "activity_name": "Copilot Studio fundamentals",
+      "url": "http://127.0.0.1:__FIXTURE_PORT__/sources/fundamentals?a=1&b=2",
+      "publisher": "Microsoft Learn",
+      "provider_item_id": "learn.copilot-studio.fundamentals",
+      "source_type": "article",
+      "language": "en-US",
+      "activity_duration_minutes": 30,
+      "duration_minutes": 30,
+      "access": {
+        "free": true,
+        "basis": "Public Microsoft Learn Source",
+        "evidence_url": "https://learn.microsoft.com/en-us/training/support/integrations"
+      }
+    },
+    {
+      "title": "Build a first agent in Microsoft Copilot Studio",
+      "activity_name": "Build a first agent",
+      "url": "http://127.0.0.1:__FIXTURE_PORT__/sources/first-agent",
+      "publisher": "Microsoft Learn",
+      "provider_item_id": "learn.copilot-studio.first-agent",
+      "source_type": "video",
+      "language": "en-US",
+      "activity_duration_minutes": 55,
+      "duration_minutes": 45,
+      "access": {
+        "free": true,
+        "basis": "Public Microsoft Learn Source",
+        "evidence_url": "https://learn.microsoft.com/en-us/training/support/integrations"
+      }
+    },
+    {
+      "title": "Introduction to Copilot Studio topics",
+      "activity_name": "Introduction to topics",
+      "url": "http://127.0.0.1:__FIXTURE_PORT__/sources/topics-introduction",
+      "publisher": "Microsoft Learn",
+      "provider_item_id": "learn.copilot-studio.topics-introduction",
+      "source_type": "article",
+      "language": "en-US",
+      "activity_duration_minutes": 5,
+      "duration_minutes": 5,
+      "access": {
+        "free": true,
+        "basis": "Public Microsoft Learn Source",
+        "evidence_url": "https://learn.microsoft.com/en-us/training/support/integrations"
+      }
+    }
+  ]
+}

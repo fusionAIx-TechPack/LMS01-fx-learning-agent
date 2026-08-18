@@ -1,0 +1,26 @@
+{
+  "topic": "Unavailable Feature",
+  "audience": "test learners",
+  "entry_level": "beginner",
+  "language": "en-US",
+  "intended_learning_outcome": "Understand the unavailable feature",
+  "learning_time_minutes": 30,
+  "sources": [
+    {
+      "title": "Unavailable Source",
+      "activity_name": "Unavailable Source",
+      "url": "http://127.0.0.1:__FIXTURE_PORT__/sources/unavailable",
+      "publisher": "Fixture Publisher",
+      "provider_item_id": "fixture.unavailable",
+      "source_type": "article",
+      "language": "en-US",
+      "activity_duration_minutes": 10,
+      "duration_minutes": 10,
+      "access": {
+        "free": true,
+        "basis": "Public fixture Source",
+        "evidence_url": "http://127.0.0.1:__FIXTURE_PORT__/sources/unavailable"
+      }
+    }
+  ]
+}

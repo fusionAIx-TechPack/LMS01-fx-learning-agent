@@ -1,0 +1,175 @@
+{
+  "topic": "Copilot Studio Agents — From Basics to Agentic Solutions",
+  "audience": "makers, consultants, low-code and AI architects, and people building business agents",
+  "entry_level": "beginner",
+  "language": "en-US",
+  "intended_learning_outcome": "Design, build, test, publish, and govern a Copilot Studio agent that uses topics, knowledge, actions, and agent flows, including an introduction to autonomous agents.",
+  "learning_time_minutes": 840,
+  "sources": [
+    {
+      "title": "Get started with Microsoft Copilot Studio",
+      "activity_name": "Get started",
+      "url": "https://learn.microsoft.com/en-us/training/modules/power-virtual-agents-bots/",
+      "publisher": "Microsoft Learn",
+      "provider_item_id": "training/modules/power-virtual-agents-bots",
+      "source_type": "course",
+      "language": "en-US",
+      "duration_minutes": 75,
+      "access": {
+        "free": true,
+        "basis": "Public Microsoft Learn source",
+        "evidence_url": "https://learn.microsoft.com/en-us/legal/termsofuse"
+      }
+    },
+    {
+      "title": "Build an initial agent with Microsoft Copilot Studio",
+      "activity_name": "Build an initial agent",
+      "url": "https://learn.microsoft.com/en-us/training/modules/create-copilots-copilot-studio/",
+      "publisher": "Microsoft Learn",
+      "provider_item_id": "training/modules/create-copilots-copilot-studio",
+      "source_type": "course",
+      "language": "en-US",
+      "duration_minutes": 39,
+      "access": {
+        "free": true,
+        "basis": "Public Microsoft Learn source",
+        "evidence_url": "https://learn.microsoft.com/en-us/legal/termsofuse"
+      }
+    },
+    {
+      "title": "Manage topics in Microsoft Copilot Studio",
+      "activity_name": "Manage topics",
+      "url": "https://learn.microsoft.com/en-us/training/modules/manage-power-virtual-agents-topics/",
+      "publisher": "Microsoft Learn",
+      "provider_item_id": "training/modules/manage-power-virtual-agents-topics",
+      "source_type": "course",
+      "language": "en-US",
+      "duration_minutes": 57,
+      "access": {
+        "free": true,
+        "basis": "Public Microsoft Learn source",
+        "evidence_url": "https://learn.microsoft.com/en-us/legal/termsofuse"
+      }
+    },
+    {
+      "title": "Work with entities and variables in Microsoft Copilot Studio",
+      "activity_name": "Entities and variables",
+      "url": "https://learn.microsoft.com/en-us/training/modules/power-virtual-agents-entities/",
+      "publisher": "Microsoft Learn",
+      "provider_item_id": "training/modules/power-virtual-agents-entities",
+      "source_type": "course",
+      "language": "en-US",
+      "duration_minutes": 34,
+      "access": {
+        "free": true,
+        "basis": "Public Microsoft Learn source",
+        "evidence_url": "https://learn.microsoft.com/en-us/legal/termsofuse"
+      }
+    },
+    {
+      "title": "Build effective agents with Microsoft Copilot Studio",
+      "activity_name": "Build effective agents",
+      "url": "https://learn.microsoft.com/en-us/training/modules/build-effective-bots/",
+      "publisher": "Microsoft Learn",
+      "provider_item_id": "training/modules/build-effective-bots",
+      "source_type": "course",
+      "language": "en-US",
+      "duration_minutes": 56,
+      "access": {
+        "free": true,
+        "basis": "Public Microsoft Learn source",
+        "evidence_url": "https://learn.microsoft.com/en-us/legal/termsofuse"
+      }
+    },
+    {
+      "title": "Apply generative orchestration capabilities",
+      "activity_name": "Generative orchestration",
+      "url": "https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/generative-orchestration",
+      "publisher": "Microsoft Learn",
+      "provider_item_id": "microsoft-copilot-studio/guidance/generative-orchestration",
+      "source_type": "article",
+      "language": "en-US",
+      "duration_minutes": 90,
+      "access": {
+        "free": true,
+        "basis": "Public Microsoft Learn source",
+        "evidence_url": "https://learn.microsoft.com/en-us/legal/termsofuse"
+      }
+    },
+    {
+      "title": "Enhance Microsoft Copilot Studio agents",
+      "activity_name": "Enhance agents",
+      "url": "https://learn.microsoft.com/en-us/training/modules/enhance-power-virtual-agents-bots/",
+      "publisher": "Microsoft Learn",
+      "provider_item_id": "training/modules/enhance-power-virtual-agents-bots",
+      "source_type": "course",
+      "language": "en-US",
+      "duration_minutes": 75,
+      "access": {
+        "free": true,
+        "basis": "Public Microsoft Learn source",
+        "evidence_url": "https://learn.microsoft.com/en-us/legal/termsofuse"
+      }
+    },
+    {
+      "title": "Use Agent Flows in Copilot Studio",
+      "activity_name": "Use agent flows",
+      "url": "https://learn.microsoft.com/en-us/training/modules/use-agent-flows/",
+      "publisher": "Microsoft Learn",
+      "provider_item_id": "training/modules/use-agent-flows",
+      "source_type": "course",
+      "language": "en-US",
+      "duration_minutes": 100,
+      "access": {
+        "free": true,
+        "basis": "Public Microsoft Learn source",
+        "evidence_url": "https://learn.microsoft.com/en-us/legal/termsofuse"
+      }
+    },
+    {
+      "title": "Build an autonomous agent in Copilot Studio",
+      "activity_name": "Build an autonomous agent",
+      "url": "https://learn.microsoft.com/en-us/training/modules/autonomous-agent/",
+      "publisher": "Microsoft Learn",
+      "provider_item_id": "training/modules/autonomous-agent",
+      "source_type": "course",
+      "language": "en-US",
+      "duration_minutes": 120,
+      "access": {
+        "free": true,
+        "basis": "Public Microsoft Learn source",
+        "evidence_url": "https://learn.microsoft.com/en-us/legal/termsofuse"
+      }
+    },
+    {
+      "title": "Key concepts - Copilot Studio security and governance",
+      "activity_name": "Security and governance",
+      "url": "https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-and-governance",
+      "publisher": "Microsoft Learn",
+      "provider_item_id": "microsoft-copilot-studio/security-and-governance",
+      "source_type": "article",
+      "language": "en-US",
+      "duration_minutes": 90,
+      "access": {
+        "free": true,
+        "basis": "Public Microsoft Learn source",
+        "evidence_url": "https://learn.microsoft.com/en-us/legal/termsofuse"
+      }
+    },
+    {
+      "title": "Establish an application lifecycle management strategy",
+      "activity_name": "ALM strategy",
+      "url": "https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/alm",
+      "publisher": "Microsoft Learn",
+      "provider_item_id": "microsoft-copilot-studio/guidance/alm",
+      "source_type": "article",
+      "language": "en-US",
+      "duration_minutes": 90,
+      "access": {
+        "free": true,
+        "basis": "Public Microsoft Learn source",
+        "evidence_url": "https://learn.microsoft.com/en-us/legal/termsofuse"
+      }
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Create Course"
+  short_description: "Pomysł, research i Moodle Course Package"
+  default_prompt: "Use $create-course to turn my course idea into a reviewed and validated Moodle Course Package."

@@ -1,0 +1,440 @@
+{
+  "identity": {
+    "fullname": "Banking and Financial Services Foundations for AI Solution Teams — Given a banking AI use case, analyse its customer journey, operational process, actors, data, systems, risks, and regulatory controls, then propose an appropriate AI-assisted solution with human oversight and measurable CSAT, cost, speed, and control outcomes.",
+    "shortname": "banking-and-financial-services-foundations-for-ai-solution-teams-beginner",
+    "summary": "This Course guides JavaScript developers, Python developers, Pega architects, technical leads, and AI solution designers with limited banking-domain experience toward: Given a banking AI use case, analyse its customer journey, operational process, actors, data, systems, risks, and regulatory controls, then propose an appropriate AI-assisted solution with human oversight and measurable CSAT, cost, speed, and control outcomes.."
+  },
+  "settings": {
+    "format": "topics",
+    "visible": false,
+    "completion_tracking": true
+  },
+  "brief": {
+    "topic": "Banking and Financial Services Foundations for AI Solution Teams",
+    "audience": "JavaScript developers, Python developers, Pega architects, technical leads, and AI solution designers with limited banking-domain experience",
+    "entry_level": "beginner",
+    "language": "en-US",
+    "intended_learning_outcome": "Given a banking AI use case, analyse its customer journey, operational process, actors, data, systems, risks, and regulatory controls, then propose an appropriate AI-assisted solution with human oversight and measurable CSAT, cost, speed, and control outcomes.",
+    "learning_time_minutes": 720,
+    "sources": [
+      {
+        "title": "Overview of digital finance",
+        "activity_name": "Navigate Digital Banking",
+        "url": "https://finance.ec.europa.eu/digital-finance/overview-digital-finance_en",
+        "publisher": "European Commission",
+        "provider_item_id": "digital-finance/overview-digital-finance_en",
+        "source_type": "article",
+        "language": "en-US",
+        "activity_duration_minutes": 50,
+        "duration_minutes": 35,
+        "access": {
+          "free": true,
+          "basis": "Public European Commission policy overview available anonymously without payment or sign-in; EU-owned web content is generally CC BY 4.0 under the legal notice.",
+          "evidence_url": "https://commission.europa.eu/legal-notice_en"
+        }
+      },
+      {
+        "title": "Other vital ECB work: 1. Banking supervision",
+        "activity_name": "Understand Bank Supervision",
+        "url": "https://www.ecb.europa.eu/ecb-and-you/explainers/html/supervision.en.html",
+        "publisher": "European Central Bank",
+        "provider_item_id": "ecb-and-you/explainers/html/supervision.en.html",
+        "source_type": "article",
+        "language": "en-US",
+        "activity_duration_minutes": 60,
+        "duration_minutes": 45,
+        "access": {
+          "free": true,
+          "basis": "Public ECB learning path available anonymously without payment or sign-in.",
+          "evidence_url": "https://www.ecb.europa.eu/services/using-our-site/disclaimer/html/index.en.html"
+        }
+      },
+      {
+        "title": "Money, payments and spending",
+        "activity_name": "Trace Payments End to End",
+        "url": "https://www.bankofengland.co.uk/explainers/money-payments-and-spending",
+        "publisher": "Bank of England",
+        "provider_item_id": "explainers/money-payments-and-spending",
+        "source_type": "article",
+        "language": "en-US",
+        "activity_duration_minutes": 60,
+        "duration_minutes": 45,
+        "access": {
+          "free": true,
+          "basis": "Public Bank of England explainer collection available anonymously without payment or sign-in.",
+          "evidence_url": "https://www.bankofengland.co.uk/legal"
+        }
+      },
+      {
+        "title": "Lending and Loan Portfolio Risk Management, Comptroller's Handbook",
+        "activity_name": "Map the Lending Lifecycle",
+        "url": "https://www.occ.treas.gov/publications-and-resources/publications/comptrollers-handbook/files/lending-loan-portfolio-risk-management/pub-ch-lending-loan-portfolio.pdf",
+        "publisher": "Office of the Comptroller of the Currency",
+        "provider_item_id": "lending-loan-portfolio-risk-management/pub-ch-lending-loan-portfolio.pdf",
+        "source_type": "article",
+        "language": "en-US",
+        "activity_duration_minutes": 135,
+        "duration_minutes": 120,
+        "access": {
+          "free": true,
+          "basis": "Public US government handbook PDF available anonymously without payment or sign-in.",
+          "evidence_url": "https://www.occ.treas.gov/publications-and-resources/publications/comptrollers-handbook/index-comptrollers-handbook.html"
+        }
+      },
+      {
+        "title": "Asset Management Operations and Controls",
+        "activity_name": "Follow Wealth Operations",
+        "url": "https://www.occ.treas.gov/publications-and-resources/publications/comptrollers-handbook/files/asset-mgmt-ops-controls/index-asset-mgmt-ops-controls.html",
+        "publisher": "Office of the Comptroller of the Currency",
+        "provider_item_id": "asset-mgmt-ops-controls/index-asset-mgmt-ops-controls.html",
+        "source_type": "article",
+        "language": "en-US",
+        "activity_duration_minutes": 90,
+        "duration_minutes": 75,
+        "access": {
+          "free": true,
+          "basis": "Public US government handbook page and downloadable booklet available anonymously without payment or sign-in.",
+          "evidence_url": "https://www.occ.treas.gov/publications-and-resources/publications/comptrollers-handbook/index-comptrollers-handbook.html"
+        }
+      },
+      {
+        "title": "Basic trade finance tools: payment methods in international trade",
+        "activity_name": "Examine Trade Finance Methods",
+        "url": "https://documents.worldbank.org/en/publication/documents-reports/documentdetail/747241468329432546",
+        "publisher": "World Bank",
+        "provider_item_id": "747241468329432546",
+        "source_type": "article",
+        "language": "en-US",
+        "activity_duration_minutes": 65,
+        "duration_minutes": 50,
+        "access": {
+          "free": true,
+          "basis": "Public World Bank document record with the official PDF available anonymously without payment or sign-in.",
+          "evidence_url": "https://www.worldbank.org/en/about/legal"
+        }
+      },
+      {
+        "title": "Guidelines on ML/TF risk factors",
+        "activity_name": "Apply Risk-Based KYC",
+        "url": "https://www.eba.europa.eu/legacy/regulation-and-policy/regulatory-activities/anti-money-laundering-and-countering-financing-1?phase=consolidated&version=2023",
+        "publisher": "European Banking Authority",
+        "provider_item_id": "aml-cft-risk-factors-consolidated-2023",
+        "source_type": "article",
+        "language": "en-US",
+        "activity_duration_minutes": 90,
+        "duration_minutes": 75,
+        "access": {
+          "free": true,
+          "basis": "Public EBA guidance page and consolidated PDF available anonymously without payment or sign-in; existing EBA AML/CFT guidance remains valid until replaced by AMLA.",
+          "evidence_url": "https://www.eba.europa.eu/regulation-and-policy/anti-money-laundering-and-countering-financing-terrorism"
+        }
+      },
+      {
+        "title": "About the Consumer Duty",
+        "activity_name": "Design for Good Outcomes",
+        "url": "https://www.fca.org.uk/firms/consumer-duty/about",
+        "publisher": "Financial Conduct Authority",
+        "provider_item_id": "firms/consumer-duty/about",
+        "source_type": "article",
+        "language": "en-US",
+        "activity_duration_minutes": 40,
+        "duration_minutes": 25,
+        "access": {
+          "free": true,
+          "basis": "Public FCA guidance available anonymously without payment or sign-in.",
+          "evidence_url": "https://www.fca.org.uk/firms/consumer-duty/publications-resources"
+        }
+      },
+      {
+        "title": "Implementation of the Principles for effective risk data aggregation and risk reporting (BCBS 239 Principles)",
+        "activity_name": "Govern Banking Data",
+        "url": "https://www.bis.org/publ/bcbs_nl36.htm",
+        "publisher": "Bank for International Settlements, Basel Committee on Banking Supervision",
+        "provider_item_id": "bcbs_nl36",
+        "source_type": "article",
+        "language": "en-US",
+        "activity_duration_minutes": 40,
+        "duration_minutes": 25,
+        "access": {
+          "free": true,
+          "basis": "Public BIS and BCBS newsletter available anonymously without payment or sign-in.",
+          "evidence_url": "https://www.bis.org/terms_conditions.htm"
+        }
+      },
+      {
+        "title": "Financial Stability in Focus: Artificial intelligence in the financial system",
+        "activity_name": "Control Banking AI",
+        "url": "https://www.bankofengland.co.uk/financial-stability-in-focus/2025/april-2025",
+        "publisher": "Bank of England",
+        "provider_item_id": "financial-stability-in-focus/2025/april-2025",
+        "source_type": "article",
+        "language": "en-US",
+        "activity_duration_minutes": 70,
+        "duration_minutes": 50,
+        "access": {
+          "free": true,
+          "basis": "Public Bank of England report available anonymously without payment or sign-in.",
+          "evidence_url": "https://www.bankofengland.co.uk/legal"
+        }
+      }
+    ]
+  },
+  "general": {
+    "name": "Start here",
+    "introduction": "This Course guides JavaScript developers, Python developers, Pega architects, technical leads, and AI solution designers with limited banking-domain experience toward: Given a banking AI use case, analyse its customer journey, operational process, actors, data, systems, risks, and regulatory controls, then propose an appropriate AI-assisted solution with human oversight and measurable CSAT, cost, speed, and control outcomes.."
+  },
+  "modules": [
+    {
+      "name": "Foundations",
+      "introduction": "Build shared foundations for JavaScript developers, Python developers, Pega architects, technical leads, and AI solution designers with limited banking-domain experience.",
+      "activities": [
+        {
+          "name": "Navigate Digital Banking",
+          "purpose": "Build the foundation JavaScript developers, Python developers, Pega architects, technical leads, and AI solution designers with limited banking-domain experience need using the Source: Overview of digital finance.",
+          "instructions": "Open the Source \"Overview of digital finance\", work through it, and record one principle to use in the following activities.",
+          "duration_minutes": 50,
+          "source": {
+            "title": "Overview of digital finance",
+            "url": "https://finance.ec.europa.eu/digital-finance/overview-digital-finance_en",
+            "publisher": "European Commission",
+            "provider_item_id": "digital-finance/overview-digital-finance_en",
+            "source_type": "article",
+            "language": "en-US",
+            "duration_minutes": 35,
+            "availability": {
+              "status": 200,
+              "checked_at": "2026-08-17T10:38:04.145665+00:00"
+            },
+            "access": {
+              "free": true,
+              "basis": "Public European Commission policy overview available anonymously without payment or sign-in; EU-owned web content is generally CC BY 4.0 under the legal notice.",
+              "evidence_url": "https://commission.europa.eu/legal-notice_en"
+            }
+          }
+        },
+        {
+          "name": "Trace Payments End to End",
+          "purpose": "Build the foundation JavaScript developers, Python developers, Pega architects, technical leads, and AI solution designers with limited banking-domain experience need using the Source: Money, payments and spending.",
+          "instructions": "Open the Source \"Money, payments and spending\", work through it, and record one principle to use in the following activities.",
+          "duration_minutes": 60,
+          "source": {
+            "title": "Money, payments and spending",
+            "url": "https://www.bankofengland.co.uk/explainers/money-payments-and-spending",
+            "publisher": "Bank of England",
+            "provider_item_id": "explainers/money-payments-and-spending",
+            "source_type": "article",
+            "language": "en-US",
+            "duration_minutes": 45,
+            "availability": {
+              "status": 200,
+              "checked_at": "2026-08-17T10:38:04.145665+00:00"
+            },
+            "access": {
+              "free": true,
+              "basis": "Public Bank of England explainer collection available anonymously without payment or sign-in.",
+              "evidence_url": "https://www.bankofengland.co.uk/legal"
+            }
+          }
+        },
+        {
+          "name": "Map the Lending Lifecycle",
+          "purpose": "Build the foundation JavaScript developers, Python developers, Pega architects, technical leads, and AI solution designers with limited banking-domain experience need using the Source: Lending and Loan Portfolio Risk Management, Comptroller's Handbook.",
+          "instructions": "Open the Source \"Lending and Loan Portfolio Risk Management, Comptroller's Handbook\", work through it, and record one principle to use in the following activities.",
+          "duration_minutes": 135,
+          "source": {
+            "title": "Lending and Loan Portfolio Risk Management, Comptroller's Handbook",
+            "url": "https://www.occ.treas.gov/publications-and-resources/publications/comptrollers-handbook/files/lending-loan-portfolio-risk-management/pub-ch-lending-loan-portfolio.pdf",
+            "publisher": "Office of the Comptroller of the Currency",
+            "provider_item_id": "lending-loan-portfolio-risk-management/pub-ch-lending-loan-portfolio.pdf",
+            "source_type": "article",
+            "language": "en-US",
+            "duration_minutes": 120,
+            "availability": {
+              "status": 200,
+              "checked_at": "2026-08-17T10:38:04.145665+00:00"
+            },
+            "access": {
+              "free": true,
+              "basis": "Public US government handbook PDF available anonymously without payment or sign-in.",
+              "evidence_url": "https://www.occ.treas.gov/publications-and-resources/publications/comptrollers-handbook/index-comptrollers-handbook.html"
+            }
+          }
+        },
+        {
+          "name": "Examine Trade Finance Methods",
+          "purpose": "Build the foundation JavaScript developers, Python developers, Pega architects, technical leads, and AI solution designers with limited banking-domain experience need using the Source: Basic trade finance tools: payment methods in international trade.",
+          "instructions": "Open the Source \"Basic trade finance tools: payment methods in international trade\", work through it, and record one principle to use in the following activities.",
+          "duration_minutes": 65,
+          "source": {
+            "title": "Basic trade finance tools: payment methods in international trade",
+            "url": "https://documents.worldbank.org/en/publication/documents-reports/documentdetail/747241468329432546",
+            "publisher": "World Bank",
+            "provider_item_id": "747241468329432546",
+            "source_type": "article",
+            "language": "en-US",
+            "duration_minutes": 50,
+            "availability": {
+              "status": 200,
+              "checked_at": "2026-08-17T10:38:04.145665+00:00"
+            },
+            "access": {
+              "free": true,
+              "basis": "Public World Bank document record with the official PDF available anonymously without payment or sign-in.",
+              "evidence_url": "https://www.worldbank.org/en/about/legal"
+            }
+          }
+        },
+        {
+          "name": "Apply Risk-Based KYC",
+          "purpose": "Build the foundation JavaScript developers, Python developers, Pega architects, technical leads, and AI solution designers with limited banking-domain experience need using the Source: Guidelines on ML/TF risk factors.",
+          "instructions": "Open the Source \"Guidelines on ML/TF risk factors\", work through it, and record one principle to use in the following activities.",
+          "duration_minutes": 90,
+          "source": {
+            "title": "Guidelines on ML/TF risk factors",
+            "url": "https://www.eba.europa.eu/legacy/regulation-and-policy/regulatory-activities/anti-money-laundering-and-countering-financing-1?phase=consolidated&version=2023",
+            "publisher": "European Banking Authority",
+            "provider_item_id": "aml-cft-risk-factors-consolidated-2023",
+            "source_type": "article",
+            "language": "en-US",
+            "duration_minutes": 75,
+            "availability": {
+              "status": 200,
+              "checked_at": "2026-08-17T10:38:04.145665+00:00"
+            },
+            "access": {
+              "free": true,
+              "basis": "Public EBA guidance page and consolidated PDF available anonymously without payment or sign-in; existing EBA AML/CFT guidance remains valid until replaced by AMLA.",
+              "evidence_url": "https://www.eba.europa.eu/regulation-and-policy/anti-money-laundering-and-countering-financing-terrorism"
+            }
+          }
+        },
+        {
+          "name": "Design for Good Outcomes",
+          "purpose": "Build the foundation JavaScript developers, Python developers, Pega architects, technical leads, and AI solution designers with limited banking-domain experience need using the Source: About the Consumer Duty.",
+          "instructions": "Open the Source \"About the Consumer Duty\", work through it, and record one principle to use in the following activities.",
+          "duration_minutes": 40,
+          "source": {
+            "title": "About the Consumer Duty",
+            "url": "https://www.fca.org.uk/firms/consumer-duty/about",
+            "publisher": "Financial Conduct Authority",
+            "provider_item_id": "firms/consumer-duty/about",
+            "source_type": "article",
+            "language": "en-US",
+            "duration_minutes": 25,
+            "availability": {
+              "status": 200,
+              "checked_at": "2026-08-17T10:38:04.145665+00:00"
+            },
+            "access": {
+              "free": true,
+              "basis": "Public FCA guidance available anonymously without payment or sign-in.",
+              "evidence_url": "https://www.fca.org.uk/firms/consumer-duty/publications-resources"
+            }
+          }
+        },
+        {
+          "name": "Govern Banking Data",
+          "purpose": "Build the foundation JavaScript developers, Python developers, Pega architects, technical leads, and AI solution designers with limited banking-domain experience need using the Source: Implementation of the Principles for effective risk data aggregation and risk reporting (BCBS 239 Principles).",
+          "instructions": "Open the Source \"Implementation of the Principles for effective risk data aggregation and risk reporting (BCBS 239 Principles)\", work through it, and record one principle to use in the following activities.",
+          "duration_minutes": 40,
+          "source": {
+            "title": "Implementation of the Principles for effective risk data aggregation and risk reporting (BCBS 239 Principles)",
+            "url": "https://www.bis.org/publ/bcbs_nl36.htm",
+            "publisher": "Bank for International Settlements, Basel Committee on Banking Supervision",
+            "provider_item_id": "bcbs_nl36",
+            "source_type": "article",
+            "language": "en-US",
+            "duration_minutes": 25,
+            "availability": {
+              "status": 200,
+              "checked_at": "2026-08-17T10:38:04.145665+00:00"
+            },
+            "access": {
+              "free": true,
+              "basis": "Public BIS and BCBS newsletter available anonymously without payment or sign-in.",
+              "evidence_url": "https://www.bis.org/terms_conditions.htm"
+            }
+          }
+        },
+        {
+          "name": "Control Banking AI",
+          "purpose": "Build the foundation JavaScript developers, Python developers, Pega architects, technical leads, and AI solution designers with limited banking-domain experience need using the Source: Financial Stability in Focus: Artificial intelligence in the financial system.",
+          "instructions": "Open the Source \"Financial Stability in Focus: Artificial intelligence in the financial system\", work through it, and record one principle to use in the following activities.",
+          "duration_minutes": 70,
+          "source": {
+            "title": "Financial Stability in Focus: Artificial intelligence in the financial system",
+            "url": "https://www.bankofengland.co.uk/financial-stability-in-focus/2025/april-2025",
+            "publisher": "Bank of England",
+            "provider_item_id": "financial-stability-in-focus/2025/april-2025",
+            "source_type": "article",
+            "language": "en-US",
+            "duration_minutes": 50,
+            "availability": {
+              "status": 200,
+              "checked_at": "2026-08-17T10:38:04.145665+00:00"
+            },
+            "access": {
+              "free": true,
+              "basis": "Public Bank of England report available anonymously without payment or sign-in.",
+              "evidence_url": "https://www.bankofengland.co.uk/legal"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Practice",
+      "introduction": "Move from foundations to: Given a banking AI use case, analyse its customer journey, operational process, actors, data, systems, risks, and regulatory controls, then propose an appropriate AI-assisted solution with human oversight and measurable CSAT, cost, speed, and control outcomes..",
+      "activities": [
+        {
+          "name": "Understand Bank Supervision",
+          "purpose": "Apply the Source Other vital ECB work: 1. Banking supervision to achieve: Given a banking AI use case, analyse its customer journey, operational process, actors, data, systems, risks, and regulatory controls, then propose an appropriate AI-assisted solution with human oversight and measurable CSAT, cost, speed, and control outcomes..",
+          "instructions": "Open the Source \"Other vital ECB work: 1. Banking supervision\", follow its steps, and record one decision or result tied to the Course outcome.",
+          "duration_minutes": 60,
+          "source": {
+            "title": "Other vital ECB work: 1. Banking supervision",
+            "url": "https://www.ecb.europa.eu/ecb-and-you/explainers/html/supervision.en.html",
+            "publisher": "European Central Bank",
+            "provider_item_id": "ecb-and-you/explainers/html/supervision.en.html",
+            "source_type": "article",
+            "language": "en-US",
+            "duration_minutes": 45,
+            "availability": {
+              "status": 200,
+              "checked_at": "2026-08-17T10:38:04.145665+00:00"
+            },
+            "access": {
+              "free": true,
+              "basis": "Public ECB learning path available anonymously without payment or sign-in.",
+              "evidence_url": "https://www.ecb.europa.eu/services/using-our-site/disclaimer/html/index.en.html"
+            }
+          }
+        },
+        {
+          "name": "Follow Wealth Operations",
+          "purpose": "Apply the Source Asset Management Operations and Controls to achieve: Given a banking AI use case, analyse its customer journey, operational process, actors, data, systems, risks, and regulatory controls, then propose an appropriate AI-assisted solution with human oversight and measurable CSAT, cost, speed, and control outcomes..",
+          "instructions": "Open the Source \"Asset Management Operations and Controls\", follow its steps, and record one decision or result tied to the Course outcome.",
+          "duration_minutes": 90,
+          "source": {
+            "title": "Asset Management Operations and Controls",
+            "url": "https://www.occ.treas.gov/publications-and-resources/publications/comptrollers-handbook/files/asset-mgmt-ops-controls/index-asset-mgmt-ops-controls.html",
+            "publisher": "Office of the Comptroller of the Currency",
+            "provider_item_id": "asset-mgmt-ops-controls/index-asset-mgmt-ops-controls.html",
+            "source_type": "article",
+            "language": "en-US",
+            "duration_minutes": 75,
+            "availability": {
+              "status": 200,
+              "checked_at": "2026-08-17T10:38:04.145665+00:00"
+            },
+            "access": {
+              "free": true,
+              "basis": "Public US government handbook page and downloadable booklet available anonymously without payment or sign-in.",
+              "evidence_url": "https://www.occ.treas.gov/publications-and-resources/publications/comptrollers-handbook/index-comptrollers-handbook.html"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
