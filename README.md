@@ -1,168 +1,231 @@
 # FX Learning Course Generation
 
-This repository turns a human-authored JSON Course Brief into a reviewable
-Moodle Course and a validated native Course Package. Validation includes a clean
-Moodle restoration and a learner-session check of the restored Course. The local
-stack uses Moodle 5.0.3, MariaDB, standard Moodle components, and no production
-credentials.
+Create an internal learning course from an idea, review it in a local Moodle,
+and produce a validated Moodle Course Package (`.mbz`). The recommended entry
+point is the repository-local `create-course` agent skill.
 
-## Workflow
+The workflow is designed for company employees who know the learning need but
+do not need to know the Course Brief JSON schema or Moodle backup internals.
+
+## What you get
+
+For each Course, the workflow keeps the following artifacts together in
+`output/<course-slug>/`:
+
+- a Source Research Dossier with evaluated Source Candidates and the human
+  selection;
+- a JSON Course Brief containing only the selected Sources;
+- a reviewable JSON Course Definition;
+- a Moodle-native Course Package (`.mbz`) after review and Trial Restoration.
+
+The resulting package uses standard Moodle components and contains no user data.
+It is intended for manual restoration into a compatible Moodle 5.0.x site.
+
+## Quick start with `create-course`
+
+### 1. Clone the repository
+
+You need access to the private `fusionAIx-TechPack` GitHub organization, Python
+3.11 or newer, Docker, and Docker Compose v2.
+
+```bash
+git clone https://github.com/fusionAIx-TechPack/fx-learning-agent.git
+cd fx-learning-agent
+
+python3 --version
+docker compose version
+docker info
+```
+
+The Python tools use the standard library, so there is no separate package
+installation step.
+
+### 2. Start your coding agent in the repository root
+
+If you use Codex CLI, start it after changing into the cloned repository:
+
+```bash
+codex
+```
+
+You can also open the checked-out repository folder in the Codex app. Ask the
+agent to use the repo-local skill. The skill name is `create-course` with a
+hyphen. For example:
+
+```text
+$create-course
+
+Create a beginner Course called "Introduction to Pega Constellation" for
+developers who know Pega but are new to Constellation. The intended outcome is
+to explain the architecture and build a first view. The learning-time budget is
+90 minutes. Cover architecture, views, fields, and debugging.
+```
+
+The conversation may be in Polish, but the generated Course and all selected
+Sources currently use English (`en-US`). See the full prompt template and resume
+examples in [Using the `create-course` skill](docs/create-course.md).
+
+### 3. Make the two human decisions
+
+The agent automates the technical work but deliberately pauses at two gates:
+
+| Gate | What the agent provides | What you decide |
+| --- | --- | --- |
+| Source selection | 5–10 researched, free Source Candidates with evidence and a recommended order | Select the exact Sources and their order |
+| Course review | A hidden Course in local Moodle with reviewer and learner access | Type `accept` or `reject` after inspecting it |
+
+Source Candidates never become Course content automatically. The Course
+Requester selects them, and the Course Reviewer makes the packaging decision.
+
+### 4. Receive the validated package
+
+After `accept`, the build creates the `.mbz`, restores it in a clean Moodle at
+<http://localhost:8081>, and verifies learner-visible behavior. A package is
+reported as validated only after that Trial Restoration succeeds.
+
+The agent will hand off the exact paths, normally similar to:
+
+```text
+output/pega-constellation-introduction/
+├── source-candidates-2026-08-18.md
+├── course-brief.json
+├── course-definition.json
+└── course-package.mbz
+```
+
+## What the `create-course` skill does
+
+The skill runs or resumes the complete workflow:
 
 ```mermaid
 flowchart LR
-    A[Course Requester selects Sources] --> B[Course Brief]
-    B --> C[Validate input, provenance, access, and availability]
-    C --> D[Course Definition]
-    D --> E[Hidden Course in local Moodle]
-    E --> F{Course Reviewer}
-    F -->|reject| G[No Course Package]
-    F -->|accept| H[Native Moodle backup]
-    H --> I[Clean-Moodle Trial Restoration]
-    I --> J[Validated Course Package]
-    J --> K[Manual production import]
+    A[Learning need] --> B[Approved Course Research Request]
+    B --> C[Source research]
+    C --> D{Requester selects Sources}
+    D --> E[Course Brief]
+    E --> F[Course Definition]
+    F --> G[Hidden local Moodle Course]
+    G --> H{Reviewer accepts?}
+    H -->|reject| I[Revise without packaging]
+    H -->|accept| J[Native Moodle backup]
+    J --> K[Clean Trial Restoration]
+    K --> L[Validated Course Package]
 ```
 
-The Course Requester remains responsible for selecting educationally suitable
-Sources. The automation validates and assembles those Sources but does not
-discover or choose them.
+It validates Source provenance, free access, availability, supported Source
+types, language, durations, and the Course time budget. It also keeps navigation
+labels short, preserves full external Source titles, and generates guided Source
+Activities with explicit manual completion.
 
-## Run the complete Course Brief to Course Package workflow
+The skill does not choose Sources for the requester, treat opening a Source as
+completion, publish a Course, or connect to production Moodle. Those boundaries
+are intentional. The detailed operating guide is in
+[docs/create-course.md](docs/create-course.md).
 
-Python 3.11 or newer and Docker Compose v2 are required. The workflow needs no
-catalog, Azure, or production Moodle credentials.
+## Manual CLI workflow
 
-Start from the committed Course Brief example. In addition to the Course topic,
-audience, entry level, language, intended learning outcome, and learning-time
-budget, it records each human-selected Source's exact title, short Learning
-Activity name for Moodle navigation, URL, publisher, provider
-identifier, type, language, duration, and free-access evidence. Supported Source
-types are `article`, `blog`, `video`, and `course`; Course and Source language is
-`en-US`, and entry level is beginner, intermediate, or advanced. Each selected
-Source also records `activity_duration_minutes`, the complete learner time for
-its Source Activity including the work required by its instructions.
+Use the CLI directly when you already have an approved Course Brief or Course
+Definition.
 
-For an editorially designed Course, the Brief can also provide
-`course_description`, an ordered `learning_path`, and activity-specific
-`activity_purpose` and `activity_instructions` on every Source. Each learning
-path module supplies its short `name`, learner-facing `introduction`, and an
-ordered list of Source `provider_item_id` values. The generator validates that
-every selected Source appears exactly once and that the Source Activities use
-the complete learning-time budget. Briefs without a `learning_path` remain
-supported and use the automatic Foundations/Practice grouping.
-
-One command validates the Brief and Sources, writes the reviewable Course
-Definition, generates the hidden local Moodle Course, waits for the Course
-Reviewer's decision, creates the native Course Package, and trial-restores it in
-a clean Moodle 5.0.3 instance:
+### Build and inspect a Course Definition
 
 ```bash
 mkdir -p output/copilot-studio-basics
 
+bin/course-definition build \
+  --brief examples/copilot-studio-course-brief.json \
+  --output output/copilot-studio-basics/course-definition.json
+```
+
+The runnable example shows the complete Brief shape, including each selected
+Source's exact title, short `activity_name`, URL, publisher, provider identifier,
+type, language, Source duration, total activity duration, and free-access
+evidence.
+
+### Stage, review, and package an approved Definition
+
+```bash
+bin/course-package build \
+  --definition output/copilot-studio-basics/course-definition.json \
+  --output output/copilot-studio-basics/course-package.mbz
+```
+
+The command prints the hidden Course URL at <http://localhost:8080> and
+disposable local reviewer and learner credentials. Keep the process running,
+inspect the Course, then type `accept` or `reject` in the waiting terminal.
+Opening a Source does not complete its Source Activity; verify that the learner
+must explicitly select Moodle's **Mark as done** action.
+
+Use `--accept` or `--reject` only for tests or explicitly requested automation.
+They are not evidence of a genuine human Course review.
+
+### Build directly from an approved Brief
+
+```bash
 bin/course-package build \
   --brief examples/copilot-studio-course-brief.json \
   --definition-output output/copilot-studio-basics/course-definition.json \
   --output output/copilot-studio-basics/course-package.mbz
 ```
 
-The command rejects an empty Source list, missing provenance, unsupported Source
-types, non-English content, paid Sources, Source Activities shorter than their
-Sources, a combined activity duration above the learning-time budget, and
-unavailable URLs. It records the supplied provenance and current availability
-evidence in the generated Course Definition, then turns the ordered Sources into
-guided Source Activities with activity-specific purpose and instruction text.
-When the Brief includes a designed learning path, it preserves the specified
-module and Source order instead of inferring a phase from Source titles.
-Module and Source Activity names are limited to 40 characters so breadcrumbs,
-previous/next controls, and activity navigation remain scannable; full Source
-titles remain unchanged in each activity's content and provenance. Each Source
-Activity uses the global learner-visible renderer described in
-`docs/source-activity-renderer.md`. Opening a Source does not mark its Source
-Activity complete: the learner must return
-to the Course and explicitly select Moodle's `Mark as done` action for each one.
-
-Source availability, validation, rejection, Moodle generation, backup, and
-trial-restore failures return non-zero and never report a validated Course
-Package. The CLI prints both the Course Definition path and hidden local Course
-URL before asking the Course Reviewer to type `accept` or `reject`. Use
-`--accept` or `--reject` only for automation and tests.
-
-To generate and inspect a Course Definition independently, stop before Moodle:
+### Verify an existing package
 
 ```bash
-bin/course-definition build \
-  --brief examples/copilot-studio-course-brief.json \
-  --output output/copilot-studio-basics/course-definition.json
-```
-
-## Inputs, outputs, and repository layout
-
-- `examples/copilot-studio-course-brief.json` is a small, runnable Course Brief.
-- `examples/sample-course.md` is an editorial outline for the longer Copilot
-  Studio course; it is reference material, not CLI input.
-- `output/<course-slug>/` is the durable home for one Course's Brief, Course
-  Definition, Course Package, and related generated files. Do not mix files for
-  multiple Courses in the `output/` root.
-- `artifacts/` is internal scratch space shared with the Docker containers. Build
-  and verify commands replace files there, so it is not a durable output location.
-- `tests/fixtures/` contains deterministic test inputs, not production-ready
-  Course content.
-
-Both build commands refuse to overwrite their requested output. Choose a new
-path or move the previous artifact aside before rebuilding.
-
-## Build and validate the Course Package
-
-Docker and Docker Compose are required. From the repository root:
-
-```bash
-mkdir -p output/copilot-studio-practical-basics
-
-bin/course-package build \
-  --definition tests/fixtures/course-definition.json \
-  --output output/copilot-studio-practical-basics/course-package.mbz
-
 bin/course-package verify \
-  --package output/copilot-studio-practical-basics/course-package.mbz \
-  --definition tests/fixtures/course-definition.json
+  --package output/copilot-studio-basics/course-package.mbz \
+  --definition output/copilot-studio-basics/course-definition.json
 ```
 
-The first command starts the isolated source Moodle at <http://localhost:8080>,
-validates the Course Definition, and generates a hidden Course for inspection.
-The CLI prints the Course's direct review URL and two local-only logins. Use the
-admin account to inspect Course settings and the enrolled review-learner account
-to exercise learner navigation and the `Mark as done` control while the Course
-remains hidden. These credentials are for the disposable Docker environment and
-must never be used in production.
-It then waits for the Course Reviewer to type `accept` or reject the result.
-Acceptance creates a native backup without user data and immediately restores it
-at <http://localhost:8081>; the output path is populated only after that trial
-restoration verifies learner-visible behavior. `--accept` and `--reject` provide
-the same explicit decision for automation. The separate `verify` command repeats
-the clean-Moodle trial restoration for an existing Course Package. Any invalid
-definition, rejection, generation, backup, restore, or verification failure exits
-non-zero and does not report the Course Package as validated.
-Build also refuses to overwrite an existing output path, preventing a stale or
-previously validated package from being confused with the current run.
+Both build commands refuse to overwrite an existing requested output. Use a new
+versioned filename for another attempt so previous evidence remains intact.
 
-The Course Definition records Course identity and settings, the original Brief,
-the general introduction, ordered modules, and each Source Activity's name,
-purpose, instructions, total duration, and complete Source provenance, access,
-duration, and availability evidence. The committed fixture is a complete
-contract example.
+## Repository layout
 
-Reset both isolated environments with `bin/course-package down`.
+- `.agents/skills/create-course/` contains the recommended agent workflow.
+- `examples/copilot-studio-course-brief.json` is a runnable Course Brief.
+- `examples/sample-course.md` is editorial reference material, not CLI input.
+- `output/<course-slug>/` is the durable home of one Course and its artifacts.
+- `artifacts/` is replaceable scratch space shared with Docker containers.
+- `course_research/` validates Sources and generates Course Definitions.
+- `moodle-cli/` and `docker/` implement Moodle generation and verification.
+- `tests/fixtures/` contains deterministic test inputs, not production Courses.
 
-Run the complete repository test suite with `tests/all.sh`. It builds the Moodle
-image, validates Brief and Course Definition failure cases against the exact PHP
-contract used by packaging, and runs the full native backup, clean restoration,
-learner visibility, and manual-completion round trip. The suite uses Docker and
-the local ports `8080` and `8081`.
+Keep the `output/` root free of loose files and never mix artifacts from
+different Courses in one Course directory.
+
+## Operations and validation
+
+The Moodle environments use fixed local ports:
+
+- `8080` — hidden Course review;
+- `8081` — clean Trial Restoration.
+
+Run only one Course build or full test suite at a time. After the reviewer no
+longer needs either local Moodle environment, stop them with:
+
+```bash
+bin/course-package down
+```
+
+This removes the disposable local Moodle environments, not the durable files in
+`output/`.
+
+Run the complete repository test suite with:
+
+```bash
+tests/all.sh
+```
+
+The full suite rebuilds and resets Docker test environments and volumes. Do not
+run it while another Course build or review is active.
 
 ## Manual production import
 
-In a compatible Moodle 5.0.x site, open **Site administration → Courses →
-Restore course**, upload the `.mbz`, and restore it as a new Course in the
-desired category. Keep the Course hidden, inspect its sections and Source as a
-learner, and publish it only after review. Confirm patch-level compatibility and
-site permissions first. This workflow neither needs production credentials nor
-imports or publishes automatically.
+Production import is outside the automated workflow. In a compatible Moodle
+5.0.x site, open **Site administration → Courses → Restore course**, upload the
+validated `.mbz`, and restore it as a new hidden Course. Inspect it as a learner
+and publish only after the organization's production review. Confirm the target
+site's patch-level compatibility and permissions first.
+
+The repository does not require, collect, or store production Moodle
+credentials.
