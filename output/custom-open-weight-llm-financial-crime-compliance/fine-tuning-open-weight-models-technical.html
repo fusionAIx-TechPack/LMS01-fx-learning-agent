@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="dcterms.date" content="2026-08-21" />
+  <title>FX Learning – Fine-Tuning Open-Weight Language Models</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="technical-course-print.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Fine-Tuning Open-Weight Language Models</h1>
+<p class="subtitle">A technical course on data, LoRA/QLoRA, evaluation,
+and deployment</p>
+<p class="date">21 August 2026</p>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#course-overview" id="toc-course-overview">Course
+overview</a>
+<ul>
+<li><a href="#what-you-will-produce" id="toc-what-you-will-produce">What
+you will produce</a></li>
+</ul></li>
+<li><a href="#decide-whether-fine-tuning-is-the-right-tool"
+id="toc-decide-whether-fine-tuning-is-the-right-tool">1. Decide whether
+fine-tuning is the right tool</a>
+<ul>
+<li><a href="#start-with-a-measurable-task"
+id="toc-start-with-a-measurable-task">1.1 Start with a measurable
+task</a></li>
+<li><a href="#use-the-least-invasive-adaptation-that-works"
+id="toc-use-the-least-invasive-adaptation-that-works">1.2 Use the least
+invasive adaptation that works</a></li>
+<li><a href="#select-an-open-weight-foundation-model"
+id="toc-select-an-open-weight-foundation-model">1.3 Select an
+open-weight foundation model</a></li>
+</ul></li>
+<li><a href="#engineer-the-adaptation-dataset"
+id="toc-engineer-the-adaptation-dataset">2. Engineer the adaptation
+dataset</a>
+<ul>
+<li><a href="#define-the-example-schema"
+id="toc-define-the-example-schema">2.1 Define the example
+schema</a></li>
+<li><a href="#build-splits-that-measure-generalization"
+id="toc-build-splits-that-measure-generalization">2.2 Build splits that
+measure generalization</a></li>
+<li><a href="#quality-controls" id="toc-quality-controls">2.3 Quality
+controls</a></li>
+</ul></li>
+<li><a href="#understand-lora-and-qlora"
+id="toc-understand-lora-and-qlora">3. Understand LoRA and QLoRA</a>
+<ul>
+<li><a href="#core-configuration-choices"
+id="toc-core-configuration-choices">3.1 Core configuration
+choices</a></li>
+<li><a href="#what-qlora-changes" id="toc-what-qlora-changes">3.2 What
+QLoRA changes</a></li>
+<li><a href="#a-reviewable-experiment-configuration"
+id="toc-a-reviewable-experiment-configuration">3.3 A reviewable
+experiment configuration</a></li>
+</ul></li>
+<li><a href="#run-a-reproducible-training-experiment"
+id="toc-run-a-reproducible-training-experiment">4. Run a reproducible
+training experiment</a>
+<ul>
+<li><a href="#preflight" id="toc-preflight">4.1 Preflight</a></li>
+<li><a href="#training-loop-seam" id="toc-training-loop-seam">4.2
+Training loop seam</a></li>
+<li><a href="#read-the-curves" id="toc-read-the-curves">4.3 Read the
+curves</a></li>
+</ul></li>
+<li><a href="#evaluate-the-model-and-the-whole-system"
+id="toc-evaluate-the-model-and-the-whole-system">5. Evaluate the model
+and the whole system</a>
+<ul>
+<li><a href="#evaluation-matrix" id="toc-evaluation-matrix">5.1
+Evaluation matrix</a></li>
+<li><a href="#compare-like-with-like"
+id="toc-compare-like-with-like">5.2 Compare like with like</a></li>
+<li><a href="#predefine-stop-conditions"
+id="toc-predefine-stop-conditions">5.3 Predefine stop
+conditions</a></li>
+</ul></li>
+<li><a href="#package-deploy-and-monitor"
+id="toc-package-deploy-and-monitor">6. Package, deploy, and monitor</a>
+<ul>
+<li><a href="#release-bundle" id="toc-release-bundle">6.1 Release
+bundle</a></li>
+<li><a href="#serving-decisions" id="toc-serving-decisions">6.2 Serving
+decisions</a></li>
+<li><a href="#monitor-what-can-drift"
+id="toc-monitor-what-can-drift">6.3 Monitor what can drift</a></li>
+</ul></li>
+<li><a href="#capstone-technical-adaptation-plan"
+id="toc-capstone-technical-adaptation-plan">Capstone: technical
+adaptation plan</a></li>
+<li><a href="#technical-checklist"
+id="toc-technical-checklist">Technical checklist</a>
+<ul>
+<li><a href="#before-training" id="toc-before-training">Before
+training</a></li>
+<li><a href="#before-release" id="toc-before-release">Before
+release</a></li>
+</ul></li>
+<li><a href="#selected-sources" id="toc-selected-sources">Selected
+sources</a></li>
+</ul>
+</nav>
+<h1 id="course-overview">Course overview</h1>
+<p>This course is a practical guide to adapting an open-weight language
+model for a bounded task. It deliberately focuses on the engineering
+decisions that make a fine-tuning experiment reproducible and useful:
+choosing a base model, proving that tuning is necessary, constructing
+clean datasets, configuring LoRA or QLoRA, evaluating against a
+baseline, and packaging the result for controlled deployment.</p>
+<p>The course is framework-aware but not tied to a single training
+stack. Examples use Hugging Face-style names because they make the
+moving parts concrete.</p>
+<p><strong>Audience:</strong> ML engineers, data scientists, and
+software engineers with basic familiarity with transformer-based
+language models.</p>
+<p><strong>Level:</strong> Intermediate.</p>
+<p><strong>Intended outcome:</strong> Design a reproducible LoRA or
+QLoRA experiment, evaluate it against untuned and retrieval-augmented
+baselines, and produce an evidence-based ship, revise, or stop
+decision.</p>
+<p><strong>Estimated learning time:</strong> 6 hours.</p>
+<h2 id="what-you-will-produce">What you will produce</h2>
+<p>By the end of the course you will have:</p>
+<ol type="1">
+<li>a base-model selection record;</li>
+<li>a decision record comparing prompting, RAG, PEFT, and full
+fine-tuning;</li>
+<li>versioned train, validation, and test datasets;</li>
+<li>a LoRA or QLoRA experiment configuration;</li>
+<li>an evaluation report with quality, safety, and operational
+metrics;</li>
+<li>a model card addendum and deployment/rollback plan.</li>
+</ol>
+<h1 id="decide-whether-fine-tuning-is-the-right-tool">1. Decide whether
+fine-tuning is the right tool</h1>
+<p>Fine-tuning changes model behavior by updating parameters. That makes
+it useful for persistent behavior—format, style, task procedure,
+domain-specific patterns, or tool-use conventions—but a poor default for
+facts that change frequently or must be cited.</p>
+<h2 id="start-with-a-measurable-task">1.1 Start with a measurable
+task</h2>
+<p>Write the task as an input/output contract before choosing a model or
+training method.</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Contract field</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Input</td>
+<td>A support request plus allowed product metadata</td>
+</tr>
+<tr>
+<td>Output</td>
+<td>A JSON object conforming to a fixed schema</td>
+</tr>
+<tr>
+<td>Success metric</td>
+<td>At least 95% schema-valid outputs and macro F1 above 0.88</td>
+</tr>
+<tr>
+<td>Latency budget</td>
+<td>p95 below 1.5 seconds</td>
+</tr>
+<tr>
+<td>Failure behavior</td>
+<td>Abstain when required context is missing</td>
+</tr>
+<tr>
+<td>Out of scope</td>
+<td>Generating facts not present in the input or retrieval context</td>
+</tr>
+</tbody>
+</table>
+<p>The baseline must run on the same test set as every later experiment.
+Record the prompt, sampling parameters, model checkpoint, inference
+runtime, and hardware.</p>
+<h2 id="use-the-least-invasive-adaptation-that-works">1.2 Use the least
+invasive adaptation that works</h2>
+<p>Evaluate approaches in increasing order of cost and operational
+coupling:</p>
+<ol type="1">
+<li><strong>Prompting:</strong> best when the base model already has the
+capability and only needs clearer instructions or examples.</li>
+<li><strong>Retrieval-augmented generation (RAG):</strong> best when the
+missing element is changing, private, attributable knowledge.</li>
+<li><strong>Parameter-efficient fine-tuning (PEFT):</strong> best when
+behavior remains unreliable after prompt and context design, and a small
+adapter can encode the desired pattern.</li>
+<li><strong>Full fine-tuning:</strong> justified only when PEFT cannot
+reach the target and the expected gain warrants much higher compute,
+storage, and operational cost.</li>
+</ol>
+<p>Do not fine-tune simply because a model sometimes answers
+incorrectly. First classify the failure:</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Failure</th>
+<th>Preferred first response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Missing or stale knowledge</td>
+<td>RAG</td>
+</tr>
+<tr>
+<td>Inconsistent output format</td>
+<td>Constrained decoding, schema validation, then PEFT</td>
+</tr>
+<tr>
+<td>Weak task procedure</td>
+<td>Prompt examples, then PEFT</td>
+</tr>
+<tr>
+<td>Context omitted by the application</td>
+<td>Fix the application or retrieval pipeline</td>
+</tr>
+<tr>
+<td>Safety boundary failure</td>
+<td>Guardrails, data changes, safety tuning, and evaluation</td>
+</tr>
+<tr>
+<td>Base capability absent</td>
+<td>Try a stronger base model before training</td>
+</tr>
+</tbody>
+</table>
+<h2 id="select-an-open-weight-foundation-model">1.3 Select an
+open-weight foundation model</h2>
+<p>“Open-weight” does not automatically mean “Open Source AI.” Inspect
+the license and model documentation directly. Record:</p>
+<ul>
+<li>immutable model identifier and revision;</li>
+<li>license, acceptable-use restrictions, redistribution rights, and
+notice obligations;</li>
+<li>parameter count, architecture, context length, and tokenizer;</li>
+<li>supported languages and task fit;</li>
+<li>memory needed for training and inference;</li>
+<li>precision and quantization support;</li>
+<li>model-card limitations and known evaluation results;</li>
+<li>framework and serving-runtime compatibility.</li>
+</ul>
+<p><strong>Exercise — model gate:</strong> Compare two candidate
+checkpoints using a one-page table. Reject any candidate whose license,
+memory requirement, or task capability violates a hard constraint.</p>
+<h1 id="engineer-the-adaptation-dataset">2. Engineer the adaptation
+dataset</h1>
+<p>The dataset is executable task specification. A small,
+representative, well-reviewed dataset is often more valuable than a
+large collection of noisy examples.</p>
+<h2 id="define-the-example-schema">2.1 Define the example schema</h2>
+<p>Use one canonical representation and convert it to the
+framework-specific chat template only during preprocessing.</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;example_id&quot;</span><span class="fu">:</span> <span class="st">&quot;support-004218&quot;</span><span class="fu">,</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;task_version&quot;</span><span class="fu">:</span> <span class="st">&quot;2.1&quot;</span><span class="fu">,</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;system&quot;</span><span class="fu">:</span> <span class="st">&quot;Return only JSON matching the supplied schema.&quot;</span><span class="fu">,</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;input&quot;</span><span class="fu">:</span> <span class="st">&quot;Customer text and permitted context go here.&quot;</span><span class="fu">,</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;output&quot;</span><span class="fu">:</span> <span class="st">&quot;{</span><span class="ch">\&quot;</span><span class="st">category</span><span class="ch">\&quot;</span><span class="st">:</span><span class="ch">\&quot;</span><span class="st">billing</span><span class="ch">\&quot;</span><span class="st">,</span><span class="ch">\&quot;</span><span class="st">confidence</span><span class="ch">\&quot;</span><span class="st">:0.93}&quot;</span><span class="fu">,</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;slice&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;short-input&quot;</span><span class="ot">,</span> <span class="st">&quot;billing&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;provenance&quot;</span><span class="fu">:</span> <span class="st">&quot;reviewed-synthetic-v3&quot;</span><span class="fu">,</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;license&quot;</span><span class="fu">:</span> <span class="st">&quot;internal-approved&quot;</span><span class="fu">,</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;created_at&quot;</span><span class="fu">:</span> <span class="st">&quot;2026-08-01&quot;</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>Keep metadata outside the text presented to the model unless it is
+part of the real inference contract.</p>
+<h2 id="build-splits-that-measure-generalization">2.2 Build splits that
+measure generalization</h2>
+<p>Split by the unit that can leak, not merely by individual row. If
+many rows come from the same document, user, template, or event, keep
+that entire group in one split.</p>
+<ul>
+<li><strong>Train:</strong> used by the optimizer.</li>
+<li><strong>Validation:</strong> used for checkpoint and hyperparameter
+selection.</li>
+<li><strong>Test:</strong> frozen before training and used only for the
+final comparison.</li>
+<li><strong>Challenge set:</strong> rare, adversarial, boundary, and
+abstention cases.</li>
+</ul>
+<p>Run exact and near-duplicate detection across all splits. Freeze the
+test set checksum and prevent training jobs from reading it.</p>
+<h2 id="quality-controls">2.3 Quality controls</h2>
+<p>For every example, validate:</p>
+<ul>
+<li>schema and encoding;</li>
+<li>source and usage rights;</li>
+<li>absence of secrets and unnecessary personal data;</li>
+<li>label correctness and reviewer agreement;</li>
+<li>realistic input length and class distribution;</li>
+<li>consistent formatting and chat roles;</li>
+<li>no hidden answer in metadata or retrieval context;</li>
+<li>explicit representation of negative and abstention cases.</li>
+</ul>
+<p>Version the dataset and preprocessing code together. A training run
+should record the raw-data snapshot, transformation commit, final
+dataset checksum, tokenizer revision, and filtering statistics.</p>
+<p><strong>Exercise — dataset card:</strong> Document intended use,
+collection method, schema, split strategy, filters, slice distribution,
+known gaps, and deletion procedure. Then manually review a stratified
+sample from every split.</p>
+<h1 id="understand-lora-and-qlora">3. Understand LoRA and QLoRA</h1>
+<p>Low-Rank Adaptation freezes the base model and trains small matrices
+that approximate the update to selected weight matrices.</p>
+<p>For a frozen weight matrix
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>W</mi><mn>0</mn></msub><annotation encoding="application/x-tex">W_0</annotation></semantics></math>,
+LoRA learns:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo>=</mo><msub><mi>W</mi><mn>0</mn></msub><mo>+</mo><mi mathvariant="normal">Δ</mi><mi>W</mi><mo>,</mo><mspace width="2.0em"></mspace><mi mathvariant="normal">Δ</mi><mi>W</mi><mo>=</mo><mfrac><mi>α</mi><mi>r</mi></mfrac><mi>B</mi><mi>A</mi></mrow><annotation encoding="application/x-tex">
+W = W_0 + \Delta W, \qquad \Delta W = \frac{\alpha}{r}BA
+</annotation></semantics></math></p>
+<p>where rank
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math>
+controls adapter capacity and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>
+scales the update. The base weights stay unchanged; the adapter can be
+stored, swapped, or merged separately.</p>
+<h2 id="core-configuration-choices">3.1 Core configuration choices</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>What it controls</th>
+<th>Practical starting point</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>r</code></td>
+<td>Adapter rank/capacity</td>
+<td>8–32; increase only with evidence of underfitting</td>
+</tr>
+<tr>
+<td><code>lora_alpha</code></td>
+<td>Update scaling</td>
+<td>Often 1–2 times <code>r</code></td>
+</tr>
+<tr>
+<td><code>lora_dropout</code></td>
+<td>Regularization</td>
+<td>0–0.1 depending on dataset size</td>
+</tr>
+<tr>
+<td><code>target_modules</code></td>
+<td>Layers receiving adapters</td>
+<td>Start with attention projections; test broader coverage</td>
+</tr>
+<tr>
+<td>learning rate</td>
+<td>Optimizer step size</td>
+<td>Usually higher than full fine-tuning; sweep logarithmically</td>
+</tr>
+<tr>
+<td>epochs/steps</td>
+<td>Exposure to training data</td>
+<td>Select using validation curves, not a fixed habit</td>
+</tr>
+</tbody>
+</table>
+<p>The correct target-module names depend on the architecture. Inspect
+the model rather than copying a configuration from a different
+family.</p>
+<h2 id="what-qlora-changes">3.2 What QLoRA changes</h2>
+<p>QLoRA loads the frozen base model in low-bit precision while training
+LoRA adapters at a higher compute precision. It reduces memory use,
+enabling larger models on constrained hardware, but introduces more
+moving parts:</p>
+<ul>
+<li>quantization type and bit width;</li>
+<li>compute dtype and hardware support;</li>
+<li>quantization library compatibility;</li>
+<li>possible quality or throughput tradeoffs;</li>
+<li>stricter reproducibility requirements across drivers and
+kernels.</li>
+</ul>
+<p>Use QLoRA when memory is the binding constraint. Do not assume it is
+automatically faster.</p>
+<h2 id="a-reviewable-experiment-configuration">3.3 A reviewable
+experiment configuration</h2>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">experiment_id</span><span class="kw">:</span><span class="at"> task-v2-gemma-lora-r16-seed42</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">base_model</span><span class="kw">:</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">id</span><span class="kw">:</span><span class="at"> organization/model-name</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">revision</span><span class="kw">:</span><span class="at"> immutable-commit-or-tag</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">license_review</span><span class="kw">:</span><span class="at"> approved-record-id</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span><span class="kw">:</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">dataset_version</span><span class="kw">:</span><span class="at"> task-v2.3</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">train_checksum</span><span class="kw">:</span><span class="at"> sha256:...</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">validation_checksum</span><span class="kw">:</span><span class="at"> sha256:...</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">max_sequence_length</span><span class="kw">:</span><span class="at"> </span><span class="dv">2048</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="fu">adapter</span><span class="kw">:</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">method</span><span class="kw">:</span><span class="at"> lora</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">rank</span><span class="kw">:</span><span class="at"> </span><span class="dv">16</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">alpha</span><span class="kw">:</span><span class="at"> </span><span class="dv">32</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">dropout</span><span class="kw">:</span><span class="at"> </span><span class="fl">0.05</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">target_modules</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">q_proj</span><span class="kw">,</span><span class="at"> k_proj</span><span class="kw">,</span><span class="at"> v_proj</span><span class="kw">,</span><span class="at"> o_proj</span><span class="kw">]</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="fu">training</span><span class="kw">:</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">seed</span><span class="kw">:</span><span class="at"> </span><span class="dv">42</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">learning_rate</span><span class="kw">:</span><span class="at"> </span><span class="fl">0.0002</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">warmup_ratio</span><span class="kw">:</span><span class="at"> </span><span class="fl">0.03</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">effective_batch_size</span><span class="kw">:</span><span class="at"> </span><span class="dv">64</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">epochs</span><span class="kw">:</span><span class="at"> </span><span class="dv">3</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">precision</span><span class="kw">:</span><span class="at"> bf16</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="fu">evaluation</span><span class="kw">:</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">primary_metric</span><span class="kw">:</span><span class="at"> macro_f1</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">select_checkpoint_by</span><span class="kw">:</span><span class="at"> validation_macro_f1</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">compare_to</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">untuned-zero-shot</span><span class="kw">,</span><span class="at"> untuned-few-shot</span><span class="kw">,</span><span class="at"> rag-baseline</span><span class="kw">]</span></span></code></pre></div>
+<p>Treat this as a starting hypothesis, not a universal recipe.</p>
+<h1 id="run-a-reproducible-training-experiment">4. Run a reproducible
+training experiment</h1>
+<h2 id="preflight">4.1 Preflight</h2>
+<p>Before allocating training compute:</p>
+<ol type="1">
+<li>validate a small batch end to end;</li>
+<li>render the exact tokenized prompts and labels;</li>
+<li>verify that padding tokens are excluded from loss;</li>
+<li>inspect truncation rates and sequence-length distribution;</li>
+<li>overfit a tiny sample to confirm that gradients and labels
+work;</li>
+<li>run the untuned baseline and save predictions;</li>
+<li>estimate peak memory and wall-clock time.</li>
+</ol>
+<p>Failure to overfit a tiny clean sample usually indicates a pipeline
+or configuration defect. Successful tiny-sample overfitting does not
+prove generalization.</p>
+<h2 id="training-loop-seam">4.2 Training loop seam</h2>
+<p>Keep data preparation, model construction, training, and evaluation
+independently testable.</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>seed_everything(config.training.seed)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>dataset <span class="op">=</span> load_versioned_dataset(config.data)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>tokenized <span class="op">=</span> preprocess(dataset, tokenizer_revision<span class="op">=</span>config.base_model.revision)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>base_model <span class="op">=</span> load_base_model(</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    model_id<span class="op">=</span>config.base_model.<span class="bu">id</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    revision<span class="op">=</span>config.base_model.revision,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    quantization<span class="op">=</span>config.adapter.get(<span class="st">&quot;quantization&quot;</span>),</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> attach_lora(base_model, config.adapter)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>trainer <span class="op">=</span> build_trainer(</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>model,</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    train_data<span class="op">=</span>tokenized.train,</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    validation_data<span class="op">=</span>tokenized.validation,</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    training_config<span class="op">=</span>config.training,</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>trainer.train()</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>save_adapter_and_run_manifest(model, config, metrics<span class="op">=</span>trainer.metrics)</span></code></pre></div>
+<p>The run manifest should capture code commit, environment lockfile,
+model and data revisions, random seeds, hardware, driver/runtime
+versions, configuration, checkpoints, metrics, and artifact
+checksums.</p>
+<h2 id="read-the-curves">4.3 Read the curves</h2>
+<p>Track training loss and task metrics on validation slices. Warning
+patterns include:</p>
+<ul>
+<li>training loss falls while validation quality degrades: overfitting
+or distribution mismatch;</li>
+<li>both curves stall early: insufficient capacity, weak labels, bad
+learning rate, or unsuitable base model;</li>
+<li>average metric improves while a critical slice regresses: dataset
+imbalance or harmful tradeoff;</li>
+<li>format validity improves but semantic accuracy does not: the adapter
+learned presentation, not the task.</li>
+</ul>
+<p>Run a small, documented sweep over the parameters most likely to
+matter. Do not select a checkpoint by repeatedly inspecting the test
+set.</p>
+<h1 id="evaluate-the-model-and-the-whole-system">5. Evaluate the model
+and the whole system</h1>
+<p>Fine-tuning is successful only if it improves the deployed system
+against the agreed baseline without unacceptable regressions.</p>
+<h2 id="evaluation-matrix">5.1 Evaluation matrix</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Example measures</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Task quality</td>
+<td>accuracy, precision/recall/F1, exact match, rubric score</td>
+</tr>
+<tr>
+<td>Structured output</td>
+<td>schema validity, required-field completeness</td>
+</tr>
+<tr>
+<td>Grounding</td>
+<td>citation correctness, claim support, retrieval relevance</td>
+</tr>
+<tr>
+<td>Robustness</td>
+<td>paraphrases, typos, long inputs, missing context, distribution
+shifts</td>
+</tr>
+<tr>
+<td>Safety</td>
+<td>leakage, harmful completion rate, prompt-injection success, refusal
+quality</td>
+</tr>
+<tr>
+<td>Fairness</td>
+<td>metric deltas across relevant slices</td>
+</tr>
+<tr>
+<td>Operations</td>
+<td>p50/p95 latency, tokens per second, peak memory, cost per
+request</td>
+</tr>
+<tr>
+<td>Reliability</td>
+<td>timeout rate, invalid response rate, fallback and abstention
+rate</td>
+</tr>
+</tbody>
+</table>
+<p>Report confidence intervals or repeated-run variation where
+practical. For generative tasks, combine automated measures with blind
+human review using an explicit rubric. If an LLM acts as judge,
+calibrate it against human labels and do not treat it as independent
+ground truth.</p>
+<h2 id="compare-like-with-like">5.2 Compare like with like</h2>
+<p>Every candidate must use:</p>
+<ul>
+<li>the same frozen test set;</li>
+<li>equivalent decoding settings where applicable;</li>
+<li>the same retrieval corpus and filters for RAG comparisons;</li>
+<li>the same output parser and failure policy;</li>
+<li>the same hardware class for latency comparisons;</li>
+<li>a documented threshold chosen before final test execution.</li>
+</ul>
+<p>A useful result table includes both aggregate and slice-level
+metrics:</p>
+<table>
+<colgroup>
+<col style="width: 13%" />
+<col style="width: 18%" />
+<col style="width: 18%" />
+<col style="width: 18%" />
+<col style="width: 18%" />
+<col style="width: 13%" />
+</colgroup>
+<thead>
+<tr>
+<th>Candidate</th>
+<th style="text-align: right;">Primary quality</th>
+<th style="text-align: right;">Invalid output</th>
+<th style="text-align: right;">Critical-slice score</th>
+<th style="text-align: right;">p95 latency</th>
+<th>Decision</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Untuned + prompt</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td>Baseline</td>
+</tr>
+<tr>
+<td>Untuned + RAG</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td>Compare</td>
+</tr>
+<tr>
+<td>LoRA adapter</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td>Compare</td>
+</tr>
+<tr>
+<td>QLoRA adapter</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td>Compare</td>
+</tr>
+</tbody>
+</table>
+<h2 id="predefine-stop-conditions">5.3 Predefine stop conditions</h2>
+<p>Abandon or redesign weight adaptation if:</p>
+<ul>
+<li>it does not beat the strongest simpler baseline by the required
+margin;</li>
+<li>gains disappear on challenge or temporal-holdout sets;</li>
+<li>critical safety or privacy regressions appear;</li>
+<li>required hardware, latency, or licensing constraints are
+violated;</li>
+<li>results cannot be reproduced from the recorded artifacts;</li>
+<li>the target behavior can be delivered more reliably through
+deterministic code or retrieval.</li>
+</ul>
+<h1 id="package-deploy-and-monitor">6. Package, deploy, and monitor</h1>
+<p>Keep the base model, adapter, tokenizer, prompt template, retrieval
+configuration, and inference code as separately versioned artifacts.
+Never identify a deployment only as “the fine-tuned model.”</p>
+<h2 id="release-bundle">6.1 Release bundle</h2>
+<p>A release candidate should contain:</p>
+<ul>
+<li>base-model identifier, immutable revision, and license record;</li>
+<li>adapter weights and checksum;</li>
+<li>tokenizer and chat-template revisions;</li>
+<li>training configuration and run manifest;</li>
+<li>dataset-card and dataset-version references;</li>
+<li>evaluation report with baseline comparison;</li>
+<li>model-card addendum describing intended use and limitations;</li>
+<li>inference configuration, resource requirements, and dependency
+lockfile;</li>
+<li>rollback target and compatibility notes.</li>
+</ul>
+<h2 id="serving-decisions">6.2 Serving decisions</h2>
+<p>Adapters can remain separate or be merged into base weights. Separate
+adapters simplify swapping and provenance; merged weights can simplify
+serving and sometimes improve runtime behavior. Benchmark the actual
+serving stack before deciding.</p>
+<p>Use a staged rollout:</p>
+<ol type="1">
+<li>offline evaluation;</li>
+<li>shadow traffic with no user-visible effect;</li>
+<li>limited cohort or canary;</li>
+<li>progressive exposure with monitored thresholds;</li>
+<li>rollback if a stop condition fires.</li>
+</ol>
+<h2 id="monitor-what-can-drift">6.3 Monitor what can drift</h2>
+<p>Track input length and category distribution, retrieval quality,
+output validity, abstention, user corrections, safety signals, latency,
+resource use, and task-quality samples. Connect each alert to an owner
+and response playbook.</p>
+<p>Fine-tuning does not freeze the surrounding system. Prompt templates,
+retrieval indexes, inference libraries, quantization kernels, and
+upstream data can all change behavior even when adapter weights remain
+identical.</p>
+<h1 id="capstone-technical-adaptation-plan">Capstone: technical
+adaptation plan</h1>
+<p>Create a compact, reviewable plan for one bounded task. It must
+include:</p>
+<ol type="1">
+<li>task input/output contract and strongest untuned baseline;</li>
+<li>selection record for the base checkpoint and license;</li>
+<li>prompting vs RAG vs PEFT vs full-tuning decision;</li>
+<li>dataset card, split design, checksums, and leakage controls;</li>
+<li>LoRA/QLoRA configuration with resource estimate;</li>
+<li>training run manifest and reproducibility strategy;</li>
+<li>evaluation matrix, thresholds, slices, and stop conditions;</li>
+<li>release bundle, staged rollout, monitoring, and rollback.</li>
+</ol>
+<p>The final decision must be one of: <strong>ship the adapter</strong>,
+<strong>revise the experiment</strong>, <strong>use a simpler
+baseline</strong>, or <strong>stop</strong>. Support the decision with
+evidence rather than preference.</p>
+<h1 id="technical-checklist">Technical checklist</h1>
+<h2 id="before-training">Before training</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" />The task and failure behavior are
+explicit.</label></li>
+<li><label><input type="checkbox" />Untuned prompt and RAG baselines
+exist.</label></li>
+<li><label><input type="checkbox" />The base revision and license are
+recorded.</label></li>
+<li><label><input type="checkbox" />The train/validation/test boundary
+is frozen and leakage-checked.</label></li>
+<li><label><input type="checkbox" />Dataset provenance and deletion
+paths are known.</label></li>
+<li><label><input type="checkbox" />Tokenization, masking, truncation,
+and tiny-sample overfit tests pass.</label></li>
+<li><label><input type="checkbox" />Compute, storage, time, and abort
+budgets are approved.</label></li>
+</ul>
+<h2 id="before-release">Before release</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" />The selected checkpoint beats the
+strongest baseline on the frozen test set.</label></li>
+<li><label><input type="checkbox" />Critical slices, challenge cases,
+and safety tests meet thresholds.</label></li>
+<li><label><input type="checkbox" />Latency and memory fit the serving
+environment.</label></li>
+<li><label><input type="checkbox" />The run can be reproduced from
+immutable artifacts.</label></li>
+<li><label><input type="checkbox" />The release bundle and model-card
+addendum are complete.</label></li>
+<li><label><input type="checkbox" />Monitoring, staged rollout, and
+rollback are tested.</label></li>
+</ul>
+<h1 id="selected-sources">Selected sources</h1>
+<p>These sources come from the previously reviewed Course and are
+retained because they directly support the technical learning path.</p>
+<ol type="1">
+<li>Open Source Initiative. <a
+href="https://opensource.org/ai/open-source-ai-definition">The Open
+Source AI Definition – 1.0</a>.</li>
+<li>Google AI for Developers. <a
+href="https://ai.google.dev/gemma/docs/tune?hl=en">Gemma model
+fine-tuning</a>.</li>
+<li>Google AI for Developers. <a
+href="https://ai.google.dev/responsible/docs/alignment">Align your
+models</a>.</li>
+<li>Patrick Lewis et al. <a
+href="https://arxiv.org/abs/2005.11401">Retrieval-Augmented Generation
+for Knowledge-Intensive NLP Tasks</a>.</li>
+<li>Hugging Face. <a
+href="https://huggingface.co/docs/peft/main/conceptual_guides/lora">LoRA</a>.</li>
+<li>National Institute of Standards and Technology. <a
+href="https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence">Artificial
+Intelligence Risk Management Framework: Generative Artificial
+Intelligence Profile</a>.</li>
+<li>Google AI for Developers. <a
+href="https://ai.google.dev/responsible/docs/evaluation">Evaluate model
+and system for safety</a>.</li>
+</ol>
+</body>
+</html>

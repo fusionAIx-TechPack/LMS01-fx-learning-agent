@@ -88,6 +88,39 @@ wait_for_http() {
   echo "Moodle web interface did not become ready: $url" >&2
   return 1
 }
+verify_review_learner_http() {
+  local learner_username=$1 learner_password=$2
+  shift 2
+  local cookie_jar=artifacts/review-cookies.txt login_page login_token
+  local activity_section activity_id section_id section_page
+  rm -f "$cookie_jar"
+  wait_for_http http://localhost:8080/login/index.php
+  login_page=$(curl -fsS -c "$cookie_jar" http://localhost:8080/login/index.php)
+  login_token=$(sed -n 's/.*name="logintoken" value="\([^"]*\)".*/\1/p' <<<"$login_page" | head -n 1)
+  test -n "$login_token" || { echo "Could not start the Course review learner session." >&2; return 1; }
+  curl -fsS -L -o /dev/null -b "$cookie_jar" -c "$cookie_jar" \
+    --data-urlencode "username=$learner_username" --data-urlencode "password=$learner_password" \
+    --data-urlencode "logintoken=$login_token" http://localhost:8080/login/index.php
+  for activity_section in "$@"; do
+    activity_id=${activity_section%%:*}
+    section_id=${activity_section#*:}
+    section_page=$(curl -fsS -b "$cookie_jar" "http://localhost:8080/course/section.php?id=$section_id")
+    grep -F "mod/page/view.php?id=$activity_id" <<<"$section_page" >/dev/null || {
+      echo "Hidden Course Learning Activity $activity_id is not visible to the review learner." >&2
+      return 1
+    }
+    grep -F 'data-action="toggle-manual-completion"' <<<"$section_page" >/dev/null || {
+      echo "The review learner cannot explicitly confirm Learning Activity $activity_id completion." >&2
+      return 1
+    }
+    grep -F "data-cmid=\"$activity_id\"" <<<"$section_page" >/dev/null || {
+      echo "The review learner completion control is not associated with Learning Activity $activity_id." >&2
+      return 1
+    }
+  done
+  rm -f "$cookie_jar"
+  echo "Verified hidden Course through review learner HTTP session ($# Learning Activities)."
+}
 restore_and_verify() {
   docker compose up -d --build restore
   wait_for_moodle restore
@@ -179,7 +212,19 @@ if [[ $command == build ]]; then
   fi
   reviewer_username=$(sed -n 's/^REVIEWER_USERNAME=//p' <<<"$reviewer_output")
   reviewer_password=$(sed -n 's/^REVIEWER_PASSWORD=//p' <<<"$reviewer_output")
+  mapfile -t reviewer_activity_sections < <(sed -n 's/^REVIEW_ACTIVITY_SECTION=//p' <<<"$reviewer_output")
   [[ -n $reviewer_username && -n $reviewer_password ]] || { echo "Review learner setup did not return local credentials." >&2; exit 1; }
+  ((${#reviewer_activity_sections[@]} > 0)) || {
+    echo "Review learner setup did not identify any Learning Activities and sections." >&2
+    exit 1
+  }
+  for reviewer_activity_section in "${reviewer_activity_sections[@]}"; do
+    [[ $reviewer_activity_section =~ ^[0-9]+:[0-9]+$ ]] || {
+      echo "Review learner setup returned an invalid Learning Activity and section pair." >&2
+      exit 1
+    }
+  done
+  verify_review_learner_http "$reviewer_username" "$reviewer_password" "${reviewer_activity_sections[@]}"
   echo "Review the Course Definition at $definition_path and the hidden local Course at http://localhost:8080/course/view.php?id=$course_id."
   echo "Local review admin login: admin / LocalOnly-ChangeMe1!"
   echo "Local review learner login: $reviewer_username / $reviewer_password"

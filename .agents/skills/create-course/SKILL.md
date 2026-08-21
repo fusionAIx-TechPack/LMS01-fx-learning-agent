@@ -67,7 +67,7 @@ bin/course-package build \
   --output output/<course-slug>/course-package.mbz
 ```
 
-Run it interactively. Relay the printed local Course URL and local-only credentials to the Course Reviewer, keep the process open, and wait for `accept` or `reject`. Send that exact decision to the waiting process. Reserve `--accept` and `--reject` for tests or an explicit automation request; they do not replace genuine review evidence.
+Run it interactively. Require the successful hidden-Course review-learner HTTP verification before relaying the printed local Course URL and local-only credentials to the Course Reviewer. Treat a missing or failed verification as a blocking learner-verification failure. Keep the process open and wait for `accept` or `reject`, then send that exact decision to the waiting process. Reserve `--accept` and `--reject` for tests or an explicit automation request; they do not replace genuine review evidence.
 
 On rejection, report the feedback and return to the earliest affected step. A rejection produces no accepted Course Package.
 

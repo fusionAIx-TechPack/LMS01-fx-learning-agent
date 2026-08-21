@@ -15,7 +15,7 @@ Use this checklist for the generated Course Definition and the staged hidden Moo
 
 - Open the exact local Course URL printed by the build and inspect it with the local-only reviewer account.
 - Check section order, scannability, the global Source Activity renderer, its single Source CTA, both applicable durations, and previous/next navigation.
-- Inspect the Course as a learner where practical.
+- Require the automated hidden-Course review-learner HTTP verification to succeed before presenting the Course for review, then inspect the Course with the local-only learner account.
 - Confirm opening a Source leaves the Learning Activity incomplete and that the learner can explicitly select `Mark as done`.
 - Record the Course Reviewer's explicit `accept` or `reject` decision and any feedback.
 

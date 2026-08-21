@@ -44,14 +44,28 @@ if (!$manualinstance) {
 $manual->enrol_user($manualinstance, $userid, $studentrole->id);
 
 // The disposable reviewer is enrolled as a learner and receives the standard
-// manager role only so the hidden Course is reviewable. User and role
-// assignments are excluded from the user-data-free Course Package; unlike
-// course-scoped capability overrides, they do not change packaged Course
-// configuration.
+// manager role only so the hidden Course is reviewable. Moodle's freshly
+// installed role defaults do not grant the learner the Page and manual
+// completion capabilities used by this Course, so grant them to the standard
+// student role at system scope in this disposable environment. System role
+// capabilities plus user and role assignments are excluded from the
+// user-data-free Course Package; course-scoped overrides would change packaged
+// Course configuration.
 $coursecontext = context_course::instance($course->id);
 $managerrole = $DB->get_record('role', ['shortname' => 'manager'], '*', MUST_EXIST);
+$systemcontext = context_system::instance();
+assign_capability('mod/page:view', CAP_ALLOW, $studentrole->id, $systemcontext->id, true);
+assign_capability('moodle/course:togglecompletion', CAP_ALLOW, $studentrole->id, $systemcontext->id, true);
 role_assign($managerrole->id, $userid, $coursecontext->id);
 rebuild_course_cache($course->id, true);
 
+$activities = array_values($DB->get_records('course_modules', ['course' => $course->id], 'id', 'id, section'));
+if (!$activities) {
+    throw new RuntimeException('The review Course has no Learning Activity.');
+}
+
 echo "REVIEWER_USERNAME={$username}\n";
 echo "REVIEWER_PASSWORD={$password}\n";
+foreach ($activities as $activity) {
+    echo "REVIEW_ACTIVITY_SECTION={$activity->id}:{$activity->section}\n";
+}

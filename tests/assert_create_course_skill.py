@@ -89,3 +89,13 @@ require_all(
     ),
     "English Source Activity duration contract",
 )
+
+require_all(
+    skill,
+    (
+        "hidden-Course review-learner HTTP verification",
+        "before relaying",
+        "blocking learner-verification failure",
+    ),
+    "hidden Course learner verification gate",
+)

@@ -1,0 +1,227 @@
+{
+  "topic": "Building a Custom Open-Weight LLM for Financial Crime Compliance",
+  "audience": "AI engineers, solution architects, data scientists, and technical compliance professionals working in regulated financial institutions",
+  "entry_level": "intermediate",
+  "language": "en-US",
+  "intended_learning_outcome": "Design and document a proof-of-concept open-weight LLM solution for one KYC, CLM, or FEC use case, including model choice, adaptation method, governed data flow, evaluation suite, deployment architecture, and human-control mechanisms.",
+  "learning_time_minutes": 480,
+  "course_description": "An applied Course on creating and evaluating a private, domain-adapted LLM for financial-sector workflows, with emphasis on Know Your Customer, Customer Lifecycle Management, and Financial Economic Crime. The Course distinguishes open weights from Open Source AI, grounds the design in financial-crime controls, compares RAG with parameter-efficient fine-tuning, and culminates in a governed proof-of-concept architecture and evaluation plan.",
+  "learning_path": [
+    {
+      "name": "Choose an Open-Weight Foundation",
+      "introduction": "Establish precise openness and licensing criteria before selecting any model or committing regulated data and infrastructure to it.",
+      "source_provider_item_ids": [
+        "osi/open-source-ai-definition-1.0"
+      ]
+    },
+    {
+      "name": "Frame the Financial Crime Use Case",
+      "introduction": "Translate KYC, CLM, and FEC needs into a bounded model task with legitimate purpose, accountable decisions, governed data, and explicit human controls.",
+      "source_provider_item_ids": [
+        "fincen/cdd-final-rule",
+        "wolfsberg/ai-ml-fcc-principles-2022",
+        "treasury/136/ai-financial-services-2024"
+      ]
+    },
+    {
+      "name": "Design the Adaptation Workflow",
+      "introduction": "Choose and specify the smallest effective adaptation method, moving from governed data and baseline testing to RAG or LoRA only when justified by the target task.",
+      "source_provider_item_ids": [
+        "google-ai/gemma/tune",
+        "google-ai/responsible/alignment",
+        "arxiv/2005.11401",
+        "huggingface-peft/conceptual-guides/lora"
+      ]
+    },
+    {
+      "name": "Control and Evaluate the PoC",
+      "introduction": "Turn the proposed system into a reviewable risk-control plan and a domain-specific evaluation suite with launch, monitoring, escalation, and stop criteria.",
+      "source_provider_item_ids": [
+        "nist/ai-600-1",
+        "google-ai/responsible/evaluation"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "title": "The Open Source AI Definition – 1.0",
+      "activity_name": "Classify Model Openness",
+      "url": "https://opensource.org/ai/open-source-ai-definition",
+      "publisher": "Open Source Initiative",
+      "provider_item_id": "osi/open-source-ai-definition-1.0",
+      "source_type": "article",
+      "language": "en-US",
+      "activity_duration_minutes": 20,
+      "duration_minutes": 10,
+      "activity_purpose": "Create an explicit openness and licensing gate for selecting a foundation model that can be privately deployed and legally adapted.",
+      "activity_instructions": "Read the definition and compare parameters, training code, inference code, and data information. Build a one-page checklist that distinguishes proprietary, open-weight, and Open Source AI. Add checks for commercial use, redistribution, derivative models, acceptable-use restrictions, and the obligation to retain license notices. Use the checklist as the first gate in the final PoC.",
+      "access": {
+        "free": true,
+        "basis": "Free public Open Source Initiative definition available anonymously without payment or sign-in.",
+        "evidence_url": "https://opensource.org/ai/faq"
+      }
+    },
+    {
+      "title": "Information on Complying with the Customer Due Diligence (CDD) Final Rule",
+      "activity_name": "Map KYC and CLM Controls",
+      "url": "https://www.fincen.gov/resources/statutes-and-regulations/cdd-final-rule",
+      "publisher": "Financial Crimes Enforcement Network (FinCEN)",
+      "provider_item_id": "fincen/cdd-final-rule",
+      "source_type": "article",
+      "language": "en-US",
+      "activity_duration_minutes": 70,
+      "duration_minutes": 5,
+      "activity_purpose": "Ground the proposed LLM use case in customer identity, beneficial ownership, relationship-risk profiling, and ongoing-monitoring controls across the customer lifecycle.",
+      "activity_instructions": "Read the four core CDD requirements and choose one bounded KYC, CLM, or FEC task connected to them. Model the lifecycle from onboarding through ongoing review: identify regulated purpose, users, customer and beneficial-owner inputs, relationship-risk data, monitoring events, deterministic policy checks, possible outcomes, accountable human decisions, escalation paths, retained evidence, and failure consequences. Mark where an LLM may assist with extraction, summarization, retrieval, or investigation and where it must not make an autonomous compliance decision. Add privacy, security, data-quality, and audit requirements, then write measurable acceptance criteria for the proposed task.",
+      "access": {
+        "free": true,
+        "basis": "Free public FinCEN information page available anonymously without payment or sign-in.",
+        "evidence_url": "https://www.fincen.gov/site-policies-and-notices"
+      }
+    },
+    {
+      "title": "Wolfsberg Principles for Using Artificial Intelligence and Machine Learning in Financial Crime Compliance",
+      "activity_name": "Apply FEC AI Principles",
+      "url": "https://db.wolfsberg-group.org/assets/ae8ec2d1-da45-4cef-b6c6-166e2cf17c03/Wolfsberg%20Principles%20for%20Using%20Artificial%20Intelligence%20and%20Machine%20Learning%20in%20Financial%20Crime%20Compliance.pdf",
+      "publisher": "The Wolfsberg Group",
+      "provider_item_id": "wolfsberg/ai-ml-fcc-principles-2022",
+      "source_type": "article",
+      "language": "en-US",
+      "activity_duration_minutes": 30,
+      "duration_minutes": 10,
+      "activity_purpose": "Convert financial-crime AI principles into non-negotiable design constraints and ownership assignments for the selected use case.",
+      "activity_instructions": "Read the five principles and apply each one to the chosen use case. For legitimate purpose, proportionate use, design and technical expertise, accountability and oversight, and openness and transparency, write one design requirement, one accountable owner, one piece of evidence, and one condition that would stop or restrict deployment. Identify any proposed reuse of KYC or transaction data that needs separate approval.",
+      "access": {
+        "free": true,
+        "basis": "Free official Wolfsberg Group principles available anonymously as a public PDF without payment or sign-in.",
+        "evidence_url": "https://wolfsberg-group.org/resources/legacy/93"
+      }
+    },
+    {
+      "title": "Artificial Intelligence in Financial Services: Report on the Uses, Opportunities, and Risks of Artificial Intelligence in the Financial Services Sector",
+      "activity_name": "Design the Financial PoC",
+      "url": "https://home.treasury.gov/system/files/136/Artificial-Intelligence-in-Financial-Services.pdf",
+      "publisher": "U.S. Department of the Treasury",
+      "provider_item_id": "treasury/136/ai-financial-services-2024",
+      "source_type": "article",
+      "language": "en-US",
+      "activity_duration_minutes": 60,
+      "duration_minutes": 35,
+      "activity_purpose": "Define the PoC boundary, architecture, data flow, expected benefit, and risk assumptions using financial-services AI evidence.",
+      "activity_instructions": "Read the report sections covering financial-crime use cases and the risks of data, privacy, bias, explainability, third parties, monitoring, and compliance. Draft the PoC context diagram: users, input systems, permitted data, retrieval index or training store, base model, adapter if used, policy layer, output, human review, records, and monitoring. Add assumptions, dependencies, exclusions, and a measurable baseline for the current non-LLM process.",
+      "access": {
+        "free": true,
+        "basis": "Free official U.S. Department of the Treasury report available anonymously as a public PDF without payment or sign-in.",
+        "evidence_url": "https://home.treasury.gov/news/press-releases/jy2760"
+      }
+    },
+    {
+      "title": "Gemma model fine-tuning",
+      "activity_name": "Plan Model Adaptation",
+      "url": "https://ai.google.dev/gemma/docs/tune?hl=en",
+      "publisher": "Google AI for Developers",
+      "provider_item_id": "google-ai/gemma/tune",
+      "source_type": "article",
+      "language": "en-US",
+      "activity_duration_minutes": 40,
+      "duration_minutes": 20,
+      "activity_purpose": "Translate the PoC into an adaptation lifecycle with a justified base-model choice, baseline, data plan, resource estimate, test plan, and deployment target.",
+      "activity_instructions": "Read the fine-tuning lifecycle and compare using a model unchanged, parameter-efficient tuning, and full tuning. Extend the openness checklist with task fit, context length, model size, hardware, inference latency, language support, model-card limitations, security support, and license terms. Select a provisional model size and framework, state what baseline must fail before tuning is justified, and define success, failure, and boundary tests for the chosen financial task.",
+      "access": {
+        "free": true,
+        "basis": "Free public Google AI developer documentation available anonymously; page content is licensed CC BY 4.0 and code samples Apache 2.0.",
+        "evidence_url": "https://developers.google.com/terms/site-policies"
+      }
+    },
+    {
+      "title": "Align your models",
+      "activity_name": "Govern Adaptation Data",
+      "url": "https://ai.google.dev/responsible/docs/alignment",
+      "publisher": "Google AI for Developers",
+      "provider_item_id": "google-ai/responsible/alignment",
+      "source_type": "article",
+      "language": "en-US",
+      "activity_duration_minutes": 45,
+      "duration_minutes": 20,
+      "activity_purpose": "Specify a lawful, representative, traceable, and testable financial-domain dataset without leaking sensitive data or evaluation answers into training.",
+      "activity_instructions": "Read the guidance on policies, data curation, labeling, task tuning, and safety tuning. Create a dataset specification for the PoC covering permitted sources, lawful purpose, minimization or masking of personal data, provenance, consent or authority, retention, access, quality checks, labels, class balance, edge cases, prohibited content, train-validation-test separation, versioning, and deletion. Include a human approval gate before any regulated data is used for tuning or indexing.",
+      "access": {
+        "free": true,
+        "basis": "Free public Google AI developer documentation available anonymously; page content is licensed CC BY 4.0 and code samples Apache 2.0.",
+        "evidence_url": "https://developers.google.com/terms/site-policies"
+      }
+    },
+    {
+      "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+      "activity_name": "Design Grounded Retrieval",
+      "url": "https://arxiv.org/abs/2005.11401",
+      "publisher": "Patrick Lewis et al. / arXiv",
+      "provider_item_id": "arxiv/2005.11401",
+      "source_type": "article",
+      "language": "en-US",
+      "activity_duration_minutes": 45,
+      "duration_minutes": 30,
+      "activity_purpose": "Decide whether changing financial knowledge should remain inspectable and updateable through retrieval instead of being encoded in model weights.",
+      "activity_instructions": "Read the abstract, introduction, architecture, results, and limitations. Draw the parametric-model and non-parametric-retrieval components. For the chosen use case, list knowledge that changes frequently, requires provenance, or must be access-controlled. Specify candidate documents, chunk metadata, retrieval filters, citations, freshness checks, and failure behavior. Decide which requirements RAG satisfies and which still require prompting, fine-tuning, deterministic rules, or human review.",
+      "access": {
+        "free": true,
+        "basis": "Free public research paper available anonymously in HTML and PDF under its arXiv distribution terms.",
+        "evidence_url": "https://info.arxiv.org/help/license/index.html"
+      }
+    },
+    {
+      "title": "LoRA",
+      "activity_name": "Configure LoRA Fine-Tuning",
+      "url": "https://huggingface.co/docs/peft/main/conceptual_guides/lora",
+      "publisher": "Hugging Face",
+      "provider_item_id": "huggingface-peft/conceptual-guides/lora",
+      "source_type": "article",
+      "language": "en-US",
+      "activity_duration_minutes": 55,
+      "duration_minutes": 25,
+      "activity_purpose": "Produce a reproducible LoRA or QLoRA experiment specification only for behavior that prompting and retrieval cannot achieve reliably.",
+      "activity_instructions": "Read the LoRA concepts, common parameters, target modules, initialization, and adapter merge options. Define the base checkpoint, immutable version and license; adapter task; training and held-out datasets; rank, alpha, dropout, target modules, precision or quantization; compute budget; checkpoints; metrics; baseline comparison; reproducibility evidence; and rollback. Explain why LoRA or QLoRA is preferable to full tuning and identify one result that would cause you to abandon weight adaptation.",
+      "access": {
+        "free": true,
+        "basis": "Free public Hugging Face PEFT documentation available anonymously; the PEFT repository is Apache-2.0 licensed.",
+        "evidence_url": "https://github.com/huggingface/peft/blob/main/LICENSE"
+      }
+    },
+    {
+      "title": "Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile",
+      "activity_name": "Build the Risk Control Plan",
+      "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence",
+      "publisher": "National Institute of Standards and Technology (NIST)",
+      "provider_item_id": "nist/ai-600-1",
+      "source_type": "article",
+      "language": "en-US",
+      "activity_duration_minutes": 80,
+      "duration_minutes": 60,
+      "activity_purpose": "Turn the architecture and adaptation plan into a lifecycle risk register with preventive, detective, corrective, and governance controls.",
+      "activity_instructions": "Read the GenAI risks and suggested actions most relevant to the PoC. Create a risk register for confabulation, data privacy, information security, harmful bias, over-reliance, content provenance, intellectual property, third-party components, misuse, and model or data drift. For every applicable risk, record likelihood, impact, affected KYC/CLM/FEC decision, prevention, detection, response, accountable owner, evidence, monitoring frequency, escalation threshold, and residual-risk approval.",
+      "access": {
+        "free": true,
+        "basis": "Free official NIST Generative AI Profile available anonymously as a public PDF without payment or sign-in.",
+        "evidence_url": "https://www.nist.gov/open"
+      }
+    },
+    {
+      "title": "Evaluate model and system for safety",
+      "activity_name": "Specify the Evaluation Suite",
+      "url": "https://ai.google.dev/responsible/docs/evaluation",
+      "publisher": "Google AI for Developers",
+      "provider_item_id": "google-ai/responsible/evaluation",
+      "source_type": "article",
+      "language": "en-US",
+      "activity_duration_minutes": 35,
+      "duration_minutes": 15,
+      "activity_purpose": "Complete the PoC with an independent, repeatable evaluation suite and explicit criteria for launch, restricted use, escalation, and shutdown.",
+      "activity_instructions": "Read the development, assurance, red-team, external, benchmark, and custom-evaluation guidance. Build an evaluation matrix covering task accuracy, groundedness and citation correctness, false positives and false negatives, hallucinations, demographic or geographic bias, sensitive-data leakage, prompt injection and retrieval poisoning, refusal behavior, explainability, latency, and human override. Define datasets, metrics, thresholds, evaluators, blind review, regression frequency, approval owners, monitoring signals, and stop criteria. Finish by assembling the model checklist, use-case definition, architecture, dataset specification, adaptation decision, risk register, and evaluation matrix into one reviewable PoC design.",
+      "access": {
+        "free": true,
+        "basis": "Free public Google AI developer documentation available anonymously; page content is licensed CC BY 4.0 and code samples Apache 2.0.",
+        "evidence_url": "https://developers.google.com/terms/site-policies"
+      }
+    }
+  ]
+}
