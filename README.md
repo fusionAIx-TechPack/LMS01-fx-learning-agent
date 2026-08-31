@@ -1,22 +1,29 @@
 # FX Learning Course Generation
 
-Create an internal learning course from an idea, review it in a local Moodle,
-and produce a validated Moodle Course Package (`.mbz`). The recommended entry
+Create an internal learning course from a single source URL, review it in a
+local Moodle, and produce a validated Moodle Course Package (`.mbz`). The recommended entry
 point is the repository-local `create-course` agent skill.
 
-The workflow is designed for company employees who know the learning need but
-do not need to know the Course Brief JSON schema or Moodle backup internals.
+The workflow is designed for company employees who have a source URL for the
+topic but do not need to know the Course Brief JSON schema or Moodle backup
+internals.
 
 ## What you get
 
 For each Course, the workflow keeps the following artifacts together in
 `output/<course-slug>/`:
 
-- a Source Research Dossier with evaluated Source Candidates and the human
-  selection;
-- a JSON Course Brief containing only the selected Sources;
+- a Source Research Dossier with the evaluated Source Candidates and the Sources
+  the agent selected;
+- a JSON Course Brief containing the selected Sources and any reference videos;
 - a reviewable JSON Course Definition;
-- a Moodle-native Course Package (`.mbz`) after review and Trial Restoration.
+- a Moodle-native Course Package (`.mbz`), generated and automatically
+  smoke-checked; run `bin/course-package verify` for a clean-restore proof.
+
+Every Course has the same fixed five-activity structure — a course overview, a
+link to the entered URL, a reference-video page, a certification-upload
+assignment, and a discussion forum. See
+[docs/course-structure.md](docs/course-structure.md).
 
 The resulting package uses standard Moodle components and contains no user data.
 It is intended for manual restoration into a compatible Moodle 5.0.x site.
@@ -50,38 +57,44 @@ codex
 
 You can also open the checked-out repository folder in the Codex app. Ask the
 agent to use the repo-local skill. The skill name is `create-course` with a
-hyphen. For example:
+hyphen. As the Agent Prompt, enter the URL of the source you want the Course
+built around — or a list of URLs, one per line, or an attached spreadsheet
+(`.xlsx`/`.csv`) with a column of source URLs, to build several courses in that
+order (one course per URL, each in its own `output/<slug>/`):
 
 ```text
 $create-course
 
-Create a beginner Course called "Introduction to Pega Constellation" for
-developers who know Pega but are new to Constellation. The intended outcome is
-to explain the architecture and build a first view. The learning-time budget is
-90 minutes. Cover architecture, views, fields, and debugging.
+https://academy.pega.com/topic/generative-ai-pega/v1
 ```
 
-The conversation may be in Polish, but the generated Course and all selected
-Sources currently use English (`en-US`). See the full prompt template and resume
+The agent inspects that URL and proposes a Course Name, Course Overview, Course
+Duration, Level, Language, and Audience for you to confirm before it researches
+Sources. The conversation may be in Polish, but the generated Course and all
+selected Sources currently use English (`en-US`). See the full flow and resume
 examples in [Using the `create-course` skill](docs/create-course.md).
 
-### 3. Make the two human decisions
+### 3. Make the one human decision
 
-The agent automates the technical work but deliberately pauses at two gates:
+The agent automates the technical work and pauses at a single gate:
 
 | Gate | What the agent provides | What you decide |
 | --- | --- | --- |
-| Source selection | 5–10 researched, free Source Candidates with evidence and a recommended order | Select the exact Sources and their order |
-| Course review | A hidden Course in local Moodle with reviewer and learner access | Type `accept` or `reject` after inspecting it |
+| Course Research Request | A proposed Course Name, Overview, Duration, Level, Language, and Audience derived from your URL | Confirm or correct it before research starts |
 
-Source Candidates never become Course content automatically. The Course
-Requester selects them, and the Course Reviewer makes the packaging decision.
+The agent then researches and selects the free Sources itself, sized to the
+confirmed Course Duration, and packages the Course unattended. Its own review of
+the generated Course Definition is the quality gate on the Source selection
+(see [ADR-0005](docs/adr/0005-automated-packaging.md)).
 
-### 4. Receive the validated package
+### 4. Receive the package
 
-After `accept`, the build creates the `.mbz`, restores it in a clean Moodle at
-<http://localhost:8081>, and verifies learner-visible behavior. A package is
-reported as validated only after that Trial Restoration succeeds.
+The build stands up a local Moodle, generates the Course, runs an automated
+review-learner HTTP check that the five activities render with working manual
+completion, and writes the `.mbz`. It does **not** run clean-Moodle Trial
+Restoration — the `.mbz` is code-generated and smoke-checked but not
+restore-tested. Run `bin/course-package verify --package … --definition …` for
+that proof (recommended before any production import).
 
 The agent will hand off the exact paths, normally similar to:
 
@@ -93,39 +106,59 @@ output/pega-constellation-introduction/
 └── course-package.mbz
 ```
 
+The `.mbz` restores into a Moodle course whose single content section holds a
+**Course overview** page, a **URL** activity that opens the entered link in a
+new window, a **Watch reference videos** page, a **Submit Course
+Certification** assignment, and a **Discussion Forum**.
+
 ## What the `create-course` skill does
 
 The skill runs or resumes the complete workflow:
 
 ```mermaid
 flowchart LR
-    A[Learning need] --> B[Approved Course Research Request]
-    B --> C[Source research]
-    C --> D{Requester selects Sources}
-    D --> E[Course Brief]
+    A[Source URL] --> B{Requester confirms Course Research Request}
+    B --> C[Source research and selection]
+    C --> E[Course Brief]
     E --> F[Course Definition]
-    F --> G[Hidden local Moodle Course]
-    G --> H{Reviewer accepts?}
-    H -->|reject| I[Revise without packaging]
-    H -->|accept| J[Native Moodle backup]
-    J --> K[Clean Trial Restoration]
-    K --> L[Validated Course Package]
+    F --> G[Generate Course in local Moodle]
+    G --> H[Automated review-learner HTTP check]
+    H --> J[Native Moodle backup]
+    J --> L[Course Package .mbz]
+    L -. on demand .-> M[bin/course-package verify: clean Trial Restoration]
 ```
 
 It validates Source provenance, free access, availability, supported Source
-types, language, durations, and the Course time budget. It also keeps navigation
-labels short, preserves full external Source titles, and generates guided Source
-Activities with explicit manual completion.
+types, language, durations, and the Course Duration. It preserves full external
+Source titles as link text and assembles the fixed five-activity structure from
+the selected Sources.
 
-The skill does not choose Sources for the requester, treat opening a Source as
-completion, publish a Course, or connect to production Moodle. Those boundaries
-are intentional. The detailed operating guide is in
+Opening a Source never completes an activity: the overview, the link, the
+reference-video page, and the discussion forum require an explicit *Mark as
+done*, and the certification assignment completes only when the learner submits
+a file. The
+skill does not publish a Course or connect to production Moodle. Those
+boundaries are intentional. The detailed operating guide is in
 [docs/create-course.md](docs/create-course.md).
 
 ## Manual CLI workflow
 
 Use the CLI directly when you already have an approved Course Brief or Course
 Definition.
+
+### Read source URLs from a spreadsheet
+
+```bash
+bin/course-urls "input/Agent- Multiple course links.xlsx"
+bin/course-urls input      # use the single spreadsheet in input/
+```
+
+Prints one URL per line, in row order — the first `http(s)` value in each row,
+so the column name is irrelevant and a header row is skipped. Accepts `.xlsx`,
+`.csv`, or a directory containing exactly one of them. The `create-course`
+workflow uses this to turn an attached spreadsheet into the same ordered list
+as a pasted one; in the skill you can reply `build from input` to run it against
+`input/`.
 
 ### Build and inspect a Course Definition
 
@@ -142,22 +175,36 @@ Source's exact title, short `activity_name`, URL, publisher, provider identifier
 type, language, Source duration, total activity duration, and free-access
 evidence.
 
-### Stage, review, and package an approved Definition
+### Package an approved Definition
 
 ```bash
 bin/course-package build \
   --definition output/copilot-studio-basics/course-definition.json \
-  --output output/copilot-studio-basics/course-package.mbz
+  --output output/copilot-studio-basics/course-package.mbz \
+  --accept --skip-restore
 ```
 
-The command prints the hidden Course URL at <http://localhost:8080> and
-disposable local reviewer and learner credentials. Keep the process running,
-inspect the Course, then type `accept` or `reject` in the waiting terminal.
-Opening a Source does not complete its Source Activity; verify that the learner
-must explicitly select Moodle's **Mark as done** action.
+This stands up a local Moodle, generates the Course, runs the automated
+review-learner HTTP check, and writes the `.mbz` unattended (~1 minute). Run
+`bin/course-package down` afterward.
 
-Use `--accept` or `--reject` only for tests or explicitly requested automation.
-They are not evidence of a genuine human Course review.
+Flags:
+
+- `--accept` skips the interactive review pause. Omitting it (and `--reject`)
+  prints the staged Course URL at <http://localhost:8080> with disposable
+  reviewer/learner logins and waits for you to type `accept` or `reject`.
+- `--skip-restore` stops once the `.mbz` exists and skips clean-Moodle Trial
+  Restoration. Omitting it runs the restoration inline.
+- `--reuse` keeps the existing Moodle install instead of wiping every volume;
+  later runs in a session start in seconds.
+
+The `.mbz` produced with `--skip-restore` is not restore-tested. Prove it with:
+
+```bash
+bin/course-package verify \
+  --package output/copilot-studio-basics/course-package.mbz \
+  --definition output/copilot-studio-basics/course-definition.json
+```
 
 ### Build directly from an approved Brief
 
@@ -197,7 +244,7 @@ different Courses in one Course directory.
 
 The Moodle environments use fixed local ports:
 
-- `8080` — hidden Course review;
+- `8080` — staged Course review;
 - `8081` — clean Trial Restoration.
 
 Run only one Course build or full test suite at a time. After the reviewer no
@@ -209,6 +256,20 @@ bin/course-package down
 
 This removes the disposable local Moodle environments, not the durable files in
 `output/`.
+
+### Faster cold builds
+
+Every full build stands up two clean Moodle sites, and the first start of each
+runs a multi-minute `install_database.php`. Two ways to avoid paying it:
+
+- `bin/course-package build ... --reuse` keeps the existing install between runs
+  and resets only the Course. Fastest once the environment is warm.
+- `bin/build-moodle-seed` (run once) captures a pre-installed Moodle database to
+  `docker/mariadb-seed/moodle.sql.gz`. MariaDB imports it on every fresh volume,
+  so even cold builds and `bin/course-package down` cycles skip the install.
+  Re-run it after changing `docker/moodle` or the Moodle version; delete the
+  file to return to installing from scratch. The snapshot is a local cache and
+  is not committed.
 
 Run the complete repository test suite with:
 
@@ -223,9 +284,10 @@ run it while another Course build or review is active.
 
 Production import is outside the automated workflow. In a compatible Moodle
 5.0.x site, open **Site administration → Courses → Restore course**, upload the
-validated `.mbz`, and restore it as a new hidden Course. Inspect it as a learner
-and publish only after the organization's production review. Confirm the target
-site's patch-level compatibility and permissions first.
+validated `.mbz`, and restore it as a new Course. The package restores the
+Course visible; inspect it as a learner and set visibility to suit the
+destination site. Confirm the target site's patch-level compatibility and
+permissions first.
 
 The repository does not require, collect, or store production Moodle
 credentials.

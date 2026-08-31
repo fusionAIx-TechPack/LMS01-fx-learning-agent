@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
+export MSYS_NO_PATHCONV=1
+export MSYS2_ARG_CONV_EXCL="*"
 repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 cd "$repo_root"
 usage() {
-  echo "Usage: course-package build (--brief FILE --definition-output PATH | --definition FILE) --output PATH [--accept|--reject] | verify --package PATH --definition FILE | down" >&2
+  echo "Usage: course-package build (--brief FILE --definition-output PATH | --definition FILE) --output PATH [--accept|--reject] [--reuse] [--skip-restore] | verify --package PATH --definition FILE [--reuse] | down" >&2
+  echo "  --reuse         Keep the existing Moodle install (skip the volume wipe) and reset only the Course; much faster for iteration." >&2
+  echo "  --skip-restore  Stop after producing the .mbz; skip clean-Moodle Trial Restoration. The package is NOT importable until 'verify' passes." >&2
   exit 64
 }
 resolve_readable_path() {
@@ -29,6 +33,8 @@ brief_path=
 definition_output=
 package_path=
 decision=
+reuse=
+skip_restore=
 while (($#)); do
   case "$1" in
     --definition) definition_path=${2:-}; shift 2 ;;
@@ -37,9 +43,12 @@ while (($#)); do
     --output|--package) package_path=${2:-}; shift 2 ;;
     --accept) decision=accept; shift ;;
     --reject) decision=reject; shift ;;
+    --reuse) reuse=1; shift ;;
+    --skip-restore) skip_restore=1; shift ;;
     *) usage ;;
   esac
 done
+[[ $command == verify && -n $skip_restore ]] && usage
 [[ -n $package_path ]] || usage
 if [[ $command == build ]]; then
   if [[ -n $brief_path ]]; then
@@ -62,7 +71,9 @@ if [[ -n $brief_path ]]; then
     echo "Course Definition and Course Package outputs must use different paths." >&2
     exit 64
   fi
-  "$repo_root/bin/course-definition" build --brief "$brief_path" --output "$definition_output"
+  # course-definition is a python entrypoint; restore MSYS path conversion so
+  # its interpreter and file arguments resolve on Windows/Git Bash.
+  (unset MSYS_NO_PATHCONV MSYS2_ARG_CONV_EXCL; "$repo_root/bin/course-definition" build --brief "$brief_path" --output "$definition_output")
   definition_path=$definition_output
 else
   definition_path=$(resolve_readable_path "Course Definition" "$definition_path")
@@ -71,9 +82,19 @@ mkdir -p artifacts
 cp "$definition_path" artifacts/course-definition.json
 rm -f artifacts/course-package.mbz artifacts/to-verify.mbz
 wait_for_moodle() {
-  local service=$1
-  for _ in {1..90}; do
-    docker compose exec -T "$service" php admin/cli/cfg.php --name=version >/dev/null 2>&1 && return
+  local service=$1 attempt=0
+  for _ in {1..150}; do
+    attempt=$((attempt + 1))
+    # timeout guards against a wedged Moodle CLI bootstrap (a stale moodledata
+    # file lock): kill the hung check so the loop can retry rather than hang.
+    timeout 40 docker compose exec -T "$service" php admin/cli/cfg.php --name=version >/dev/null 2>&1 && return
+    # If several checks in a row wedge, a bootstrap died holding a cache lock and
+    # `timeout` only killed the local docker client, leaving the container-side
+    # php spinning. Kill those orphans and clear the regenerable cache/lock trees
+    # so the next check starts clean.
+    if ((attempt % 3 == 0)); then
+      docker compose exec -T "$service" sh -c 'pkill -9 -f "admin/cli/cfg.php" 2>/dev/null; rm -rf /var/www/moodledata/cache/* /var/www/moodledata/localcache/* /var/www/moodledata/lock/* /var/www/moodledata/muc/* 2>/dev/null; true' >/dev/null 2>&1 || true
+    fi
     sleep 2
   done
   echo "Moodle service '$service' did not become ready" >&2
@@ -81,49 +102,67 @@ wait_for_moodle() {
 }
 wait_for_http() {
   local url=$1
-  for _ in {1..60}; do
-    curl -fsS -o /dev/null "$url" 2>/dev/null && return
+  for _ in {1..300}; do
+    curl -fsS "$url" >/dev/null 2>&1 && return
     sleep 1
   done
   echo "Moodle web interface did not become ready: $url" >&2
   return 1
 }
+post_login_retry() {
+  # curl -o /dev/null reliably fails with a write error (exit 23) on this
+  # Windows/Git-Bash setup when curl runs without an attached console (as
+  # it does here); discard the response body to a real scratch file instead.
+  local discard=artifacts/login-response.tmp status=0
+  mkdir -p artifacts
+  curl -fsS -L -o "$discard" "$@" || status=$?
+  rm -f "$discard"
+  return $status
+}
 verify_review_learner_http() {
   local learner_username=$1 learner_password=$2
   shift 2
   local cookie_jar=artifacts/review-cookies.txt login_page login_token
-  local activity_section activity_id section_id section_page
+  local activity activity_id section_id modname section_page count=0
   rm -f "$cookie_jar"
   wait_for_http http://localhost:8080/login/index.php
   login_page=$(curl -fsS -c "$cookie_jar" http://localhost:8080/login/index.php)
   login_token=$(sed -n 's/.*name="logintoken" value="\([^"]*\)".*/\1/p' <<<"$login_page" | head -n 1)
   test -n "$login_token" || { echo "Could not start the Course review learner session." >&2; return 1; }
-  curl -fsS -L -o /dev/null -b "$cookie_jar" -c "$cookie_jar" \
+  post_login_retry -b "$cookie_jar" -c "$cookie_jar" \
     --data-urlencode "username=$learner_username" --data-urlencode "password=$learner_password" \
     --data-urlencode "logintoken=$login_token" http://localhost:8080/login/index.php
-  for activity_section in "$@"; do
-    activity_id=${activity_section%%:*}
-    section_id=${activity_section#*:}
-    section_page=$(curl -fsS -b "$cookie_jar" "http://localhost:8080/course/section.php?id=$section_id")
-    grep -F "mod/page/view.php?id=$activity_id" <<<"$section_page" >/dev/null || {
-      echo "Hidden Course Learning Activity $activity_id is not visible to the review learner." >&2
+  # All activities live in the single course section, so the course page shows
+  # them all.
+  section_page=$(curl -fsS -L -b "$cookie_jar" "http://localhost:8080/course/view.php?id=$course_id")
+  for activity in "$@"; do
+    activity_id=${activity%%:*}
+    modname=${activity##*:}
+    count=$((count + 1))
+    grep -F "mod/$modname/view.php?id=$activity_id" <<<"$section_page" >/dev/null || {
+      echo "Course activity $activity_id ($modname) is not visible to the review learner." >&2
       return 1
     }
-    grep -F 'data-action="toggle-manual-completion"' <<<"$section_page" >/dev/null || {
-      echo "The review learner cannot explicitly confirm Learning Activity $activity_id completion." >&2
-      return 1
-    }
-    grep -F "data-cmid=\"$activity_id\"" <<<"$section_page" >/dev/null || {
-      echo "The review learner completion control is not associated with Learning Activity $activity_id." >&2
-      return 1
-    }
+    # The three manually completed activities must offer the learner an explicit
+    # completion control; the certification assignment completes on submission.
+    if [[ $modname == page || $modname == url || $modname == forum ]]; then
+      grep -F 'data-action="toggle-manual-completion"' <<<"$section_page" >/dev/null || {
+        echo "The review learner cannot explicitly confirm activity $activity_id completion." >&2
+        return 1
+      }
+      grep -F "data-cmid=\"$activity_id\"" <<<"$section_page" >/dev/null || {
+        echo "The review learner completion control is not associated with activity $activity_id." >&2
+        return 1
+      }
+    fi
   done
   rm -f "$cookie_jar"
-  echo "Verified hidden Course through review learner HTTP session ($# Learning Activities)."
+  echo "Verified Course through review learner HTTP session ($count Learning Activities)."
 }
 restore_and_verify() {
   docker compose up -d --build restore
   wait_for_moodle restore
+  [[ -n $reuse ]] && docker compose exec -T restore php /opt/course-package/reset.php /artifacts/course-definition.json
   docker compose exec -T restore php /opt/course-package/restore.php /artifacts/to-verify.mbz /artifacts/course-definition.json
   verification_output=$(docker compose exec -T restore php /opt/course-package/verify.php /artifacts/course-definition.json)
   echo "$verification_output"
@@ -133,12 +172,21 @@ restore_and_verify() {
   fi
   course_id=$(sed -n 's/^COURSE_ID=//p' <<<"$learner_output")
   activity_id=$(sed -n 's/^ACTIVITY_ID=//p' <<<"$learner_output")
+  overview_cmid=$(sed -n 's/^OVERVIEW_CMID=//p' <<<"$learner_output")
+  resources_cmid=$(sed -n 's/^RESOURCES_CMID=//p' <<<"$learner_output")
+  videos_cmid=$(sed -n 's/^VIDEOS_CMID=//p' <<<"$learner_output")
+  assignment_cmid=$(sed -n 's/^ASSIGNMENT_CMID=//p' <<<"$learner_output")
+  discussion_cmid=$(sed -n 's/^DISCUSSION_CMID=//p' <<<"$learner_output")
   learner_id=$(sed -n 's/^LEARNER_ID=//p' <<<"$learner_output")
   learner_username=$(sed -n 's/^LEARNER_USERNAME=//p' <<<"$learner_output")
   learner_password=$(sed -n 's/^LEARNER_PASSWORD=//p' <<<"$learner_output")
-  source_url=$(base64 -d <<<"$(sed -n 's/^SOURCE_URL_BASE64=//p' <<<"$learner_output")")
+  primary_url=$(base64 -d <<<"$(sed -n 's/^PRIMARY_URL_BASE64=//p' <<<"$learner_output")")
   [[ $course_id =~ ^[0-9]+$ && $activity_id =~ ^[0-9]+$ && $learner_id =~ ^[0-9]+$ ]] || {
-    echo "Learner verification setup did not identify the restored Course, Learning Activity, and learner." >&2
+    echo "Learner verification setup did not identify the restored Course, activity, and learner." >&2
+    return 1
+  }
+  [[ $overview_cmid =~ ^[0-9]+$ && $resources_cmid =~ ^[0-9]+$ && $videos_cmid =~ ^[0-9]+$ && $assignment_cmid =~ ^[0-9]+$ && $discussion_cmid =~ ^[0-9]+$ ]] || {
+    echo "Learner verification setup did not identify all five restored activities." >&2
     return 1
   }
   cookie_jar=artifacts/restore-cookies.txt
@@ -147,14 +195,18 @@ restore_and_verify() {
   login_page=$(curl -fsS -c "$cookie_jar" http://localhost:8081/login/index.php)
   login_token=$(sed -n 's/.*name="logintoken" value="\([^"]*\)".*/\1/p' <<<"$login_page" | head -n 1)
   test -n "$login_token" || { echo "Could not start a Moodle browser session." >&2; return 1; }
-  curl -fsS -L -o /dev/null -b "$cookie_jar" -c "$cookie_jar" \
+  post_login_retry -b "$cookie_jar" -c "$cookie_jar" \
     --data-urlencode "username=$learner_username" --data-urlencode "password=$learner_password" \
     --data-urlencode "logintoken=$login_token" http://localhost:8081/login/index.php
   course_page=$(curl -fsS -b "$cookie_jar" "http://localhost:8081/course/view.php?id=$course_id")
-  grep -F "mod/page/view.php?id=$activity_id" <<<"$course_page" >/dev/null || {
-    echo "The restored Learning Activity is not visible to the learner." >&2
-    return 1
-  }
+  for activity_link in "page/view.php?id=$overview_cmid" "url/view.php?id=$resources_cmid" \
+      "page/view.php?id=$videos_cmid" "assign/view.php?id=$assignment_cmid" \
+      "forum/view.php?id=$discussion_cmid"; do
+    grep -F "mod/$activity_link" <<<"$course_page" >/dev/null || {
+      echo "The restored Course page is missing activity link mod/$activity_link." >&2
+      return 1
+    }
+  done
   while IFS= read -r encoded_text; do
     expected_text=$(base64 -d <<<"$encoded_text")
     grep -F "$expected_text" <<<"$course_page" >/dev/null || {
@@ -163,22 +215,26 @@ restore_and_verify() {
     }
   done < <(sed -n 's/^EXPECTED_TEXT_BASE64=//p' <<<"$learner_output")
   grep -F 'data-action="toggle-manual-completion"' <<<"$course_page" >/dev/null || {
-    echo "The restored Learning Activity does not offer explicit learner completion confirmation." >&2
+    echo "The restored Course does not offer explicit learner completion confirmation." >&2
     return 1
   }
-  grep -F "data-cmid=\"$activity_id\"" <<<"$course_page" >/dev/null || {
-    echo "The learner completion confirmation is not associated with the restored Learning Activity." >&2
+  grep -F "data-cmid=\"$overview_cmid\"" <<<"$course_page" >/dev/null || {
+    echo "The learner completion confirmation is not associated with the Course overview activity." >&2
     return 1
   }
   docker compose exec -T restore php /opt/course-package/verify.php /artifacts/course-definition.json completion-incomplete "$learner_id"
-  activity_page=$(curl -fsS -b "$cookie_jar" "http://localhost:8081/mod/page/view.php?id=$activity_id")
-  python3 "$repo_root/tests/assert_source_activity_page.py" "$source_url" <<<"$activity_page"
-  for completion_text in 'Finish the Source' 'produce the result required by the instructions' 'return to this Course' 'Mark as done'; do
-    grep -F "$completion_text" <<<"$activity_page" >/dev/null || {
-      echo "The learner-visible Source Activity is missing completion guidance: $completion_text" >&2
+  overview_page=$(curl -fsS -b "$cookie_jar" "http://localhost:8081/mod/page/view.php?id=$overview_cmid")
+  for overview_text in 'Number of Modules' 'Estimated Time' 'Instruction'; do
+    grep -F "$overview_text" <<<"$overview_page" >/dev/null || {
+      echo "The Course overview activity is missing: $overview_text" >&2
       return 1
     }
   done
+  assignment_page=$(curl -fsS -b "$cookie_jar" "http://localhost:8081/mod/assign/view.php?id=$assignment_cmid")
+  grep -Eq 'Add submission|Submission status|No attempt' <<<"$assignment_page" || {
+    echo "The certification assignment does not present a file-submission affordance to the learner." >&2
+    return 1
+  }
   docker compose exec -T restore php /opt/course-package/verify.php /artifacts/course-definition.json completion-incomplete "$learner_id"
   sesskey=$(sed -n 's/.*"sesskey":"\([^"]*\)".*/\1/p' <<<"$course_page" | head -n 1)
   test -n "$sesskey" || { echo "Could not identify the learner session key for completion confirmation." >&2; return 1; }
@@ -193,10 +249,23 @@ restore_and_verify() {
   echo "Verified restored Course through learner HTTP session."
 }
 print_manual_import_guidance() {
-  echo "Manual production import: in a compatible Moodle 5.0.x site, use Site administration > Courses > Restore course. Restore the .mbz as a new hidden Course, review it, and publish it manually only when ready."
+  echo "Manual production import: in a compatible Moodle 5.0.x site, use Site administration > Courses > Restore course. The .mbz restores as a visible Course; review it and adjust visibility to suit the destination site."
+}
+reset_or_wipe() {
+  # Default: wipe every volume for a reproducible clean environment. With
+  # --reuse: keep the existing Moodle install and only clear the prior Course
+  # and disposable accounts, so the multi-minute Moodle install is skipped.
+  if [[ -z $reuse ]]; then
+    docker compose down --volumes >/dev/null 2>&1 || true
+    return
+  fi
+  local service=$1
+  docker compose up -d --build "$service"
+  wait_for_moodle "$service"
+  docker compose exec -T "$service" php /opt/course-package/reset.php /artifacts/course-definition.json
 }
 if [[ $command == build ]]; then
-  docker compose down --volumes >/dev/null 2>&1 || true
+  reset_or_wipe source
   docker compose up -d --build source
   wait_for_moodle source
   if ! generation_output=$(docker compose exec -T source php /opt/course-package/generate.php /artifacts/course-definition.json 2>&1); then
@@ -212,21 +281,21 @@ if [[ $command == build ]]; then
   fi
   reviewer_username=$(sed -n 's/^REVIEWER_USERNAME=//p' <<<"$reviewer_output")
   reviewer_password=$(sed -n 's/^REVIEWER_PASSWORD=//p' <<<"$reviewer_output")
-  mapfile -t reviewer_activity_sections < <(sed -n 's/^REVIEW_ACTIVITY_SECTION=//p' <<<"$reviewer_output")
+  mapfile -t reviewer_activities < <(sed -n 's/^REVIEW_ACTIVITY=//p' <<<"$reviewer_output")
   [[ -n $reviewer_username && -n $reviewer_password ]] || { echo "Review learner setup did not return local credentials." >&2; exit 1; }
-  ((${#reviewer_activity_sections[@]} > 0)) || {
-    echo "Review learner setup did not identify any Learning Activities and sections." >&2
+  ((${#reviewer_activities[@]} == 5)) || {
+    echo "Review learner setup did not identify the five Course activities." >&2
     exit 1
   }
-  for reviewer_activity_section in "${reviewer_activity_sections[@]}"; do
-    [[ $reviewer_activity_section =~ ^[0-9]+:[0-9]+$ ]] || {
-      echo "Review learner setup returned an invalid Learning Activity and section pair." >&2
+  for reviewer_activity in "${reviewer_activities[@]}"; do
+    [[ $reviewer_activity =~ ^[0-9]+:[0-9]+:[a-z]+$ ]] || {
+      echo "Review learner setup returned an invalid activity descriptor: $reviewer_activity" >&2
       exit 1
     }
   done
-  verify_review_learner_http "$reviewer_username" "$reviewer_password" "${reviewer_activity_sections[@]}"
-  echo "Review the Course Definition at $definition_path and the hidden local Course at http://localhost:8080/course/view.php?id=$course_id."
-  echo "Local review admin login: admin / LocalOnly-ChangeMe1!"
+  verify_review_learner_http "$reviewer_username" "$reviewer_password" "${reviewer_activities[@]}"
+  echo "Review the Course Definition at $definition_path and the local Course at http://localhost:8080/course/view.php?id=$course_id."
+  echo "Local review admin login: admin / Local-Admin-2026"
   echo "Local review learner login: $reviewer_username / $reviewer_password"
   if [[ -z $decision ]]; then
     until [[ $decision == accept || $decision == reject ]]; do
@@ -241,6 +310,15 @@ if [[ $command == build ]]; then
   docker compose exec -T source php /opt/course-package/backup.php /artifacts/course-package.mbz /artifacts/course-definition.json
   test -s artifacts/course-package.mbz
   cp artifacts/course-package.mbz artifacts/to-verify.mbz
+  if [[ -n $skip_restore ]]; then
+    cp artifacts/course-package.mbz "$package_path"
+    echo "Course Package created WITHOUT clean-Moodle trial restoration: $package_path"
+    echo "This package is NOT importable yet. Before handoff, validate it with:"
+    echo "  bin/course-package verify --package $package_path --definition $definition_path"
+    [[ -n $reuse ]] && echo "The review Moodle is still up at http://localhost:8080 for the next --reuse build."
+    echo "Run 'bin/course-package down' when you no longer need the local Moodle environment."
+    exit 0
+  fi
   docker compose stop source source-db >/dev/null
   restore_and_verify
   cp artifacts/course-package.mbz "$package_path"
@@ -248,7 +326,7 @@ if [[ $command == build ]]; then
   print_manual_import_guidance
 else
   test -s "$package_path" || { echo "Course Package not found: $package_path" >&2; exit 66; }
-  docker compose down --volumes >/dev/null 2>&1 || true
+  reset_or_wipe restore
   cp "$package_path" artifacts/to-verify.mbz
   restore_and_verify
   echo "Course Package validated by clean-Moodle trial restoration: $package_path"

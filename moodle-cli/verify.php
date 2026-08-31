@@ -2,88 +2,148 @@
 define('CLI_SCRIPT', true);
 require('/var/www/html/config.php');
 require_once($CFG->libdir . '/completionlib.php');
+require_once($CFG->libdir . '/resourcelib.php');
 require_once(__DIR__ . '/course_definition.php');
+
 function assert_course(bool $condition, string $message): void {
     if (!$condition) throw new RuntimeException($message);
 }
+
 $definition = load_course_definition($argv[1] ?? '');
 $course = $DB->get_record('course', ['shortname' => $definition['identity']['shortname']], '*', MUST_EXIST);
 $mode = $argv[2] ?? 'structure';
+
+$modulesById = array_values($DB->get_records('course_modules', ['course' => $course->id], 'id'));
+
 if ($mode === 'completion-incomplete' || $mode === 'completion-complete') {
     $userid = filter_var($argv[3] ?? null, FILTER_VALIDATE_INT);
     assert_course($userid !== false && $userid > 0, 'Completion verification requires a valid learner user ID.');
-    $firstLearningActivityModule = array_values($DB->get_records('course_modules', ['course' => $course->id], 'id'))[0] ?? null;
-    assert_course($firstLearningActivityModule !== null, 'Course has no learner-visible Learning Activity.');
+    $overviewModule = $modulesById[0] ?? null;
+    assert_course($overviewModule !== null, 'Course has no learner-visible Learning Activity.');
     $completion = new completion_info($course);
-    $cm = get_coursemodule_from_id('page', $firstLearningActivityModule->id, $course->id, false, MUST_EXIST);
+    $cm = get_coursemodule_from_id('page', $overviewModule->id, $course->id, false, MUST_EXIST);
     $state = $completion->get_data($cm, false, $userid);
     if ($mode === 'completion-incomplete') {
         assert_course($state->completionstate == COMPLETION_INCOMPLETE, 'The Learning Activity was completed without learner confirmation.');
-        echo "Verified that opening the learner-visible Source does not complete the Learning Activity.\n";
+        echo "Verified that opening an activity does not complete it without learner confirmation.\n";
     } else {
         assert_course($state->completionstate == COMPLETION_COMPLETE, 'The learner confirmation did not complete the Learning Activity.');
         echo "Verified explicit learner completion confirmation.\n";
     }
     exit(0);
 }
+
+$structure = $definition['structure'];
+$acts = $structure['activities'];
+
 assert_course($course->fullname === $definition['identity']['fullname'], 'Course identity was not preserved.');
-assert_course($course->visible == 0, 'Restored Course must remain hidden.');
+assert_course($course->visible == 1, 'Restored Course must be visible.');
 assert_course($course->format === 'topics', 'Restored Course must use topic format.');
 assert_course($course->enablecompletion == 1, 'Course completion tracking must be enabled.');
+
 $sections = array_values($DB->get_records('course_sections', ['course' => $course->id], 'section'));
-assert_course(count($sections) === count($definition['modules']) + 1, 'Course module structure was not preserved.');
-assert_course($sections[0]->name === $definition['general']['name'], 'General section was not preserved.');
-$expectedActivities = [];
-foreach ($definition['modules'] as $moduleIndex => $moduleDefinition) {
-    $section = $sections[$moduleIndex + 1] ?? null;
-    assert_course($section && $section->name === $moduleDefinition['name'], "Module {$moduleIndex} was not preserved.");
-    assert_course(str_contains($section->summary, htmlspecialchars($moduleDefinition['introduction'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')), "Module {$moduleIndex} introduction was not preserved.");
-    foreach ($moduleDefinition['activities'] as $activity) $expectedActivities[] = $activity;
+assert_course(count($sections) === 1, 'Restored Course must have exactly one section.');
+assert_course($sections[0]->name === $structure['section_name'], 'The single section must be named for the Course topic.');
+
+assert_course(count($modulesById) === 5, 'Restored Course must contain exactly five activities.');
+$modName = static function ($cm) use ($DB) {
+    return $DB->get_field('modules', 'name', ['id' => $cm->module]);
+};
+$expectedModules = ['page', 'url', 'page', 'assign', 'forum'];
+foreach ($expectedModules as $index => $expected) {
+    assert_course($modName($modulesById[$index]) === $expected, "Activity {$index} must be a Moodle {$expected} activity.");
 }
-$pages = array_values($DB->get_records('page', ['course' => $course->id], 'id'));
-assert_course(count($pages) === count($expectedActivities), 'Source Activity count was not preserved.');
-foreach ($expectedActivities as $index => $activity) {
-    $page = $pages[$index];
-    $content = $page->content;
-    assert_course($page->name === $activity['name'], "Source Activity {$index} name was not preserved.");
-    assert_course(str_contains($content, htmlspecialchars($activity['source']['title'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')), "Source Activity {$index} Source title was not preserved.");
-    assert_course(str_contains($content, htmlspecialchars($activity['purpose'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')), "Source Activity {$index} purpose was not preserved.");
-    assert_course(str_contains($content, htmlspecialchars($activity['instructions'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')), "Source Activity {$index} instructions were not preserved.");
-    assert_course(str_contains($content, 'Estimated Activity Duration'), "Source Activity {$index} does not show its estimated duration.");
-    assert_course(str_contains($content, $activity['duration_minutes'] . ' minutes'), "Source Activity {$index} activity duration was not preserved.");
-    assert_course(str_contains($content, htmlspecialchars($activity['source']['publisher'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')), "Source Activity {$index} publisher was not preserved.");
-    assert_course(str_contains($content, ucfirst($activity['source']['source_type'])), "Source Activity {$index} Source type was not preserved.");
-    if ($activity['duration_minutes'] === $activity['source']['duration_minutes']) {
-        assert_course(!str_contains($content, 'Estimated Source Duration'), "Source Activity {$index} duplicates an equal Source duration.");
-    } else {
-        assert_course(str_contains($content, 'Estimated Source Duration'), "Source Activity {$index} does not distinguish its Source duration.");
-        assert_course(str_contains($content, $activity['source']['duration_minutes'] . ' minutes'), "Source Activity {$index} Source duration was not preserved.");
+[$overviewCm, $resourcesCm, $videosCm, $assignmentCm, $discussionCm] = $modulesById;
+
+// --- Course overview page --------------------------------------------------
+$overviewPage = $DB->get_record('page', ['id' => get_coursemodule_from_id('page', $overviewCm->id, $course->id, false, MUST_EXIST)->instance], '*', MUST_EXIST);
+assert_course($overviewPage->name === $acts['overview']['name'], 'Course overview activity name was not preserved.');
+foreach (['Number of Modules', (string) $acts['overview']['module_count'], 'Estimated Time', $acts['overview']['estimated_time_label'], 'Instruction'] as $needle) {
+    assert_course(str_contains($overviewPage->content, htmlspecialchars($needle, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')) || str_contains($overviewPage->content, $needle), "Course overview is missing: {$needle}");
+}
+
+// --- Main link (URL) ----------------------------------------------------
+$urlInstance = $DB->get_record('url', ['id' => get_coursemodule_from_id('url', $resourcesCm->id, $course->id, false, MUST_EXIST)->instance], '*', MUST_EXIST);
+assert_course($urlInstance->name === $acts['resources']['name'], 'Main link activity name was not preserved.');
+assert_course($urlInstance->externalurl === $acts['resources']['primary_url'], 'Main link URL was not preserved.');
+assert_course((int) $urlInstance->display === RESOURCELIB_DISPLAY_NEW, 'The main link must open in a new window.');
+assert_course(trim(strip_tags((string) $urlInstance->intro)) === '', 'The main link must have no description.');
+
+// --- Reference videos page ----------------------------------------------
+$videosPage = $DB->get_record('page', ['id' => get_coursemodule_from_id('page', $videosCm->id, $course->id, false, MUST_EXIST)->instance], '*', MUST_EXIST);
+assert_course($videosPage->name === $acts['videos']['name'], 'Reference videos activity name was not preserved.');
+if (count($acts['videos']['items']) > 0) {
+    foreach ($acts['videos']['items'] as $index => $item) {
+        assert_course(str_contains($videosPage->content, htmlspecialchars($item['title'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')), "Reference videos page is missing video {$index}.");
     }
-    assert_course(str_contains($content, 'Instructions'), "Source Activity {$index} does not label its instructions.");
-    assert_course(str_contains($content, 'Completion'), "Source Activity {$index} does not explain completion.");
-    foreach (['Finish the Source', 'produce the result required by the instructions', 'return to this Course', 'Mark as done'] as $completionText) {
-        assert_course(str_contains($content, $completionText), "Source Activity {$index} has incomplete completion guidance.");
-    }
-    $escapedSourceUrl = htmlspecialchars($activity['source']['url'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-    assert_course(substr_count($content, $escapedSourceUrl) === 1, "Source Activity {$index} must contain exactly one Source link.");
-    assert_course(str_contains($content, 'target="_blank"'), "Source Activity {$index} Source CTA must open a new tab.");
-    assert_course(str_contains($content, 'rel="noopener noreferrer"'), "Source Activity {$index} Source CTA is missing safe external-link attributes.");
-    $contentWithoutSourceUrl = str_replace($escapedSourceUrl, '', $content);
-    assert_course(!str_contains($contentWithoutSourceUrl, $activity['source']['provider_item_id']), "Source Activity {$index} exposes its provider item ID.");
-    assert_course(!str_contains($content, $activity['source']['availability']['checked_at']), "Source Activity {$index} exposes its availability check time.");
-    assert_course(!str_contains($content, $activity['source']['access']['evidence_url']), "Source Activity {$index} exposes its access evidence URL.");
+} else {
+    assert_course(str_contains($videosPage->content, 'No additional reference videos'), 'Reference videos page is missing its empty-state text.');
 }
-$courseModules = array_values($DB->get_records('course_modules', ['course' => $course->id], 'id'));
-assert_course(count($courseModules) === count($expectedActivities), 'Course contains unexpected components.');
-foreach ($courseModules as $courseModule) {
-    assert_course($DB->get_field('modules', 'name', ['id' => $courseModule->module]) === 'page', 'Course Package must use only standard Moodle Page Source Activities.');
-    $cm = get_coursemodule_from_id('page', $courseModule->id, $course->id, false, MUST_EXIST);
-    assert_course($cm->completion == COMPLETION_TRACKING_MANUAL && $cm->completionview == 0, 'Each Source Activity must require explicit learner completion confirmation.');
+
+// --- Certification assignment ------------------------------------------
+$assignCmInfo = get_coursemodule_from_id('assign', $assignmentCm->id, $course->id, false, MUST_EXIST);
+$assignInstance = $DB->get_record('assign', ['id' => $assignCmInfo->instance], '*', MUST_EXIST);
+assert_course($assignInstance->name === $acts['assignment']['name'], 'Certification assignment name was not preserved.');
+assert_course($assignInstance->completionsubmit == 1, 'The certification assignment must complete on submission.');
+assert_course($assignCmInfo->completion == COMPLETION_TRACKING_AUTOMATIC, 'The certification assignment must use automatic completion on submit.');
+assert_course((int) $assignInstance->grade === 0, 'The certification assignment must not be graded.');
+$fileEnabled = $DB->get_field('assign_plugin_config', 'value', ['assignment' => $assignInstance->id, 'plugin' => 'file', 'subtype' => 'assignsubmission', 'name' => 'enabled']);
+$textEnabled = $DB->get_field('assign_plugin_config', 'value', ['assignment' => $assignInstance->id, 'plugin' => 'onlinetext', 'subtype' => 'assignsubmission', 'name' => 'enabled']);
+assert_course($fileEnabled == 1, 'The certification assignment must accept file submissions.');
+assert_course($textEnabled == 0, 'The certification assignment must not accept online-text submissions.');
+
+// --- Discussion forum ------------------------------------------------
+$forumCmInfo = get_coursemodule_from_id('forum', $discussionCm->id, $course->id, false, MUST_EXIST);
+$forumInstance = $DB->get_record('forum', ['id' => $forumCmInfo->instance], '*', MUST_EXIST);
+assert_course($forumInstance->name === $acts['discussion']['name'], 'Discussion forum name was not preserved.');
+assert_course($forumInstance->type === 'general', 'Discussion forum must be a general discussion forum.');
+assert_course((int) $forumInstance->assessed === 0 && (int) $forumInstance->grade_forum === 0, 'The discussion forum must not be graded.');
+
+// --- Completion model ---------------------------------------------------
+foreach ([$overviewCm, $resourcesCm, $videosCm, $discussionCm] as $index => $cmRow) {
+    $cm = get_coursemodule_from_id(false, $cmRow->id, $course->id, false, MUST_EXIST);
+    assert_course($cm->completion == COMPLETION_TRACKING_MANUAL && $cm->completionview == 0, "Activity {$index} must require explicit learner completion confirmation.");
 }
+
+// --- Package hygiene --------------------------------------------------
 assert_course($DB->count_records('user_enrolments') === 0, 'Course Package unexpectedly contains enrolments.');
 assert_course($DB->count_records_select('user', 'id > 2') === 0, 'Course Package unexpectedly contains users.');
 assert_course($DB->count_records('grade_grades') === 0, 'Course Package unexpectedly contains grades.');
 assert_course($DB->count_records('course_modules_completion') === 0, 'Course Package unexpectedly contains activity completion records.');
 assert_course($DB->count_records('course_completions') === 0, 'Course Package unexpectedly contains Course completion records.');
+assert_course($DB->count_records('assign_submission') === 0, 'Course Package unexpectedly contains assignment submissions.');
+assert_course($DB->count_records('forum_discussions') === 0 && $DB->count_records('forum_posts') === 0, 'Course Package unexpectedly contains forum posts.');
+
+// --- No provenance leakage into learner-visible content -------------
+$learnerVisible = implode("\n", [
+    $overviewPage->intro, $overviewPage->content,
+    $urlInstance->intro,
+    $videosPage->intro, $videosPage->content,
+    $assignInstance->intro,
+    $forumInstance->intro,
+    $sections[0]->summary,
+]);
+// A Source URL may legitimately contain its own provider_item_id as a path
+// segment; strip the (escaped) Source and video links before checking that no
+// internal identifier or evidence link is exposed as visible text.
+$withoutLinks = str_replace(
+    htmlspecialchars($definition['brief']['source_url'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+    '',
+    $learnerVisible
+);
+foreach (array_merge($definition['brief']['sources'], $definition['brief']['reference_videos']) as $linked) {
+    $withoutLinks = str_replace(htmlspecialchars($linked['url'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'), '', $withoutLinks);
+}
+foreach ($definition['brief']['sources'] as $index => $source) {
+    assert_course(!str_contains($withoutLinks, $source['provider_item_id']), "Source {$index} provider item ID leaked into learner-visible content.");
+    assert_course(!str_contains($learnerVisible, $source['access']['evidence_url']), "Source {$index} access evidence URL leaked into learner-visible content.");
+    assert_course(!str_contains($learnerVisible, $source['availability']['checked_at']), "Source {$index} availability check time leaked into learner-visible content.");
+}
+
 echo "Verified restored Course Definition structure and package hygiene.\n";
-echo "ACTIVITY_ID={$courseModules[0]->id}\n";
+echo "OVERVIEW_ID={$overviewCm->id}\n";
+echo "RESOURCES_ID={$resourcesCm->id}\n";
+echo "VIDEOS_ID={$videosCm->id}\n";
+echo "ASSIGNMENT_ID={$assignmentCm->id}\n";
+echo "DISCUSSION_ID={$discussionCm->id}\n";
+echo "ACTIVITY_ID={$overviewCm->id}\n";

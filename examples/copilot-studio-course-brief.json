@@ -1,10 +1,12 @@
 {
   "topic": "Microsoft Copilot Studio",
+  "course_description": "A short introduction to building a first agent with Microsoft Copilot Studio.",
   "audience": "employees building their first agent",
   "entry_level": "beginner",
   "language": "en-US",
   "intended_learning_outcome": "Build and publish a first agent",
   "learning_time_minutes": 90,
+  "source_url": "https://learn.microsoft.com/en-us/training/paths/create-extend-custom-copilots-microsoft-copilot-studio/",
   "sources": [
     {
       "title": "What is Microsoft Copilot Studio?",
@@ -16,6 +18,7 @@
       "language": "en-US",
       "activity_duration_minutes": 30,
       "duration_minutes": 20,
+      "activity_purpose": "Understand what Copilot Studio is and what an agent can do.",
       "access": {
         "free": true,
         "basis": "Public Microsoft Learn Source",
@@ -32,11 +35,21 @@
       "language": "en-US",
       "activity_duration_minutes": 60,
       "duration_minutes": 45,
+      "activity_purpose": "Create, test, and publish your first agent.",
       "access": {
         "free": true,
         "basis": "Public Microsoft Learn Source",
         "evidence_url": "https://learn.microsoft.com/en-us/legal/termsofuse"
       }
+    }
+  ],
+  "reference_videos": [
+    {
+      "title": "Create your first agent in Copilot Studio",
+      "url": "https://learn.microsoft.com/en-us/shows/mastering-copilot-studio/create-first-agent-copilot-studio",
+      "publisher": "Microsoft Learn Shows",
+      "note": "A short walkthrough of creating, instructing, and testing a first agent.",
+      "duration_minutes": 10
     }
   ]
 }

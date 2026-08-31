@@ -16,8 +16,8 @@
     "language": "en-US",
     "intended_learning_outcome": "Build and publish a first agent",
     "learning_time_minutes": 90,
-    "sources": [
-      {
+    "sources": {
+      "0": {
         "title": "Microsoft Copilot Studio fundamentals",
         "activity_name": "Copilot Studio fundamentals",
         "url": "https://learn.microsoft.com/en-us/microsoft-copilot-studio/fundamentals-what-is-copilot-studio",
@@ -37,50 +37,8 @@
           "status": 200,
           "checked_at": "2026-01-01T00:00:00+00:00"
         }
-      },
-      {
-        "title": "Build a first agent in Microsoft Copilot Studio",
-        "activity_name": "Build a first agent",
-        "url": "https://learn.microsoft.com/en-us/training/modules/create-copilots-copilot-studio/",
-        "publisher": "Microsoft Learn",
-        "provider_item_id": "learn.copilot-studio.first-agent",
-        "source_type": "course",
-        "language": "en-US",
-        "activity_duration_minutes": 55,
-        "duration_minutes": 45,
-        "access": {
-          "free": true,
-          "basis": "Public Microsoft Learn Source",
-          "evidence_url": "https://learn.microsoft.com/en-us/legal/termsofuse"
-        },
-        "activity_purpose": "Create, test, and publish a first agent.",
-        "availability": {
-          "status": 200,
-          "checked_at": "2026-01-01T00:00:00+00:00"
-        }
-      },
-      {
-        "title": "Introduction to Copilot Studio topics",
-        "activity_name": "Introduction to topics",
-        "url": "https://learn.microsoft.com/en-us/training/modules/copilot-studio-topics/",
-        "publisher": "Microsoft Learn",
-        "provider_item_id": "learn.copilot-studio.topics-introduction",
-        "source_type": "article",
-        "language": "en-US",
-        "activity_duration_minutes": 5,
-        "duration_minutes": 5,
-        "access": {
-          "free": true,
-          "basis": "Public Microsoft Learn Source",
-          "evidence_url": "https://learn.microsoft.com/en-us/legal/termsofuse"
-        },
-        "activity_purpose": "See how topics structure an agent conversation.",
-        "availability": {
-          "status": 200,
-          "checked_at": "2026-01-01T00:00:00+00:00"
-        }
       }
-    ],
+    },
     "reference_videos": [
       {
         "title": "Create your first agent in Copilot Studio",
