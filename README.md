@@ -1,3 +1,23 @@
+# Modified fx-learning-agent as below:
+1. Necessary changes are made to script files that creates needed output of mbz file with 5 Moodle activities - Course summary and instruction, url to course, relevant videos, assignment for proof of completion and forum for discussion.
+2. on $create-course - the prompt will ask user only to enter url/list of urls/excel sheet containing the urls(Source ur as header column)
+3. The Agent will read urls and provides the required course name in below format as an example
+Course Name:     AI Concepts for Developers and Technology Professionals
+  Course Overview: Explain core AI concepts and terminology across generative AI
+                   and agents, natural language processing, speech, computer
+                   vision, information extraction, and retrieval-augmented
+                   generation, and use them to reason about AI workloads and plan
+                   AI solutions.
+  Course Duration: 231 minutes  (Microsoft Learn's stated path duration; sum of
+                   the 7 module times)
+  Level:           beginner
+  Language:        en-US
+  Audience:        Developers and technology professionals starting with AI
+4. User can confirm and the Agent start building the required mbz file. If there are list of urls supplied as in step-1. The agent creates separate folders under output and the relevant output files(jsons,.mbz) respectively.
+5. The course genration time has been reduced. Now for single course it takes 2 mins in local as necessary changes were made to the folder script files to remove dependencies like review, backup, restoration and learner verification. Just because this is not made for production. And for 3 courses generation from excel it took approx 4 to 5mins. _Tested in local_
+
+-----------------------Below contains more details on the **original** folder of fx-learning-agent----------
+
 # FX Learning Course Generation
 
 Create an internal learning course from a single source URL, review it in a
