@@ -1,51 +1,24 @@
 # Course review
 
-Use this checklist on the generated Course Definition before packaging. There is
-no human review of the staged Moodle Course (see
-[ADR-0005](../../../../docs/adr/0005-automated-packaging.md)), so this Definition
-review is the agent's own quality check. Every Course has the same fixed
-five-activity structure; see
-[docs/course-structure.md](../../../../docs/course-structure.md).
+Use this checklist for the generated Course Definition and the staged hidden Moodle Course.
 
 ## Definition review
 
-- Confirm the identity, audience, level, language, intended outcome, and time
-  budget match the approved Course Research Request.
-- Confirm `structure.section_name` is the Course topic and that the Course has
-  exactly one section (named for the topic) - no "General" or empty section.
-- Course overview: `module_count` equals the number of selected Sources,
-  `estimated_time_label` matches the budget, and the instruction tells the
-  learner to complete everything and upload proof to the assignment.
-- Main link: `resources.primary_url` equals `brief.source_url` (the entered URL);
-  the activity is a bare link with no description.
-- Sources: `brief.sources` is a coherent set for the topic, in a deliberate
-  order, each fully evidenced. They are the provenance record and set the
-  overview's module count; they are not shown to the learner.
-- Reference videos: each is free, relevant, and on a public platform, or the
-  empty state is acceptable for this Course.
-- Assignment: accepts a file upload and completes on submission.
-- Discussion forum: a general, ungraded forum named "Discussion Forum".
-- Trace every Source and reference video to a dossier entry with complete
-  provenance, access, duration, and availability evidence.
-- Judge the Source selection and ordering as a coherent learning path - this is
-  the last point at which a weak choice can be corrected.
+- Confirm the identity, audience, level, language, intended outcome, and time budget match the approved idea.
+- Trace every Source Activity to one human-selected Source with complete provenance, access, Source duration, activity duration, and availability evidence.
+- Confirm the ordered path moves from prerequisite knowledge to practical application without duplicate activities or an uncovered outcome.
+- Confirm each purpose explains why the learner performs the activity and each instruction asks for a concrete learner action or result.
+- Confirm Moodle navigation names are short and semantic while exact external titles remain in Source metadata.
+- Confirm the Course remains hidden and completion tracking remains enabled.
 
-## Automated packaging check
+## Staged Moodle review
 
-`bin/course-package build ... --accept --skip-restore` runs the review-learner
-HTTP verification before writing the `.mbz`: it logs in as a disposable learner
-and confirms the five activities are visible and that the first four offer an
-explicit *Mark as done*. A missing or failed verification is a blocking failure.
+- Open the exact local Course URL printed by the build and inspect it with the local-only reviewer account.
+- Check section order, scannability, the global Source Activity renderer, its single Source CTA, both applicable durations, and previous/next navigation.
+- Require the automated hidden-Course review-learner HTTP verification to succeed before presenting the Course for review, then inspect the Course with the local-only learner account.
+- Confirm opening a Source leaves the Learning Activity incomplete and that the learner can explicitly select `Mark as done`.
+- Record the Course Reviewer's explicit `accept` or `reject` decision and any feedback.
 
-## Restore proof (on demand)
+## Package evidence
 
-The build does not run clean-Moodle Trial Restoration. Run
-
-```
-bin/course-package verify --package <mbz> --definition <definition>
-```
-
-to prove the `.mbz` restores into a fresh Moodle with its five activities,
-resource links, reference-video list, submit-completion assignment, and manual
-completion intact. Recommended before any production import. Until it has run,
-report the package as generated and smoke-checked but not restore-proven.
+Acceptance alone is insufficient. Require the clean Trial Restoration to prove the restored Course, learner-visible content, Source activity, and manual completion behavior. Report the package as validated only when the build or verify command completes successfully.

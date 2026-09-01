@@ -1,5 +1,0 @@
-# The pre-installed Moodle DB snapshot produced by bin/build-moodle-seed.
-# It is a local build cache, not source — regenerate it after changing
-# docker/moodle or bumping the Moodle version.
-*.sql
-*.sql.gz

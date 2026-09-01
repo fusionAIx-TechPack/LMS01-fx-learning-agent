@@ -11,12 +11,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 30
-    # docker/mariadb-seed is empty by default. Run `bin/build-moodle-seed` once
-    # to drop a pre-installed Moodle snapshot there; MariaDB imports it on a
-    # fresh volume, so cold builds skip the multi-minute Moodle install.
-    volumes:
-      - source-db:/var/lib/mysql
-      - ./docker/mariadb-seed:/docker-entrypoint-initdb.d:ro
+    volumes: [source-db:/var/lib/mysql]
   source:
     build: docker/moodle
     depends_on:
@@ -33,9 +28,7 @@ services:
     image: mariadb:11.4.7
     environment: *db-env
     healthcheck: *db-health
-    volumes:
-      - restore-db:/var/lib/mysql
-      - ./docker/mariadb-seed:/docker-entrypoint-initdb.d:ro
+    volumes: [restore-db:/var/lib/mysql]
   restore:
     build: docker/moodle
     depends_on:

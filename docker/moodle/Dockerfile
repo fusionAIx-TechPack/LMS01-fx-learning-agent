@@ -11,6 +11,6 @@ RUN apt-get update \
 COPY config.php /var/www/html/config.php
 COPY moodle.ini /usr/local/etc/php/conf.d/moodle.ini
 COPY entrypoint.sh /usr/local/bin/moodle-entrypoint
-RUN sed -i 's/\r$//' /usr/local/bin/moodle-entrypoint && chmod +x /usr/local/bin/moodle-entrypoint
+RUN chmod +x /usr/local/bin/moodle-entrypoint
 ENTRYPOINT ["moodle-entrypoint"]
 CMD ["apache2-foreground"]

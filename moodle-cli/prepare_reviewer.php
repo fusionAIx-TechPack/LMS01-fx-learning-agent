@@ -8,10 +8,7 @@ require_once(__DIR__ . '/course_definition.php');
 $definition = load_course_definition($argv[1] ?? '');
 $course = $DB->get_record('course', ['shortname' => $definition['identity']['shortname']], '*', MUST_EXIST);
 $username = 'course-review-learner';
-// Disposable, local-only. The single `-` is the only non-alphanumeric character
-// (Moodle's password policy needs one); no `!` or other shell/paste-hostile
-// symbols.
-$password = 'Local-Review-2026';
+$password = 'LocalOnly-Review1!';
 
 if ($DB->record_exists('user', ['username' => $username])) {
     throw new RuntimeException('The isolated review learner already exists; reset with bin/course-package down.');
@@ -46,10 +43,10 @@ if (!$manualinstance) {
 }
 $manual->enrol_user($manualinstance, $userid, $studentrole->id);
 
-// The disposable reviewer is enrolled as a learner and also receives the
-// standard manager role so the staged Course is reviewable. Moodle's freshly
-// installed role defaults do not grant the learner the activity-view and manual
-// completion capabilities this Course uses, so grant them to the standard
+// The disposable reviewer is enrolled as a learner and receives the standard
+// manager role only so the hidden Course is reviewable. Moodle's freshly
+// installed role defaults do not grant the learner the Page and manual
+// completion capabilities used by this Course, so grant them to the standard
 // student role at system scope in this disposable environment. System role
 // capabilities plus user and role assignments are excluded from the
 // user-data-free Course Package; course-scoped overrides would change packaged
@@ -57,13 +54,12 @@ $manual->enrol_user($manualinstance, $userid, $studentrole->id);
 $coursecontext = context_course::instance($course->id);
 $managerrole = $DB->get_record('role', ['shortname' => 'manager'], '*', MUST_EXIST);
 $systemcontext = context_system::instance();
-foreach (['mod/page:view', 'mod/url:view', 'mod/assign:view', 'mod/forum:viewdiscussion', 'moodle/course:togglecompletion'] as $capability) {
-    assign_capability($capability, CAP_ALLOW, $studentrole->id, $systemcontext->id, true);
-}
+assign_capability('mod/page:view', CAP_ALLOW, $studentrole->id, $systemcontext->id, true);
+assign_capability('moodle/course:togglecompletion', CAP_ALLOW, $studentrole->id, $systemcontext->id, true);
 role_assign($managerrole->id, $userid, $coursecontext->id);
 rebuild_course_cache($course->id, true);
 
-$activities = array_values($DB->get_records('course_modules', ['course' => $course->id], 'id', 'id, section, module'));
+$activities = array_values($DB->get_records('course_modules', ['course' => $course->id], 'id', 'id, section'));
 if (!$activities) {
     throw new RuntimeException('The review Course has no Learning Activity.');
 }
@@ -71,6 +67,5 @@ if (!$activities) {
 echo "REVIEWER_USERNAME={$username}\n";
 echo "REVIEWER_PASSWORD={$password}\n";
 foreach ($activities as $activity) {
-    $modname = $DB->get_field('modules', 'name', ['id' => $activity->module]);
-    echo "REVIEW_ACTIVITY={$activity->id}:{$activity->section}:{$modname}\n";
+    echo "REVIEW_ACTIVITY_SECTION={$activity->id}:{$activity->section}\n";
 }

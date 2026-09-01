@@ -23,6 +23,7 @@ class SelectedSource:
     access_basis: str
     access_evidence_url: str
     activity_purpose: str | None = None
+    activity_instructions: str | None = None
 
     def as_brief_value(self) -> dict[str, Any]:
         value = {
@@ -43,26 +44,8 @@ class SelectedSource:
         }
         if self.activity_purpose is not None:
             value["activity_purpose"] = self.activity_purpose
-        return value
-
-
-@dataclass(frozen=True)
-class ReferenceVideo:
-    title: str
-    url: str
-    publisher: str
-    note: str
-    duration_minutes: int | None = None
-
-    def as_brief_value(self) -> dict[str, Any]:
-        value = {
-            "title": self.title,
-            "url": self.url,
-            "publisher": self.publisher,
-            "note": self.note,
-        }
-        if self.duration_minutes is not None:
-            value["duration_minutes"] = self.duration_minutes
+        if self.activity_instructions is not None:
+            value["activity_instructions"] = self.activity_instructions
         return value
 
 
@@ -73,9 +56,10 @@ class AvailableSource:
 
 
 @dataclass(frozen=True)
-class AvailableReferenceVideo:
-    video: ReferenceVideo
-    http_status: int
+class LearningPathModule:
+    name: str
+    introduction: str
+    source_provider_item_ids: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -88,26 +72,12 @@ class CourseBrief:
     learning_time_minutes: int
     sources: tuple[SelectedSource, ...]
     course_description: str | None = None
-    reference_videos: tuple[ReferenceVideo, ...] = ()
-    # The URL the Course Requester entered after `/create-course`. The resource
-    # list activity opens this URL; its sub-topics are the selected Sources.
-    # Falls back to the first Source URL when absent.
-    source_url: str | None = None
+    learning_path: tuple[LearningPathModule, ...] = ()
 
 
 def slugify(value: str) -> str:
     slug = re.sub(r"[^a-z0-9]+", "-", value.casefold()).strip("-")
     return slug or "course"
-
-
-def humanize_minutes(total: int) -> str:
-    hours, minutes = divmod(total, 60)
-    parts: list[str] = []
-    if hours:
-        parts.append(f"{hours} hour" + ("s" if hours != 1 else ""))
-    if minutes:
-        parts.append(f"{minutes} minute" + ("s" if minutes != 1 else ""))
-    return " ".join(parts) or "0 minutes"
 
 
 def locale_for_language(language: str) -> str:

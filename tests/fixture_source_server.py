@@ -19,11 +19,7 @@ class Handler(BaseHTTPRequestHandler):
         with log_file.open("a", encoding="utf-8") as log:
             log.write(f"{self.command} {self.path}\n")
         path = urlparse(self.path).path
-        if (
-            path.startswith("/sources/")
-            or path.startswith("/videos/")
-            or path.startswith("/paths/")
-        ):
+        if path.startswith("/sources/"):
             status = 404 if path.endswith("/unavailable") else 200
             body = b"fixture source"
             self.send_response(status)

@@ -8,7 +8,7 @@ require_once(__DIR__ . '/course_definition.php');
 $definition = load_course_definition($argv[1] ?? '');
 $course = $DB->get_record('course', ['shortname' => $definition['identity']['shortname']], '*', MUST_EXIST);
 $username = 'course-package-learner';
-$password = 'Local-Learner-2026';
+$password = 'LocalOnly-Learner1!';
 
 if ($DB->record_exists('user', ['username' => $username])) {
     throw new RuntimeException('The isolated learner already exists; reset with bin/course-package down.');
@@ -46,38 +46,30 @@ $manual->enrol_user($manualinstance, $userid, $studentrole->id);
 // Grant the capabilities exercised by the isolated learner HTTP acceptance
 // check explicitly at Course scope. This does not modify the packaged Course.
 $coursecontext = context_course::instance($course->id);
-foreach (['mod/page:view', 'mod/url:view', 'mod/assign:view', 'mod/assign:submit', 'mod/forum:viewdiscussion', 'moodle/course:togglecompletion'] as $capability) {
-    assign_capability($capability, CAP_ALLOW, $studentrole->id, $coursecontext->id, true);
-}
+assign_capability('mod/page:view', CAP_ALLOW, $studentrole->id, $coursecontext->id, true);
+assign_capability('moodle/course:togglecompletion', CAP_ALLOW, $studentrole->id, $coursecontext->id, true);
 
-// The packaged Course is already visible; force it here as well so this isolated
-// restored Course can be exercised through an HTTP learner session regardless of
-// the package's stored visibility.
+// Package visibility was verified while hidden. Publish only this isolated restored
+// Course so its learner-visible behavior can now be exercised through HTTP.
 $DB->set_field('course', 'visible', 1, ['id' => $course->id]);
 rebuild_course_cache($course->id, true);
 
-$modules = array_values($DB->get_records('course_modules', ['course' => $course->id], 'id'));
-if (count($modules) !== 5) {
-    throw new RuntimeException('The restored Course does not have the expected five activities.');
+$activityid = array_values($DB->get_records('course_modules', ['course' => $course->id], 'id'))[0]->id ?? null;
+if (!$activityid) {
+    throw new RuntimeException('The restored Course has no Learning Activity for the learner check.');
 }
-[$overview, $resources, $videos, $assignment, $discussion] = $modules;
-
-$structure = $definition['structure'];
-$acts = $structure['activities'];
 
 echo "COURSE_ID={$course->id}\n";
-echo "ACTIVITY_ID={$overview->id}\n";
-echo "OVERVIEW_CMID={$overview->id}\n";
-echo "RESOURCES_CMID={$resources->id}\n";
-echo "VIDEOS_CMID={$videos->id}\n";
-echo "ASSIGNMENT_CMID={$assignment->id}\n";
-echo "DISCUSSION_CMID={$discussion->id}\n";
+echo "ACTIVITY_ID={$activityid}\n";
 echo "LEARNER_ID={$userid}\n";
 echo "LEARNER_USERNAME={$username}\n";
 echo "LEARNER_PASSWORD={$password}\n";
-echo 'PRIMARY_URL_BASE64=' . base64_encode($acts['resources']['primary_url']) . "\n";
 echo 'EXPECTED_TEXT_BASE64=' . base64_encode($definition['identity']['fullname']) . "\n";
-echo 'EXPECTED_TEXT_BASE64=' . base64_encode($structure['section_name']) . "\n";
-foreach (['overview', 'resources', 'videos', 'assignment', 'discussion'] as $key) {
-    echo 'EXPECTED_TEXT_BASE64=' . base64_encode($acts[$key]['name']) . "\n";
+echo 'EXPECTED_TEXT_BASE64=' . base64_encode($definition['general']['name']) . "\n";
+echo 'SOURCE_URL_BASE64=' . base64_encode($definition['modules'][0]['activities'][0]['source']['url']) . "\n";
+foreach ($definition['modules'] as $module) {
+    echo 'EXPECTED_TEXT_BASE64=' . base64_encode($module['name']) . "\n";
+    foreach ($module['activities'] as $activity) {
+        echo 'EXPECTED_TEXT_BASE64=' . base64_encode($activity['name']) . "\n";
+    }
 }

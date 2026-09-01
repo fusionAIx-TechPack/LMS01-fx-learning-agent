@@ -4,17 +4,6 @@ set -euo pipefail
 repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 output_dir=$(mktemp -d)
 server_pid=
-
-# Git Bash / MSYS rewrites container-internal paths (like /repo) that appear in
-# docker arguments, which breaks bind mounts and `php -r` scripts. Run docker
-# with that conversion disabled and pass host mount paths explicitly. Both
-# helpers are no-ops on a non-MSYS shell.
-docker_no_pathconv() {
-  MSYS_NO_PATHCONV=1 MSYS2_ARG_CONV_EXCL='*' docker "$@"
-}
-host_mount_path() {
-  if command -v cygpath >/dev/null 2>&1; then cygpath -m "$1"; else printf '%s' "$1"; fi
-}
 cleanup() {
   if [[ -n $server_pid ]]; then kill "$server_pid" >/dev/null 2>&1 || true; fi
   rm -rf "$output_dir"
@@ -150,17 +139,59 @@ test ! -e "$output_dir/incomplete-source.json"
 test -s "$output_dir/course-definition.json"
 python3 "$repo_root/tests/assert_course_definition.py" "$output_dir/course-definition.json"
 
+jq '
+  .course_description = "A deliberately designed learning path." |
+  .sources[0].activity_purpose = "Establish the product foundation." |
+  .sources[0].activity_instructions = "Open the Source and produce a capability map." |
+  .sources[1].activity_purpose = "Apply the product to a first scenario." |
+  .sources[1].activity_instructions = "Open the Source and produce a tested agent." |
+  .sources[2].activity_purpose = "Connect topics to the scenario." |
+  .sources[2].activity_instructions = "Open the Source and produce a topic checklist." |
+  .learning_path = [
+    {
+      "name": "Product landscape",
+      "introduction": "Build an ordered product foundation.",
+      "source_provider_item_ids": [
+        "learn.copilot-studio.topics-introduction",
+        "learn.copilot-studio.fundamentals"
+      ]
+    },
+    {
+      "name": "Applied build",
+      "introduction": "Turn the foundation into a working result.",
+      "source_provider_item_ids": ["learn.copilot-studio.first-agent"]
+    }
+  ]
+' "$output_dir/course-brief.json" >"$output_dir/designed-course-brief.json"
+
+"$repo_root/bin/course-definition" build \
+  --brief "$output_dir/designed-course-brief.json" \
+  --output "$output_dir/designed-course-definition.json"
+python3 "$repo_root/tests/assert_designed_course_definition.py" \
+  "$output_dir/designed-course-definition.json"
+
+jq '.learning_path[0].source_provider_item_ids[0] = "unknown-source"' \
+  "$output_dir/designed-course-brief.json" >"$output_dir/unknown-path-source.json"
+if unknown_path_output=$("$repo_root/bin/course-definition" build \
+    --brief "$output_dir/unknown-path-source.json" \
+    --output "$output_dir/unknown-path-source-definition.json" 2>&1); then
+  echo "A learning path with an unknown Source unexpectedly produced a Course Definition" >&2
+  exit 1
+fi
+grep -F 'references unknown Source provider_item_id: unknown-source' <<<"$unknown_path_output"
+test ! -e "$output_dir/unknown-path-source-definition.json"
+
 if [[ -n ${COURSE_DEFINITION_CONTRACT_IMAGE:-} ]]; then
-  docker_no_pathconv run --rm --entrypoint php \
-    -v "$(host_mount_path "$repo_root"):/repo:ro" \
-    -v "$(host_mount_path "$output_dir/course-definition.json"):/course-definition.json:ro" \
+  docker run --rm --entrypoint php \
+    -v "$repo_root:/repo:ro" \
+    -v "$output_dir/course-definition.json:/course-definition.json:ro" \
     "$COURSE_DEFINITION_CONTRACT_IMAGE" \
     -r 'require "/repo/moodle-cli/course_definition.php"; load_course_definition("/course-definition.json"); echo "Exact Course Definition contract accepted.\n";'
 
   sed '/"publisher":/d' "$output_dir/course-definition.json" >"$output_dir/missing-provenance.json"
-  if provenance_output=$(docker_no_pathconv run --rm --entrypoint php \
-    -v "$(host_mount_path "$repo_root"):/repo:ro" \
-    -v "$(host_mount_path "$output_dir/missing-provenance.json"):/course-definition.json:ro" \
+  if provenance_output=$(docker run --rm --entrypoint php \
+    -v "$repo_root:/repo:ro" \
+    -v "$output_dir/missing-provenance.json:/course-definition.json:ro" \
     "$COURSE_DEFINITION_CONTRACT_IMAGE" \
     -r 'require "/repo/moodle-cli/course_definition.php"; load_course_definition("/course-definition.json");' 2>&1); then
     echo "Course Definition without Source provenance unexpectedly passed the Moodle contract" >&2
@@ -168,35 +199,47 @@ if [[ -n ${COURSE_DEFINITION_CONTRACT_IMAGE:-} ]]; then
   fi
   grep -F 'requires Source publisher.' <<<"$provenance_output"
 
-  python3 "$repo_root/tests/apply_json_edit.py" \
-    "$output_dir/course-definition.json" "$output_dir/missing-structure.json" drop-structure
-  if structure_output=$(docker_no_pathconv run --rm --entrypoint php \
-    -v "$(host_mount_path "$repo_root"):/repo:ro" \
-    -v "$(host_mount_path "$output_dir/missing-structure.json"):/course-definition.json:ro" \
+  sed '0,/"name": "Foundations"/s//"name": "12345678901234567890123456789012345678901"/' \
+    "$output_dir/course-definition.json" >"$output_dir/long-module-name.json"
+  if long_module_output=$(docker run --rm --entrypoint php \
+    -v "$repo_root:/repo:ro" \
+    -v "$output_dir/long-module-name.json:/course-definition.json:ro" \
     "$COURSE_DEFINITION_CONTRACT_IMAGE" \
     -r 'require "/repo/moodle-cli/course_definition.php"; load_course_definition("/course-definition.json");' 2>&1); then
-    echo "A Course Definition without a structure block unexpectedly passed the Moodle contract" >&2
+    echo "An overlong Moodle module name unexpectedly passed the Moodle contract" >&2
     exit 1
   fi
-  grep -F 'Course Definition requires a structure object.' <<<"$structure_output"
+  grep -F 'name must be at most 40 characters for Moodle navigation.' <<<"$long_module_output"
 
-  python3 "$repo_root/tests/apply_json_edit.py" \
-    "$output_dir/course-definition.json" "$output_dir/overview-count-mismatch.json" overview-count-mismatch
-  if count_output=$(docker_no_pathconv run --rm --entrypoint php \
-    -v "$(host_mount_path "$repo_root"):/repo:ro" \
-    -v "$(host_mount_path "$output_dir/overview-count-mismatch.json"):/course-definition.json:ro" \
+  jq '.modules[0].activities[1].purpose = .modules[0].activities[0].purpose' \
+    "$output_dir/course-definition.json" >"$output_dir/duplicate-purpose.json"
+  if duplicate_purpose_output=$(docker run --rm --entrypoint php \
+    -v "$repo_root:/repo:ro" \
+    -v "$output_dir/duplicate-purpose.json:/course-definition.json:ro" \
     "$COURSE_DEFINITION_CONTRACT_IMAGE" \
     -r 'require "/repo/moodle-cli/course_definition.php"; load_course_definition("/course-definition.json");' 2>&1); then
-    echo "A mismatched overview.module_count unexpectedly passed the Moodle contract" >&2
+    echo "Duplicate Source Activity purposes unexpectedly passed the Moodle contract" >&2
     exit 1
   fi
-  grep -F 'overview.module_count must equal the number of Sources.' <<<"$count_output"
+  grep -F 'Source Activity purpose must be unique within the Course.' <<<"$duplicate_purpose_output"
 
-  python3 "$repo_root/tests/apply_json_edit.py" \
-    "$output_dir/course-definition.json" "$output_dir/polish-course-definition.json" polish-language
-  if polish_definition_output=$(docker_no_pathconv run --rm --entrypoint php \
-    -v "$(host_mount_path "$repo_root"):/repo:ro" \
-    -v "$(host_mount_path "$output_dir/polish-course-definition.json"):/course-definition.json:ro" \
+  jq '.modules[0].activities[1].instructions = .modules[0].activities[0].instructions' \
+    "$output_dir/course-definition.json" >"$output_dir/duplicate-instructions.json"
+  if duplicate_instructions_output=$(docker run --rm --entrypoint php \
+    -v "$repo_root:/repo:ro" \
+    -v "$output_dir/duplicate-instructions.json:/course-definition.json:ro" \
+    "$COURSE_DEFINITION_CONTRACT_IMAGE" \
+    -r 'require "/repo/moodle-cli/course_definition.php"; load_course_definition("/course-definition.json");' 2>&1); then
+    echo "Duplicate Source Activity instructions unexpectedly passed the Moodle contract" >&2
+    exit 1
+  fi
+  grep -F 'Source Activity instructions must be unique within the Course.' <<<"$duplicate_instructions_output"
+
+  jq '.brief.language = "pl-PL"' \
+    "$output_dir/course-definition.json" >"$output_dir/polish-course-definition.json"
+  if polish_definition_output=$(docker run --rm --entrypoint php \
+    -v "$repo_root:/repo:ro" \
+    -v "$output_dir/polish-course-definition.json:/course-definition.json:ro" \
     "$COURSE_DEFINITION_CONTRACT_IMAGE" \
     -r 'require "/repo/moodle-cli/course_definition.php"; load_course_definition("/course-definition.json");' 2>&1); then
     echo "A Polish Course Definition unexpectedly passed the Moodle contract" >&2

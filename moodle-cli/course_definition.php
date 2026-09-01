@@ -1,7 +1,5 @@
 <?php
-// Validates the Course Definition contract on the Moodle side, independently of
-// the Python generator. Every generated Course has the same fixed five-activity
-// structure; see docs/adr/0004-fixed-four-activity-course-structure.md.
+const MAX_NAVIGATION_NAME_LENGTH = 40;
 
 function load_course_definition(string $path): array {
     if (!is_readable($path)) {
@@ -17,34 +15,23 @@ function load_course_definition(string $path): array {
     if (!is_object($document)) {
         throw new InvalidArgumentException('Course Definition must be a JSON object.');
     }
-
-    $text = static function ($value): bool {
-        return is_string($value) && trim($value) !== '';
-    };
-    $positive_int = static function ($value): bool {
-        return is_int($value) && $value > 0;
-    };
-    $http_url = static function ($value): bool {
-        return is_string($value)
-            && filter_var($value, FILTER_VALIDATE_URL)
-            && in_array(parse_url($value, PHP_URL_SCHEME), ['http', 'https'], true);
-    };
-
     $required = [
         'identity.fullname' => $definition['identity']['fullname'] ?? null,
         'identity.shortname' => $definition['identity']['shortname'] ?? null,
         'identity.summary' => $definition['identity']['summary'] ?? null,
+        'general.name' => $definition['general']['name'] ?? null,
+        'general.introduction' => $definition['general']['introduction'] ?? null,
     ];
     foreach ($required as $field => $value) {
-        if (!$text($value)) {
+        if (!is_string($value) || trim($value) === '') {
             throw new InvalidArgumentException("Course Definition requires non-empty {$field}.");
         }
     }
     if (($definition['settings']['format'] ?? null) !== 'topics') {
         throw new InvalidArgumentException('Course Definition settings.format must be "topics".');
     }
-    if (($definition['settings']['visible'] ?? null) !== true) {
-        throw new InvalidArgumentException('Course Definition settings.visible must be true so the Course is visible when restored.');
+    if (($definition['settings']['visible'] ?? null) !== false) {
+        throw new InvalidArgumentException('Course Definition settings.visible must be false for review.');
     }
     if (($definition['settings']['completion_tracking'] ?? null) !== true) {
         throw new InvalidArgumentException('Course Definition settings.completion_tracking must be true.');
@@ -52,147 +39,96 @@ function load_course_definition(string $path): array {
     if (($definition['brief']['language'] ?? null) !== 'en-US') {
         throw new InvalidArgumentException('Course Definition brief.language must be en-US.');
     }
-    if (!preg_match('/^[a-z0-9][a-z0-9-]*$/', (string) ($definition['identity']['shortname'] ?? ''))) {
+    if (!preg_match('/^[a-z0-9][a-z0-9-]*$/', $definition['identity']['shortname'])) {
         throw new InvalidArgumentException('Course Definition identity.shortname may contain lowercase letters, numbers, and hyphens only.');
     }
-    if (!$positive_int($definition['brief']['learning_time_minutes'] ?? null)) {
-        throw new InvalidArgumentException('Course Definition brief.learning_time_minutes must be a positive integer.');
+    if (!property_exists($document, 'modules') || !is_array($document->modules)) {
+        throw new InvalidArgumentException('Course Definition modules must be a JSON array.');
     }
-    if (!$http_url($definition['brief']['source_url'] ?? null)) {
-        throw new InvalidArgumentException('Course Definition brief.source_url must be a valid HTTP URL.');
+    if (empty($definition['modules'])) {
+        throw new InvalidArgumentException('Course Definition requires at least one module.');
     }
-
-    // --- Sources (provenance record) ---------------------------------------
-    if (!property_exists($document, 'brief') || !property_exists($document->brief, 'sources')
-            || !is_array($document->brief->sources)) {
-        throw new InvalidArgumentException('Course Definition brief.sources must be a JSON array.');
-    }
-    if (empty($definition['brief']['sources'])) {
-        throw new InvalidArgumentException('Course Definition requires at least one Source.');
-    }
-    foreach ($definition['brief']['sources'] as $index => $source) {
-        $where = "Course Definition Source {$index}";
-        if (!$text($source['title'] ?? null)) {
-            throw new InvalidArgumentException("{$where} requires Source title.");
-        }
-        foreach (['publisher', 'provider_item_id', 'source_type', 'language'] as $field) {
-            if (!$text($source[$field] ?? null)) {
-                throw new InvalidArgumentException("{$where} requires Source {$field}.");
+    $purposes = [];
+    $instructions = [];
+    foreach ($definition['modules'] as $moduleIndex => $module) {
+        foreach (['name', 'introduction'] as $field) {
+            if (!is_string($module[$field] ?? null) || trim($module[$field]) === '') {
+                throw new InvalidArgumentException("Course Definition module {$moduleIndex} requires non-empty {$field}.");
             }
         }
-        if (!in_array($source['source_type'], ['article', 'blog', 'video', 'course'], true)) {
-            throw new InvalidArgumentException("{$where} has unsupported Source source_type.");
+        if (mb_strlen($module['name']) > MAX_NAVIGATION_NAME_LENGTH) {
+            throw new InvalidArgumentException("Course Definition module {$moduleIndex} name must be at most " . MAX_NAVIGATION_NAME_LENGTH . ' characters for Moodle navigation.');
         }
-        if ($source['language'] !== 'en-US') {
-            throw new InvalidArgumentException("{$where} Source language must be en-US.");
+        $moduleDocument = $document->modules[$moduleIndex] ?? null;
+        if (!is_object($moduleDocument) || !property_exists($moduleDocument, 'activities') || !is_array($moduleDocument->activities)) {
+            throw new InvalidArgumentException("Course Definition module {$moduleIndex} activities must be a JSON array.");
         }
-        if (!$http_url($source['url'] ?? null)) {
-            throw new InvalidArgumentException("{$where} requires a valid HTTP Source URL.");
+        if (empty($module['activities'])) {
+            throw new InvalidArgumentException("Course Definition module {$moduleIndex} requires at least one Learning Activity.");
         }
-        if (!$positive_int($source['duration_minutes'] ?? null)) {
-            throw new InvalidArgumentException("{$where} requires positive Source duration_minutes.");
-        }
-        if (!$positive_int($source['activity_duration_minutes'] ?? null)
-                || $source['activity_duration_minutes'] < $source['duration_minutes']) {
-            throw new InvalidArgumentException("{$where} activity_duration_minutes must be at least Source duration_minutes.");
-        }
-        $access = $source['access'] ?? null;
-        if (!is_array($access) || ($access['free'] ?? null) !== true || !$text($access['basis'] ?? null)) {
-            throw new InvalidArgumentException("{$where} requires free Source access evidence.");
-        }
-        if (!$http_url($access['evidence_url'] ?? null)) {
-            throw new InvalidArgumentException("{$where} requires a valid HTTP Source access evidence URL.");
-        }
-        $availability = $source['availability'] ?? null;
-        if (!is_array($availability) || !is_int($availability['status'] ?? null)
-                || $availability['status'] < 200 || $availability['status'] >= 400
-                || !$text($availability['checked_at'] ?? null)) {
-            throw new InvalidArgumentException("{$where} requires successful Source availability evidence.");
-        }
-    }
-
-    // --- Reference videos (optional) --------------------------------------
-    if (!property_exists($document->brief, 'reference_videos') || !is_array($document->brief->reference_videos)) {
-        throw new InvalidArgumentException('Course Definition brief.reference_videos must be a JSON array.');
-    }
-    foreach ($definition['brief']['reference_videos'] as $index => $video) {
-        $where = "Course Definition reference video {$index}";
-        foreach (['title', 'publisher', 'note'] as $field) {
-            if (!$text($video[$field] ?? null)) {
-                throw new InvalidArgumentException("{$where} requires {$field}.");
+        foreach ($module['activities'] as $activityIndex => $activity) {
+            foreach (['name', 'purpose', 'instructions'] as $field) {
+                if (!is_string($activity[$field] ?? null) || trim($activity[$field]) === '') {
+                    throw new InvalidArgumentException("Learning Activity {$moduleIndex}.{$activityIndex} requires non-empty {$field}.");
+                }
+            }
+            if (in_array($activity['purpose'], $purposes, true)) {
+                throw new InvalidArgumentException('Source Activity purpose must be unique within the Course.');
+            }
+            $purposes[] = $activity['purpose'];
+            if (in_array($activity['instructions'], $instructions, true)) {
+                throw new InvalidArgumentException('Source Activity instructions must be unique within the Course.');
+            }
+            $instructions[] = $activity['instructions'];
+            if (mb_strlen($activity['name']) > MAX_NAVIGATION_NAME_LENGTH) {
+                throw new InvalidArgumentException("Learning Activity {$moduleIndex}.{$activityIndex} name must be at most " . MAX_NAVIGATION_NAME_LENGTH . ' characters for Moodle navigation.');
+            }
+            if (!is_int($activity['duration_minutes'] ?? null) || $activity['duration_minutes'] <= 0) {
+                throw new InvalidArgumentException("Learning Activity {$moduleIndex}.{$activityIndex} requires positive duration_minutes.");
+            }
+            if (!is_string($activity['source']['title'] ?? null) || trim($activity['source']['title']) === '') {
+                throw new InvalidArgumentException("Learning Activity {$moduleIndex}.{$activityIndex} requires Source title.");
+            }
+            foreach (['publisher', 'provider_item_id', 'source_type', 'language'] as $field) {
+                if (!is_string($activity['source'][$field] ?? null) || trim($activity['source'][$field]) === '') {
+                    throw new InvalidArgumentException("Learning Activity {$moduleIndex}.{$activityIndex} requires Source {$field}.");
+                }
+            }
+            if (!in_array($activity['source']['source_type'], ['article', 'blog', 'video', 'course'], true)) {
+                throw new InvalidArgumentException("Learning Activity {$moduleIndex}.{$activityIndex} has unsupported Source source_type.");
+            }
+            if (!is_int($activity['source']['duration_minutes'] ?? null) || $activity['source']['duration_minutes'] <= 0) {
+                throw new InvalidArgumentException("Learning Activity {$moduleIndex}.{$activityIndex} requires positive Source duration_minutes.");
+            }
+            if ($activity['duration_minutes'] < $activity['source']['duration_minutes']) {
+                throw new InvalidArgumentException("Learning Activity {$moduleIndex}.{$activityIndex} duration_minutes must be at least Source duration_minutes.");
+            }
+            if ($activity['source']['language'] !== 'en-US') {
+                throw new InvalidArgumentException("Learning Activity {$moduleIndex}.{$activityIndex} Source language must be en-US.");
+            }
+            $url = $activity['source']['url'] ?? null;
+            if (!is_string($url) || !filter_var($url, FILTER_VALIDATE_URL) || !in_array(parse_url($url, PHP_URL_SCHEME), ['http', 'https'], true)) {
+                throw new InvalidArgumentException("Learning Activity {$moduleIndex}.{$activityIndex} requires a valid HTTP Source URL.");
+            }
+            $access = $activity['source']['access'] ?? null;
+            if (!is_array($access) || ($access['free'] ?? null) !== true) {
+                throw new InvalidArgumentException("Learning Activity {$moduleIndex}.{$activityIndex} requires free Source access evidence.");
+            }
+            if (!is_string($access['basis'] ?? null) || trim($access['basis']) === '') {
+                throw new InvalidArgumentException("Learning Activity {$moduleIndex}.{$activityIndex} requires Source access basis.");
+            }
+            $evidenceUrl = $access['evidence_url'] ?? null;
+            if (!is_string($evidenceUrl) || !filter_var($evidenceUrl, FILTER_VALIDATE_URL) || !in_array(parse_url($evidenceUrl, PHP_URL_SCHEME), ['http', 'https'], true)) {
+                throw new InvalidArgumentException("Learning Activity {$moduleIndex}.{$activityIndex} requires a valid HTTP Source access evidence URL.");
+            }
+            $availability = $activity['source']['availability'] ?? null;
+            if (!is_array($availability) || !is_int($availability['status'] ?? null)
+                    || $availability['status'] < 200 || $availability['status'] >= 400
+                    || !is_string($availability['checked_at'] ?? null) || trim($availability['checked_at']) === '') {
+                throw new InvalidArgumentException("Learning Activity {$moduleIndex}.{$activityIndex} requires successful Source availability evidence.");
             }
         }
-        if (!$http_url($video['url'] ?? null)) {
-            throw new InvalidArgumentException("{$where} requires a valid HTTP URL.");
-        }
-        $availability = $video['availability'] ?? null;
-        if (!is_array($availability) || !is_int($availability['status'] ?? null)
-                || $availability['status'] < 200 || $availability['status'] >= 400
-                || !$text($availability['checked_at'] ?? null)) {
-            throw new InvalidArgumentException("{$where} requires successful availability evidence.");
-        }
     }
-
-    // --- Structure (what the Course is built from) -----------------------
-    $structure = $definition['structure'] ?? null;
-    if (!is_array($structure)) {
-        throw new InvalidArgumentException('Course Definition requires a structure object.');
-    }
-    foreach (['section_name', 'section_introduction'] as $field) {
-        if (!$text($structure[$field] ?? null)) {
-            throw new InvalidArgumentException("Course Definition structure.{$field} must be non-empty.");
-        }
-    }
-    $activities = $structure['activities'] ?? null;
-    if (!is_array($activities)) {
-        throw new InvalidArgumentException('Course Definition structure.activities must be an object.');
-    }
-    $sourceCount = count($definition['brief']['sources']);
-    $videoCount = count($definition['brief']['reference_videos']);
-
-    $overview = $activities['overview'] ?? null;
-    if (!is_array($overview) || !$text($overview['name'] ?? null)
-            || !$text($overview['instruction'] ?? null) || !$text($overview['outcome'] ?? null)
-            || !$text($overview['estimated_time_label'] ?? null)) {
-        throw new InvalidArgumentException('Course Definition structure.activities.overview is incomplete.');
-    }
-    if (($overview['module_count'] ?? null) !== $sourceCount) {
-        throw new InvalidArgumentException('Course Definition overview.module_count must equal the number of Sources.');
-    }
-    if (!$positive_int($overview['estimated_time_minutes'] ?? null)) {
-        throw new InvalidArgumentException('Course Definition overview.estimated_time_minutes must be a positive integer.');
-    }
-
-    $resources = $activities['resources'] ?? null;
-    if (!is_array($resources) || !$text($resources['name'] ?? null) || !$http_url($resources['primary_url'] ?? null)) {
-        throw new InvalidArgumentException('Course Definition structure.activities.resources is incomplete.');
-    }
-    if ($resources['primary_url'] !== $definition['brief']['source_url']) {
-        throw new InvalidArgumentException('Course Definition resources.primary_url must be the entered source_url.');
-    }
-
-    $videos = $activities['videos'] ?? null;
-    if (!is_array($videos) || !$text($videos['name'] ?? null) || !$text($videos['introduction'] ?? null)) {
-        throw new InvalidArgumentException('Course Definition structure.activities.videos is incomplete.');
-    }
-    if (!is_array($videos['items'] ?? null) || count($videos['items']) !== $videoCount) {
-        throw new InvalidArgumentException('Course Definition videos.items must match brief.reference_videos.');
-    }
-
-    $assignment = $activities['assignment'] ?? null;
-    if (!is_array($assignment) || !$text($assignment['name'] ?? null)
-            || !$text($assignment['introduction'] ?? null) || !$text($assignment['file_types'] ?? null)) {
-        throw new InvalidArgumentException('Course Definition structure.activities.assignment is incomplete.');
-    }
-    if (!$positive_int($assignment['max_files'] ?? null)) {
-        throw new InvalidArgumentException('Course Definition assignment.max_files must be a positive integer.');
-    }
-
-    $discussion = $activities['discussion'] ?? null;
-    if (!is_array($discussion) || !$text($discussion['name'] ?? null) || !$text($discussion['introduction'] ?? null)) {
-        throw new InvalidArgumentException('Course Definition structure.activities.discussion is incomplete.');
-    }
-
     return $definition;
 }
 

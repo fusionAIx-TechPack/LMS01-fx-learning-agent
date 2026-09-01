@@ -5,7 +5,6 @@
   "language": "en-US",
   "intended_learning_outcome": "Build and publish a first agent",
   "learning_time_minutes": 90,
-  "source_url": "http://127.0.0.1:__FIXTURE_PORT__/paths/copilot-studio",
   "sources": [
     {
       "title": "Microsoft Copilot Studio fundamentals",
@@ -54,15 +53,6 @@
         "basis": "Public Microsoft Learn Source",
         "evidence_url": "https://learn.microsoft.com/en-us/training/support/integrations"
       }
-    }
-  ],
-  "reference_videos": [
-    {
-      "title": "Build a first agent - video walkthrough",
-      "url": "http://127.0.0.1:__FIXTURE_PORT__/videos/first-agent",
-      "publisher": "Fixture Videos",
-      "note": "A short end-to-end walkthrough of building and testing a first agent.",
-      "duration_minutes": 12
     }
   ]
 }

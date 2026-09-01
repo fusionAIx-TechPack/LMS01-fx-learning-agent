@@ -14,87 +14,36 @@ def require_all(document: str, values: tuple[str, ...], context: str) -> None:
     assert not missing, f"{context} is missing: {', '.join(missing)}"
 
 
-def require_none(document: str, values: tuple[str, ...], context: str) -> None:
-    present = [value for value in values if value in document]
-    assert not present, f"{context} must not contain: {', '.join(present)}"
-
-
 require_all(
     skill,
     (
         "Course Research Request",
         "public web",
-        "source URL",
-        "Course Name",
-        "Course Overview",
-        "Course Duration",
-        "Level",
-        "Language",
-        "Audience",
-        "fundamental",
-        "beginner",
-        "intermediate",
-        "advanced",
-        "Would you like to continue creating the course for your Moodle?",
+        "name",
+        "description",
+        "topics",
+        "audience",
+        "level",
+        "language",
+        "intended learning outcome",
+        "learning-time budget",
     ),
-    "URL-based Course Research Request contract",
-)
-
-require_all(
-    skill,
-    (
-        "Provide a source URL, a list of source URLs in an order, or attach an Excel file",
-        "one course per URL",
-        "build from input",
-        "bin/course-urls",
-        "single bulk confirmation",
-        "its own `output/<course-slug>/`",
-    ),
-    "single URL, ordered list, or attached spreadsheet of URLs",
-)
-
-require_all(
-    skill,
-    (
-        "stated completion",
-        "Level using a typical average",
-    ),
-    "Course Duration derivation rule",
+    "Course Research Request contract",
 )
 
 require_all(
     research,
     (
         "public web",
-        "confirmed Course Research Request",
-        "URL the Course Requester entered",
+        "5–10",
         "topical fit",
         "credibility gate",
-        "Do not pad with weak Sources",
+        "fewer than five",
+        "coverage gaps",
         "sign-in required",
         "company licence",
     ),
-    "Source research behavior",
-)
-
-require_all(
-    skill + research,
-    (
-        "Select the Sources and their order yourself",
-        "no separate human selection step",
-        "no human review of the staged",
-    ),
-    "agent Source selection replaces the human selection gate",
-)
-
-require_none(
-    skill + template_path.read_text(encoding="utf-8"),
-    (
-        "explicitly selected Sources",
-        "Course Requester explicitly chooses",
-        "update the dossier with that decision",
-    ),
-    "removed human Source-selection gate",
+    "Source Candidate shortlist behavior",
 )
 
 assert template_path.exists(), "Source Research Dossier template is missing"
@@ -104,11 +53,11 @@ require_all(
     (
         "# Source Research Dossier",
         "## Course Research Request",
-        "- URL:",
         "## Source Candidates",
         "## Topic Coverage",
+        "## Recommendation",
         "## Excluded Candidates",
-        "## Selected Sources",
+        "## Course Requester Selection",
         "Provider item ID",
         "Current availability",
     ),
@@ -123,11 +72,11 @@ require_all(
 require_all(
     skill,
     (
-        "dossier records the selected Sources",
+        "update the dossier with that decision",
+        "only the explicitly selected Sources",
         "Course Brief JSON",
-        "dossier order",
     ),
-    "Source selection to Course Brief gate",
+    "human selection to Course Brief gate",
 )
 
 require_all(
@@ -144,10 +93,9 @@ require_all(
 require_all(
     skill,
     (
-        "--accept --skip-restore",
-        "automated review-learner HTTP verification",
-        "not been restore-tested",
-        "bin/course-package verify",
+        "hidden-Course review-learner HTTP verification",
+        "before relaying",
+        "blocking learner-verification failure",
     ),
-    "automated packaging contract",
+    "hidden Course learner verification gate",
 )
