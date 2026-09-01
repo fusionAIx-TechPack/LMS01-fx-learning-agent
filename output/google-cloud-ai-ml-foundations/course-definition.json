@@ -1,0 +1,220 @@
+{
+  "identity": {
+    "fullname": "AI and Machine Learning Foundations on Google Cloud",
+    "shortname": "ai-and-machine-learning-foundations-on-google-cloud-beginner",
+    "summary": "A vendor-grounded conceptual foundation built from Google Cloud's own explainers: what artificial intelligence and machine learning are and how they relate, what generative AI is, and how MLOps keeps models running in production."
+  },
+  "settings": {
+    "format": "topics",
+    "visible": false,
+    "completion_tracking": true
+  },
+  "brief": {
+    "topic": "AI and Machine Learning Foundations on Google Cloud",
+    "audience": "Developers and technology professionals new to AI/ML who want a conceptual foundation before using Google Cloud's ML tools",
+    "entry_level": "beginner",
+    "language": "en-US",
+    "intended_learning_outcome": "Explain what artificial intelligence, machine learning, and generative AI are, how they relate to each other, and how MLOps keeps models running in production",
+    "learning_time_minutes": 60,
+    "sources": [
+      {
+        "title": "What is artificial intelligence (AI)?",
+        "activity_name": "What is AI?",
+        "url": "https://cloud.google.com/learn/what-is-artificial-intelligence",
+        "publisher": "Google Cloud",
+        "provider_item_id": "cloud.google.com/learn/what-is-artificial-intelligence",
+        "source_type": "article",
+        "language": "en-US",
+        "activity_duration_minutes": 12,
+        "duration_minutes": 12,
+        "access": {
+          "free": true,
+          "basis": "Public Google Cloud concept page",
+          "evidence_url": "https://policies.google.com/terms"
+        },
+        "activity_purpose": "Define artificial intelligence, its main types, and common applications.",
+        "availability": {
+          "status": 200,
+          "checked_at": "2026-08-31T06:16:56.984454+00:00"
+        }
+      },
+      {
+        "title": "What is machine learning (ML)?",
+        "activity_name": "What is machine learning?",
+        "url": "https://cloud.google.com/learn/what-is-machine-learning",
+        "publisher": "Google Cloud",
+        "provider_item_id": "cloud.google.com/learn/what-is-machine-learning",
+        "source_type": "article",
+        "language": "en-US",
+        "activity_duration_minutes": 12,
+        "duration_minutes": 12,
+        "access": {
+          "free": true,
+          "basis": "Public Google Cloud concept page",
+          "evidence_url": "https://policies.google.com/terms"
+        },
+        "activity_purpose": "Understand how machine learning works, supervised vs. unsupervised learning, and where it is used.",
+        "availability": {
+          "status": 200,
+          "checked_at": "2026-08-31T06:16:56.984454+00:00"
+        }
+      },
+      {
+        "title": "Artificial intelligence vs. machine learning",
+        "activity_name": "AI vs. machine learning",
+        "url": "https://cloud.google.com/learn/artificial-intelligence-vs-machine-learning",
+        "publisher": "Google Cloud",
+        "provider_item_id": "cloud.google.com/learn/artificial-intelligence-vs-machine-learning",
+        "source_type": "article",
+        "language": "en-US",
+        "activity_duration_minutes": 12,
+        "duration_minutes": 10,
+        "access": {
+          "free": true,
+          "basis": "Public Google Cloud concept page",
+          "evidence_url": "https://policies.google.com/terms"
+        },
+        "activity_purpose": "Place AI, ML, and deep learning in relation to one another and know when each term applies.",
+        "availability": {
+          "status": 200,
+          "checked_at": "2026-08-31T06:16:56.984454+00:00"
+        }
+      },
+      {
+        "title": "What is generative AI?",
+        "activity_name": "What is generative AI?",
+        "url": "https://cloud.google.com/discover/what-is-generative-ai",
+        "publisher": "Google Cloud",
+        "provider_item_id": "cloud.google.com/discover/what-is-generative-ai",
+        "source_type": "article",
+        "language": "en-US",
+        "activity_duration_minutes": 12,
+        "duration_minutes": 12,
+        "access": {
+          "free": true,
+          "basis": "Public Google Cloud concept page",
+          "evidence_url": "https://policies.google.com/terms"
+        },
+        "activity_purpose": "Learn what generative AI and foundation models are and how they differ from traditional ML.",
+        "availability": {
+          "status": 200,
+          "checked_at": "2026-08-31T06:16:56.984454+00:00"
+        }
+      },
+      {
+        "title": "What is MLOps?",
+        "activity_name": "What is MLOps?",
+        "url": "https://cloud.google.com/discover/what-is-mlops",
+        "publisher": "Google Cloud",
+        "provider_item_id": "cloud.google.com/discover/what-is-mlops",
+        "source_type": "article",
+        "language": "en-US",
+        "activity_duration_minutes": 12,
+        "duration_minutes": 12,
+        "access": {
+          "free": true,
+          "basis": "Public Google Cloud concept page",
+          "evidence_url": "https://policies.google.com/terms"
+        },
+        "activity_purpose": "See how MLOps applies DevOps practices to build, deploy, monitor, and retrain models in production.",
+        "availability": {
+          "status": 200,
+          "checked_at": "2026-08-31T06:16:56.984454+00:00"
+        }
+      }
+    ],
+    "reference_videos": [
+      {
+        "title": "AI and Machine Learning Video Series",
+        "url": "https://www.youtube.com/playlist?list=PLIivdWyY5sqJ1YuMdGjRwx_Mtjffe0T1c",
+        "publisher": "YouTube (Google Cloud Tech)",
+        "note": "Google Cloud's short-video series on AI and ML concepts; watch the episodes relevant to each topic.",
+        "availability": {
+          "status": 200,
+          "checked_at": "2026-08-31T06:16:56.984454+00:00"
+        }
+      }
+    ],
+    "source_url": "https://cloud.google.com/learn/training/machinelearning-ai",
+    "course_description": "A vendor-grounded conceptual foundation built from Google Cloud's own explainers: what artificial intelligence and machine learning are and how they relate, what generative AI is, and how MLOps keeps models running in production."
+  },
+  "structure": {
+    "section_name": "AI and Machine Learning Foundations on Google Cloud",
+    "section_introduction": "A vendor-grounded conceptual foundation built from Google Cloud's own explainers: what artificial intelligence and machine learning are and how they relate, what generative AI is, and how MLOps keeps models running in production. One must complete all contents to finish the course. On completion, candidates are requested to upload your badge, certification, or screenshot of completion in the assignment section.",
+    "activities": {
+      "overview": {
+        "name": "Course overview",
+        "module_count": 5,
+        "estimated_time_minutes": 60,
+        "estimated_time_label": "1 hour",
+        "outcome": "Explain what artificial intelligence, machine learning, and generative AI are, how they relate to each other, and how MLOps keeps models running in production.",
+        "instruction": "One must complete all contents to finish the course. On completion, candidates are requested to upload your badge, certification, or screenshot of completion in the assignment section."
+      },
+      "resources": {
+        "name": "AI and Machine Learning Foundations on Google Cloud",
+        "introduction": "Open this activity for the main resource, then work through its sub-topics below, in order. Together they cover: Explain what artificial intelligence, machine learning, and generative AI are, how they relate to each other, and how MLOps keeps models running in production.",
+        "primary_url": "https://cloud.google.com/learn/training/machinelearning-ai",
+        "items": [
+          {
+            "title": "What is artificial intelligence (AI)?",
+            "url": "https://cloud.google.com/learn/what-is-artificial-intelligence",
+            "publisher": "Google Cloud",
+            "source_type": "article",
+            "duration_minutes": 12,
+            "purpose": "Define artificial intelligence, its main types, and common applications."
+          },
+          {
+            "title": "What is machine learning (ML)?",
+            "url": "https://cloud.google.com/learn/what-is-machine-learning",
+            "publisher": "Google Cloud",
+            "source_type": "article",
+            "duration_minutes": 12,
+            "purpose": "Understand how machine learning works, supervised vs. unsupervised learning, and where it is used."
+          },
+          {
+            "title": "Artificial intelligence vs. machine learning",
+            "url": "https://cloud.google.com/learn/artificial-intelligence-vs-machine-learning",
+            "publisher": "Google Cloud",
+            "source_type": "article",
+            "duration_minutes": 12,
+            "purpose": "Place AI, ML, and deep learning in relation to one another and know when each term applies."
+          },
+          {
+            "title": "What is generative AI?",
+            "url": "https://cloud.google.com/discover/what-is-generative-ai",
+            "publisher": "Google Cloud",
+            "source_type": "article",
+            "duration_minutes": 12,
+            "purpose": "Learn what generative AI and foundation models are and how they differ from traditional ML."
+          },
+          {
+            "title": "What is MLOps?",
+            "url": "https://cloud.google.com/discover/what-is-mlops",
+            "publisher": "Google Cloud",
+            "source_type": "article",
+            "duration_minutes": 12,
+            "purpose": "See how MLOps applies DevOps practices to build, deploy, monitor, and retrain models in production."
+          }
+        ]
+      },
+      "videos": {
+        "name": "Watch reference videos",
+        "introduction": "Reference videos from public platforms that reinforce the course material. Watch the ones you find useful, then mark this activity done.",
+        "items": [
+          {
+            "title": "AI and Machine Learning Video Series",
+            "url": "https://www.youtube.com/playlist?list=PLIivdWyY5sqJ1YuMdGjRwx_Mtjffe0T1c",
+            "publisher": "YouTube (Google Cloud Tech)",
+            "note": "Google Cloud's short-video series on AI and ML concepts; watch the episodes relevant to each topic."
+          }
+        ]
+      },
+      "assignment": {
+        "name": "Submit Course Certification",
+        "introduction": "Upload proof that you completed this course: your certificate, your digital badge, or a screenshot of a completion screen. Accepted files are PDF or image. Submitting a file marks this activity complete.",
+        "max_files": 3,
+        "file_types": ".pdf,.png,.jpg,.jpeg,.webp"
+      }
+    }
+  }
+}

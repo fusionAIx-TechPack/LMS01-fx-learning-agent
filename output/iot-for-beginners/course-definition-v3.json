@@ -1,0 +1,211 @@
+{
+  "identity": {
+    "fullname": "IoT for Beginners",
+    "shortname": "iot-for-beginners-beginner",
+    "summary": "A conceptual introduction to the Internet of Things, drawn from the Getting Started module of Microsoft's open-source \"IoT for Beginners\" curriculum: what IoT is, the parts of an IoT device, how sensors and actuators let a device interact with the physical world, and how devices connect to and communicate over the internet."
+  },
+  "settings": {
+    "format": "topics",
+    "visible": false,
+    "completion_tracking": true
+  },
+  "brief": {
+    "topic": "IoT for Beginners",
+    "audience": "Developers, students, and technology professionals new to IoT, with basic programming familiarity assumed",
+    "entry_level": "beginner",
+    "language": "en-US",
+    "intended_learning_outcome": "Explain what the Internet of Things is, describe the parts of an IoT system (devices, sensors, actuators, and connectivity), and outline how IoT devices connect to and communicate over the internet",
+    "learning_time_minutes": 60,
+    "sources": [
+      {
+        "title": "IoT for Beginners - Introduction to IoT",
+        "activity_name": "Introduction to IoT",
+        "url": "https://github.com/microsoft/IoT-For-Beginners/tree/main/1-getting-started/lessons/1-introduction-to-iot",
+        "publisher": "Microsoft",
+        "provider_item_id": "github.com/microsoft/IoT-For-Beginners/1-getting-started/lessons/1-introduction-to-iot",
+        "source_type": "article",
+        "language": "en-US",
+        "activity_duration_minutes": 15,
+        "duration_minutes": 15,
+        "access": {
+          "free": true,
+          "basis": "Public MIT-licensed Microsoft curriculum on GitHub",
+          "evidence_url": "https://github.com/microsoft/IoT-For-Beginners/blob/main/LICENSE"
+        },
+        "activity_purpose": "Understand what IoT is, see everyday examples, and learn the high-level anatomy of an IoT application.",
+        "availability": {
+          "status": 200,
+          "checked_at": "2026-08-31T05:44:38.437338+00:00"
+        }
+      },
+      {
+        "title": "IoT for Beginners - A deeper dive into IoT",
+        "activity_name": "A deeper dive into IoT",
+        "url": "https://github.com/microsoft/IoT-For-Beginners/tree/main/1-getting-started/lessons/2-deeper-dive",
+        "publisher": "Microsoft",
+        "provider_item_id": "github.com/microsoft/IoT-For-Beginners/1-getting-started/lessons/2-deeper-dive",
+        "source_type": "article",
+        "language": "en-US",
+        "activity_duration_minutes": 15,
+        "duration_minutes": 15,
+        "access": {
+          "free": true,
+          "basis": "Public MIT-licensed Microsoft curriculum on GitHub",
+          "evidence_url": "https://github.com/microsoft/IoT-For-Beginners/blob/main/LICENSE"
+        },
+        "activity_purpose": "Learn the components of an IoT device, how microcontrollers and single-board computers differ, and how they run code.",
+        "availability": {
+          "status": 200,
+          "checked_at": "2026-08-31T05:44:38.437338+00:00"
+        }
+      },
+      {
+        "title": "IoT for Beginners - Interact with the physical world with sensors and actuators",
+        "activity_name": "Sensors and actuators",
+        "url": "https://github.com/microsoft/IoT-For-Beginners/tree/main/1-getting-started/lessons/3-sensors-and-actuators",
+        "publisher": "Microsoft",
+        "provider_item_id": "github.com/microsoft/IoT-For-Beginners/1-getting-started/lessons/3-sensors-and-actuators",
+        "source_type": "article",
+        "language": "en-US",
+        "activity_duration_minutes": 15,
+        "duration_minutes": 12,
+        "access": {
+          "free": true,
+          "basis": "Public MIT-licensed Microsoft curriculum on GitHub",
+          "evidence_url": "https://github.com/microsoft/IoT-For-Beginners/blob/main/LICENSE"
+        },
+        "activity_purpose": "Understand what sensors and actuators are, the difference between analog and digital, and how a device reads and acts on the world.",
+        "availability": {
+          "status": 200,
+          "checked_at": "2026-08-31T05:44:38.437338+00:00"
+        }
+      },
+      {
+        "title": "IoT for Beginners - Connect your device to the Internet",
+        "activity_name": "Connect a device to the internet",
+        "url": "https://github.com/microsoft/IoT-For-Beginners/tree/main/1-getting-started/lessons/4-connect-internet",
+        "publisher": "Microsoft",
+        "provider_item_id": "github.com/microsoft/IoT-For-Beginners/1-getting-started/lessons/4-connect-internet",
+        "source_type": "article",
+        "language": "en-US",
+        "activity_duration_minutes": 15,
+        "duration_minutes": 12,
+        "access": {
+          "free": true,
+          "basis": "Public MIT-licensed Microsoft curriculum on GitHub",
+          "evidence_url": "https://github.com/microsoft/IoT-For-Beginners/blob/main/LICENSE"
+        },
+        "activity_purpose": "See how IoT devices communicate using MQTT and publish/subscribe messaging to and from the cloud.",
+        "availability": {
+          "status": 200,
+          "checked_at": "2026-08-31T05:44:38.437338+00:00"
+        }
+      }
+    ],
+    "reference_videos": [
+      {
+        "title": "IoT | Internet of Things | What is IoT? | How IoT Works? | IoT Explained in 6 Minutes",
+        "url": "https://www.youtube.com/watch?v=6mBO2vqLv38",
+        "publisher": "YouTube",
+        "note": "A concise overview of what IoT is, how it works, and where it is used.",
+        "duration_minutes": 6,
+        "availability": {
+          "status": 200,
+          "checked_at": "2026-08-31T05:44:38.437338+00:00"
+        }
+      },
+      {
+        "title": "Internet of Things (IoT) Explained in 3 minutes",
+        "url": "https://www.youtube.com/watch?v=-M74HobvzGA",
+        "publisher": "YouTube",
+        "note": "A short animated primer on connecting everyday objects to the internet for automation and data exchange.",
+        "duration_minutes": 3,
+        "availability": {
+          "status": 200,
+          "checked_at": "2026-08-31T05:44:38.437338+00:00"
+        }
+      }
+    ],
+    "source_url": "https://microsoft.github.io/IoT-For-Beginners/#/",
+    "course_description": "A conceptual introduction to the Internet of Things, drawn from the Getting Started module of Microsoft's open-source \"IoT for Beginners\" curriculum: what IoT is, the parts of an IoT device, how sensors and actuators let a device interact with the physical world, and how devices connect to and communicate over the internet."
+  },
+  "structure": {
+    "section_name": "IoT for Beginners",
+    "section_introduction": "A conceptual introduction to the Internet of Things, drawn from the Getting Started module of Microsoft's open-source \"IoT for Beginners\" curriculum: what IoT is, the parts of an IoT device, how sensors and actuators let a device interact with the physical world, and how devices connect to and communicate over the internet. One must complete all contents to finish the course. On completion, candidates are requested to upload your badge, certification, or screenshot of completion in the assignment section.",
+    "activities": {
+      "overview": {
+        "name": "Course overview",
+        "module_count": 4,
+        "estimated_time_minutes": 60,
+        "estimated_time_label": "1 hour",
+        "outcome": "Explain what the Internet of Things is, describe the parts of an IoT system (devices, sensors, actuators, and connectivity), and outline how IoT devices connect to and communicate over the internet.",
+        "instruction": "One must complete all contents to finish the course. On completion, candidates are requested to upload your badge, certification, or screenshot of completion in the assignment section."
+      },
+      "resources": {
+        "name": "IoT for Beginners",
+        "introduction": "Open this activity for the main resource, then work through its sub-topics below, in order. Together they cover: Explain what the Internet of Things is, describe the parts of an IoT system (devices, sensors, actuators, and connectivity), and outline how IoT devices connect to and communicate over the internet.",
+        "primary_url": "https://microsoft.github.io/IoT-For-Beginners/#/",
+        "items": [
+          {
+            "title": "IoT for Beginners - Introduction to IoT",
+            "url": "https://github.com/microsoft/IoT-For-Beginners/tree/main/1-getting-started/lessons/1-introduction-to-iot",
+            "publisher": "Microsoft",
+            "source_type": "article",
+            "duration_minutes": 15,
+            "purpose": "Understand what IoT is, see everyday examples, and learn the high-level anatomy of an IoT application."
+          },
+          {
+            "title": "IoT for Beginners - A deeper dive into IoT",
+            "url": "https://github.com/microsoft/IoT-For-Beginners/tree/main/1-getting-started/lessons/2-deeper-dive",
+            "publisher": "Microsoft",
+            "source_type": "article",
+            "duration_minutes": 15,
+            "purpose": "Learn the components of an IoT device, how microcontrollers and single-board computers differ, and how they run code."
+          },
+          {
+            "title": "IoT for Beginners - Interact with the physical world with sensors and actuators",
+            "url": "https://github.com/microsoft/IoT-For-Beginners/tree/main/1-getting-started/lessons/3-sensors-and-actuators",
+            "publisher": "Microsoft",
+            "source_type": "article",
+            "duration_minutes": 15,
+            "purpose": "Understand what sensors and actuators are, the difference between analog and digital, and how a device reads and acts on the world."
+          },
+          {
+            "title": "IoT for Beginners - Connect your device to the Internet",
+            "url": "https://github.com/microsoft/IoT-For-Beginners/tree/main/1-getting-started/lessons/4-connect-internet",
+            "publisher": "Microsoft",
+            "source_type": "article",
+            "duration_minutes": 15,
+            "purpose": "See how IoT devices communicate using MQTT and publish/subscribe messaging to and from the cloud."
+          }
+        ]
+      },
+      "videos": {
+        "name": "Watch reference videos",
+        "introduction": "Reference videos from public platforms that reinforce the course material. Watch the ones you find useful, then mark this activity done.",
+        "items": [
+          {
+            "title": "IoT | Internet of Things | What is IoT? | How IoT Works? | IoT Explained in 6 Minutes",
+            "url": "https://www.youtube.com/watch?v=6mBO2vqLv38",
+            "publisher": "YouTube",
+            "note": "A concise overview of what IoT is, how it works, and where it is used.",
+            "duration_minutes": 6
+          },
+          {
+            "title": "Internet of Things (IoT) Explained in 3 minutes",
+            "url": "https://www.youtube.com/watch?v=-M74HobvzGA",
+            "publisher": "YouTube",
+            "note": "A short animated primer on connecting everyday objects to the internet for automation and data exchange.",
+            "duration_minutes": 3
+          }
+        ]
+      },
+      "assignment": {
+        "name": "Submit Course Certification",
+        "introduction": "Upload proof that you completed this course: your certificate, your digital badge, or a screenshot of a completion screen. Accepted files are PDF or image. Submitting a file marks this activity complete.",
+        "max_files": 3,
+        "file_types": ".pdf,.png,.jpg,.jpeg,.webp"
+      }
+    }
+  }
+}

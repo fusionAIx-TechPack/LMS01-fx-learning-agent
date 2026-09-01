@@ -1,0 +1,113 @@
+{
+  "topic": "Build an Agent in Microsoft Copilot Studio",
+  "course_description": "A practice-oriented path aligned to the Microsoft Applied Skills assessment APL-6006, \"Build an agent in Microsoft Copilot Studio\". Built from the assessment's own preparation modules on Microsoft Learn, it walks through creating and publishing an agent, designing topic-based conversations, grounding the agent with knowledge and generative AI, and adding a workflow tool.",
+  "audience": "App makers and business users with basic familiarity with Microsoft Copilot Studio who want to build a custom agent end to end, including anyone preparing for the APL-6006 Applied Skills assessment",
+  "entry_level": "intermediate",
+  "language": "en-US",
+  "intended_learning_outcome": "Build, configure, and publish a Microsoft Copilot Studio agent that uses topics for guided conversations, is grounded with knowledge and generative AI, and calls a workflow tool",
+  "learning_time_minutes": 180,
+  "source_url": "https://learn.microsoft.com/en-us/credentials/applied-skills/build-an-agent-in-microsoft-copilot-studio/",
+  "sources": [
+    {
+      "title": "Microsoft Applied Skills: Build an agent in Microsoft Copilot Studio",
+      "activity_name": "Know what the assessment covers",
+      "url": "https://learn.microsoft.com/en-us/credentials/applied-skills/build-an-agent-in-microsoft-copilot-studio/",
+      "publisher": "Microsoft Learn",
+      "provider_item_id": "credentials/applied-skills/build-an-agent-in-microsoft-copilot-studio",
+      "source_type": "article",
+      "language": "en-US",
+      "duration_minutes": 10,
+      "activity_duration_minutes": 15,
+      "activity_purpose": "Understand exactly what the APL-6006 assessment expects you to do so you can focus your practice on the right tasks.",
+      "access": {
+        "free": true,
+        "basis": "Public Microsoft Learn source",
+        "evidence_url": "https://learn.microsoft.com/en-us/legal/termsofuse"
+      }
+    },
+    {
+      "title": "Get started with Microsoft Copilot Studio",
+      "activity_name": "Build and publish an agent",
+      "url": "https://learn.microsoft.com/en-us/training/modules/power-virtual-agents-bots/",
+      "publisher": "Microsoft Learn",
+      "provider_item_id": "training/modules/power-virtual-agents-bots",
+      "source_type": "course",
+      "language": "en-US",
+      "duration_minutes": 50,
+      "activity_duration_minutes": 55,
+      "activity_purpose": "Create, configure, test, and publish a working agent using the standard authoring experience.",
+      "access": {
+        "free": true,
+        "basis": "Public Microsoft Learn source",
+        "evidence_url": "https://learn.microsoft.com/en-us/legal/termsofuse"
+      }
+    },
+    {
+      "title": "Design agent conversations using topics",
+      "activity_name": "Author topics for conversations",
+      "url": "https://learn.microsoft.com/en-us/training/modules/copilot-studio-topics/",
+      "publisher": "Microsoft Learn",
+      "provider_item_id": "training/modules/copilot-studio-topics",
+      "source_type": "course",
+      "language": "en-US",
+      "duration_minutes": 40,
+      "activity_duration_minutes": 45,
+      "activity_purpose": "Author and configure topics so the agent follows deliberate, branching conversation paths.",
+      "access": {
+        "free": true,
+        "basis": "Public Microsoft Learn source",
+        "evidence_url": "https://learn.microsoft.com/en-us/legal/termsofuse"
+      }
+    },
+    {
+      "title": "Build intelligent agents in Microsoft Copilot Studio",
+      "activity_name": "Add knowledge and generative AI",
+      "url": "https://learn.microsoft.com/en-us/training/modules/copilot-studio-knowledge/",
+      "publisher": "Microsoft Learn",
+      "provider_item_id": "training/modules/copilot-studio-knowledge",
+      "source_type": "course",
+      "language": "en-US",
+      "duration_minutes": 32,
+      "activity_duration_minutes": 35,
+      "activity_purpose": "Ground the agent in knowledge sources and tune its generative-answer and moderation settings.",
+      "access": {
+        "free": true,
+        "basis": "Public Microsoft Learn source",
+        "evidence_url": "https://learn.microsoft.com/en-us/legal/termsofuse"
+      }
+    },
+    {
+      "title": "Add structured automation to agents in Microsoft Copilot Studio",
+      "activity_name": "Add a tool to the agent",
+      "url": "https://learn.microsoft.com/en-us/training/modules/copilot-studio-structured-automation/",
+      "publisher": "Microsoft Learn",
+      "provider_item_id": "training/modules/copilot-studio-structured-automation",
+      "source_type": "course",
+      "language": "en-US",
+      "duration_minutes": 28,
+      "activity_duration_minutes": 30,
+      "activity_purpose": "Add a deterministic workflow tool to the agent and wire its inputs and outputs.",
+      "access": {
+        "free": true,
+        "basis": "Public Microsoft Learn source",
+        "evidence_url": "https://learn.microsoft.com/en-us/legal/termsofuse"
+      }
+    }
+  ],
+  "reference_videos": [
+    {
+      "title": "Create your first agent in Copilot Studio",
+      "url": "https://learn.microsoft.com/en-us/shows/mastering-copilot-studio/create-first-agent-copilot-studio",
+      "publisher": "Microsoft Learn Shows",
+      "note": "A short walkthrough of creating, instructing, and testing a first agent in the standard authoring experience.",
+      "duration_minutes": 10
+    },
+    {
+      "title": "How to Build AI Agents Using Microsoft Copilot Studio - Full Tutorial",
+      "url": "https://www.youtube.com/watch?v=4ftNLy9V-hs",
+      "publisher": "YouTube",
+      "note": "A hands-on end-to-end build covering knowledge, topics, tools, and publishing.",
+      "duration_minutes": 35
+    }
+  ]
+}

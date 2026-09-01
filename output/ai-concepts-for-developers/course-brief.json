@@ -1,0 +1,119 @@
+{
+  "topic": "AI Concepts for Developers and Technology Professionals",
+  "course_description": "Microsoft Learn's 'AI concepts for developers and technology professionals' path: seven short modules covering core AI concepts and terminology across generative AI and agents, natural language processing, speech, computer vision, information extraction, and retrieval-augmented generation. All modules are free on Microsoft Learn and need no account.",
+  "audience": "Developers and technology professionals starting with AI",
+  "entry_level": "beginner",
+  "language": "en-US",
+  "intended_learning_outcome": "Explain core AI concepts and terminology across generative AI and agents, natural language processing, speech, computer vision, information extraction, and retrieval-augmented generation, and use them to reason about AI workloads and plan AI solutions",
+  "learning_time_minutes": 231,
+  "source_url": "https://learn.microsoft.com/en-us/training/paths/ai-concepts/",
+  "sources": [
+    {
+      "title": "Introduction to AI concepts",
+      "activity_name": "AI concepts",
+      "url": "https://learn.microsoft.com/en-us/training/modules/get-started-ai-fundamentals/",
+      "publisher": "Microsoft Learn",
+      "provider_item_id": "learn.wwl.get-started-ai-fundamentals",
+      "source_type": "course",
+      "language": "en-US",
+      "duration_minutes": 40,
+      "activity_duration_minutes": 40,
+      "activity_purpose": "Establish the vocabulary of AI: workloads, models, data, and responsible AI.",
+      "access": { "free": true, "basis": "Free Microsoft Learn training content, no account required", "evidence_url": "https://learn.microsoft.com/en-us/training/support/faq" }
+    },
+    {
+      "title": "Introduction to generative AI and agents",
+      "activity_name": "Generative AI and agents",
+      "url": "https://learn.microsoft.com/en-us/training/modules/fundamentals-generative-ai/",
+      "publisher": "Microsoft Learn",
+      "provider_item_id": "learn.wwl.fundamentals-generative-ai",
+      "source_type": "course",
+      "language": "en-US",
+      "duration_minutes": 37,
+      "activity_duration_minutes": 37,
+      "activity_purpose": "Explain how large language models and agents generate and act on content.",
+      "access": { "free": true, "basis": "Free Microsoft Learn training content, no account required", "evidence_url": "https://learn.microsoft.com/en-us/training/support/faq" }
+    },
+    {
+      "title": "Introduction to natural language processing concepts",
+      "activity_name": "Natural language processing",
+      "url": "https://learn.microsoft.com/en-us/training/modules/introduction-language/",
+      "publisher": "Microsoft Learn",
+      "provider_item_id": "learn.wwl.introduction-language",
+      "source_type": "course",
+      "language": "en-US",
+      "duration_minutes": 30,
+      "activity_duration_minutes": 30,
+      "activity_purpose": "Describe how machines analyse and generate human language.",
+      "access": { "free": true, "basis": "Free Microsoft Learn training content, no account required", "evidence_url": "https://learn.microsoft.com/en-us/training/support/faq" }
+    },
+    {
+      "title": "Introduction to AI speech concepts",
+      "activity_name": "AI speech",
+      "url": "https://learn.microsoft.com/en-us/training/modules/introduction-ai-speech/",
+      "publisher": "Microsoft Learn",
+      "provider_item_id": "learn.wwl.introduction-ai-speech",
+      "source_type": "course",
+      "language": "en-US",
+      "duration_minutes": 28,
+      "activity_duration_minutes": 28,
+      "activity_purpose": "Describe speech-to-text, text-to-speech, and speech translation.",
+      "access": { "free": true, "basis": "Free Microsoft Learn training content, no account required", "evidence_url": "https://learn.microsoft.com/en-us/training/support/faq" }
+    },
+    {
+      "title": "Introduction to computer vision concepts",
+      "activity_name": "Computer vision",
+      "url": "https://learn.microsoft.com/en-us/training/modules/introduction-computer-vision/",
+      "publisher": "Microsoft Learn",
+      "provider_item_id": "learn.wwl.introduction-computer-vision",
+      "source_type": "course",
+      "language": "en-US",
+      "duration_minutes": 34,
+      "activity_duration_minutes": 34,
+      "activity_purpose": "Describe image classification, object detection, and OCR.",
+      "access": { "free": true, "basis": "Free Microsoft Learn training content, no account required", "evidence_url": "https://learn.microsoft.com/en-us/training/support/faq" }
+    },
+    {
+      "title": "Introduction to AI-powered information extraction concepts",
+      "activity_name": "Information extraction",
+      "url": "https://learn.microsoft.com/en-us/training/modules/introduction-information-extraction/",
+      "publisher": "Microsoft Learn",
+      "provider_item_id": "learn.wwl.introduction-information-extraction",
+      "source_type": "course",
+      "language": "en-US",
+      "duration_minutes": 28,
+      "activity_duration_minutes": 28,
+      "activity_purpose": "Explain how AI extracts fields and structure from documents and forms.",
+      "access": { "free": true, "basis": "Free Microsoft Learn training content, no account required", "evidence_url": "https://learn.microsoft.com/en-us/training/support/faq" }
+    },
+    {
+      "title": "Introduction to retrieval-augmented generation concepts",
+      "activity_name": "Retrieval-augmented generation",
+      "url": "https://learn.microsoft.com/en-us/training/modules/rag-fundamentals/",
+      "publisher": "Microsoft Learn",
+      "provider_item_id": "learn.wwl.rag-fundamentals",
+      "source_type": "course",
+      "language": "en-US",
+      "duration_minutes": 34,
+      "activity_duration_minutes": 34,
+      "activity_purpose": "Explain how grounding a model in retrieved data improves its answers.",
+      "access": { "free": true, "basis": "Free Microsoft Learn training content, no account required", "evidence_url": "https://learn.microsoft.com/en-us/training/support/faq" }
+    }
+  ],
+  "reference_videos": [
+    {
+      "title": "Generative AI in a Nutshell - how to survive and thrive in the age of AI",
+      "url": "https://www.youtube.com/watch?v=2IK3DFHRFfw",
+      "publisher": "Henrik Kniberg",
+      "note": "Whiteboard-style overview of how generative AI works and how to use it well.",
+      "duration_minutes": 18
+    },
+    {
+      "title": "Intro to Large Language Models",
+      "url": "https://www.youtube.com/watch?v=zjkBMFhNj_g",
+      "publisher": "Andrej Karpathy",
+      "note": "One-hour talk on what large language models are and how they are trained.",
+      "duration_minutes": 60
+    }
+  ]
+}

@@ -1,0 +1,183 @@
+{
+  "topic": "Pega GenAI",
+  "course_description": "Provide developers with foundational skills to use and implement GenAI features in App Studio.",
+  "audience": "Pega Developers New to GenAI",
+  "entry_level": "intermediate",
+  "language": "en-US",
+  "intended_learning_outcome": "Explain GenAI fundamentals, concepts, configuration, and implementation in App Studio.",
+  "learning_time_minutes": 300,
+  "sources": [
+    {
+      "title": "Pega GenAI Overview",
+      "activity_name": "Explore Pega GenAI Overview",
+      "url": "https://docs.pega.com/bundle/platform/page/platform/gen-ai/pega-genai.html",
+      "publisher": "Pegasystems Inc.",
+      "provider_item_id": "platform/gen-ai/pega-genai",
+      "source_type": "article",
+      "language": "en-US",
+      "duration_minutes": 20,
+      "activity_duration_minutes": 30,
+      "activity_purpose": "Understand how Pega GenAI integrates generative models with enterprise workflows and security controls.",
+      "activity_instructions": "Review the Pega GenAI architecture and note the key governance mechanisms that ensure enterprise data security.",
+      "access": {
+        "free": true,
+        "basis": "Public Pegasystems Documentation",
+        "evidence_url": "https://www.pega.com/terms"
+      }
+    },
+    {
+      "title": "Generative AI in Pega",
+      "activity_name": "Study GenAI on Pega Academy",
+      "url": "https://academy.pega.com/topic/generative-ai-pega/v1",
+      "publisher": "Pega Academy",
+      "provider_item_id": "academy/topic/generative-ai-pega-v1",
+      "source_type": "course",
+      "language": "en-US",
+      "duration_minutes": 45,
+      "activity_duration_minutes": 60,
+      "activity_purpose": "Acquire structured foundational concepts of generative AI capabilities across Pega Infinity.",
+      "activity_instructions": "Work through the introductory generative AI topics and document three key use cases for developer acceleration.",
+      "access": {
+        "free": true,
+        "basis": "Public Pega Academy Topic",
+        "evidence_url": "https://www.pega.com/terms"
+      }
+    },
+    {
+      "title": "Pega GenAI Autopilot",
+      "activity_name": "Understand GenAI Autopilot",
+      "url": "https://docs.pega.com/bundle/platform/page/platform/app-studio/autopilot.html",
+      "publisher": "Pegasystems Inc.",
+      "provider_item_id": "platform/app-studio/autopilot",
+      "source_type": "article",
+      "language": "en-US",
+      "duration_minutes": 20,
+      "activity_duration_minutes": 30,
+      "activity_purpose": "Learn how conversational Autopilot assists developers with case life cycles and view creation in App Studio.",
+      "activity_instructions": "Examine Autopilot capabilities in App Studio and record the steps required to generate a case type using conversational prompts.",
+      "access": {
+        "free": true,
+        "basis": "Public Pegasystems Documentation",
+        "evidence_url": "https://www.pega.com/terms"
+      }
+    },
+    {
+      "title": "Pega GenAI Coach",
+      "activity_name": "Explore GenAI Coach Concepts",
+      "url": "https://docs.pega.com/bundle/platform/page/platform/app-studio/genai-coach.html",
+      "publisher": "Pegasystems Inc.",
+      "provider_item_id": "platform/app-studio/genai-coach",
+      "source_type": "article",
+      "language": "en-US",
+      "duration_minutes": 20,
+      "activity_duration_minutes": 30,
+      "activity_purpose": "Understand how runtime AI coaches provide context-aware guidance and summaries to case workers.",
+      "activity_instructions": "Study the GenAI Coach configuration model and list the system instructions needed to guide case processing.",
+      "access": {
+        "free": true,
+        "basis": "Public Pegasystems Documentation",
+        "evidence_url": "https://www.pega.com/terms"
+      }
+    },
+    {
+      "title": "AI Designer Landing Page",
+      "activity_name": "Navigate AI Designer",
+      "url": "https://docs.pega.com/bundle/platform/page/platform/app-studio/ai-designer.html",
+      "publisher": "Pegasystems Inc.",
+      "provider_item_id": "platform/app-studio/ai-designer",
+      "source_type": "article",
+      "language": "en-US",
+      "duration_minutes": 20,
+      "activity_duration_minutes": 30,
+      "activity_purpose": "Master the AI Designer landing page to test prompts, compare model responses, and configure connect rules.",
+      "activity_instructions": "Explore the AI Designer playground and note how temperature and prompt adjustments affect generative model output.",
+      "access": {
+        "free": true,
+        "basis": "Public Pegasystems Documentation",
+        "evidence_url": "https://www.pega.com/terms"
+      }
+    },
+    {
+      "title": "Running GenAI Connect Rules in App Studio",
+      "activity_name": "Run GenAI Connect Rules",
+      "url": "https://docs.pega.com/bundle/platform/page/platform/gen-ai/running-genai-connect-rules-app-studio.html",
+      "publisher": "Pegasystems Inc.",
+      "provider_item_id": "platform/gen-ai/running-genai-connect-rules",
+      "source_type": "article",
+      "language": "en-US",
+      "duration_minutes": 30,
+      "activity_duration_minutes": 45,
+      "activity_purpose": "Implement and execute custom GenAI Connect rules directly within App Studio workflows.",
+      "activity_instructions": "Follow the implementation steps to execute a GenAI Connect rule and verify its response against a test case.",
+      "access": {
+        "free": true,
+        "basis": "Public Pegasystems Documentation",
+        "evidence_url": "https://www.pega.com/terms"
+      }
+    },
+    {
+      "title": "Pega GenAI Case Summaries",
+      "activity_name": "Configure Case Summaries",
+      "url": "https://docs.pega.com/bundle/platform/page/platform/cases/genai-case-summaries.html",
+      "publisher": "Pegasystems Inc.",
+      "provider_item_id": "platform/cases/genai-case-summaries",
+      "source_type": "article",
+      "language": "en-US",
+      "duration_minutes": 25,
+      "activity_duration_minutes": 35,
+      "activity_purpose": "Configure automated case summarization to provide concise case histories for operators.",
+      "activity_instructions": "Enable generative case summaries on a case type and verify that key case timeline events are accurately condensed.",
+      "access": {
+        "free": true,
+        "basis": "Public Pegasystems Documentation",
+        "evidence_url": "https://www.pega.com/terms"
+      }
+    },
+    {
+      "title": "Document Processing with Pega GenAI",
+      "activity_name": "Process Documents with GenAI",
+      "url": "https://docs.pega.com/bundle/platform/page/platform/gen-ai/document-processing-pega-genai.html",
+      "publisher": "Pegasystems Inc.",
+      "provider_item_id": "platform/gen-ai/document-processing",
+      "source_type": "article",
+      "language": "en-US",
+      "duration_minutes": 25,
+      "activity_duration_minutes": 40,
+      "activity_purpose": "Implement automated document data extraction and analysis in case processing using generative AI.",
+      "activity_instructions": "Configure a document processing step with Pega GenAI and test extraction accuracy against sample incoming documents.",
+      "access": {
+        "free": true,
+        "basis": "Public Pegasystems Documentation",
+        "evidence_url": "https://www.pega.com/terms"
+      }
+    }
+  ],
+  "learning_path": [
+    {
+      "name": "Overview",
+      "introduction": "Build foundational knowledge of Pega GenAI architecture, capabilities, and platform fundamentals.",
+      "source_provider_item_ids": [
+        "platform/gen-ai/pega-genai",
+        "academy/topic/generative-ai-pega-v1"
+      ]
+    },
+    {
+      "name": "Concept",
+      "introduction": "Explore core generative AI mechanics including Autopilot, runtime Coach, and AI Designer.",
+      "source_provider_item_ids": [
+        "platform/app-studio/autopilot",
+        "platform/app-studio/genai-coach",
+        "platform/app-studio/ai-designer"
+      ]
+    },
+    {
+      "name": "Implementation",
+      "introduction": "Apply Pega GenAI by configuring connect rules, case summaries, and document processing in App Studio.",
+      "source_provider_item_ids": [
+        "platform/gen-ai/running-genai-connect-rules",
+        "platform/cases/genai-case-summaries",
+        "platform/gen-ai/document-processing"
+      ]
+    }
+  ]
+}

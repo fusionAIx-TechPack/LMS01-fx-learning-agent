@@ -1,0 +1,105 @@
+{
+  "topic": "AI and Machine Learning Foundations on Google Cloud",
+  "course_description": "A vendor-grounded conceptual foundation built from Google Cloud's own explainers: what artificial intelligence and machine learning are and how they relate, what generative AI is, and how MLOps keeps models running in production.",
+  "audience": "Developers and technology professionals new to AI/ML who want a conceptual foundation before using Google Cloud's ML tools",
+  "entry_level": "beginner",
+  "language": "en-US",
+  "intended_learning_outcome": "Explain what artificial intelligence, machine learning, and generative AI are, how they relate to each other, and how MLOps keeps models running in production",
+  "learning_time_minutes": 60,
+  "source_url": "https://cloud.google.com/learn/training/machinelearning-ai",
+  "sources": [
+    {
+      "title": "What is artificial intelligence (AI)?",
+      "activity_name": "What is AI?",
+      "url": "https://cloud.google.com/learn/what-is-artificial-intelligence",
+      "publisher": "Google Cloud",
+      "provider_item_id": "cloud.google.com/learn/what-is-artificial-intelligence",
+      "source_type": "article",
+      "language": "en-US",
+      "duration_minutes": 12,
+      "activity_duration_minutes": 12,
+      "activity_purpose": "Define artificial intelligence, its main types, and common applications.",
+      "access": {
+        "free": true,
+        "basis": "Public Google Cloud concept page",
+        "evidence_url": "https://policies.google.com/terms"
+      }
+    },
+    {
+      "title": "What is machine learning (ML)?",
+      "activity_name": "What is machine learning?",
+      "url": "https://cloud.google.com/learn/what-is-machine-learning",
+      "publisher": "Google Cloud",
+      "provider_item_id": "cloud.google.com/learn/what-is-machine-learning",
+      "source_type": "article",
+      "language": "en-US",
+      "duration_minutes": 12,
+      "activity_duration_minutes": 12,
+      "activity_purpose": "Understand how machine learning works, supervised vs. unsupervised learning, and where it is used.",
+      "access": {
+        "free": true,
+        "basis": "Public Google Cloud concept page",
+        "evidence_url": "https://policies.google.com/terms"
+      }
+    },
+    {
+      "title": "Artificial intelligence vs. machine learning",
+      "activity_name": "AI vs. machine learning",
+      "url": "https://cloud.google.com/learn/artificial-intelligence-vs-machine-learning",
+      "publisher": "Google Cloud",
+      "provider_item_id": "cloud.google.com/learn/artificial-intelligence-vs-machine-learning",
+      "source_type": "article",
+      "language": "en-US",
+      "duration_minutes": 10,
+      "activity_duration_minutes": 12,
+      "activity_purpose": "Place AI, ML, and deep learning in relation to one another and know when each term applies.",
+      "access": {
+        "free": true,
+        "basis": "Public Google Cloud concept page",
+        "evidence_url": "https://policies.google.com/terms"
+      }
+    },
+    {
+      "title": "What is generative AI?",
+      "activity_name": "What is generative AI?",
+      "url": "https://cloud.google.com/discover/what-is-generative-ai",
+      "publisher": "Google Cloud",
+      "provider_item_id": "cloud.google.com/discover/what-is-generative-ai",
+      "source_type": "article",
+      "language": "en-US",
+      "duration_minutes": 12,
+      "activity_duration_minutes": 12,
+      "activity_purpose": "Learn what generative AI and foundation models are and how they differ from traditional ML.",
+      "access": {
+        "free": true,
+        "basis": "Public Google Cloud concept page",
+        "evidence_url": "https://policies.google.com/terms"
+      }
+    },
+    {
+      "title": "What is MLOps?",
+      "activity_name": "What is MLOps?",
+      "url": "https://cloud.google.com/discover/what-is-mlops",
+      "publisher": "Google Cloud",
+      "provider_item_id": "cloud.google.com/discover/what-is-mlops",
+      "source_type": "article",
+      "language": "en-US",
+      "duration_minutes": 12,
+      "activity_duration_minutes": 12,
+      "activity_purpose": "See how MLOps applies DevOps practices to build, deploy, monitor, and retrain models in production.",
+      "access": {
+        "free": true,
+        "basis": "Public Google Cloud concept page",
+        "evidence_url": "https://policies.google.com/terms"
+      }
+    }
+  ],
+  "reference_videos": [
+    {
+      "title": "AI and Machine Learning Video Series",
+      "url": "https://www.youtube.com/playlist?list=PLIivdWyY5sqJ1YuMdGjRwx_Mtjffe0T1c",
+      "publisher": "YouTube (Google Cloud Tech)",
+      "note": "Google Cloud's short-video series on AI and ML concepts; watch the episodes relevant to each topic."
+    }
+  ]
+}

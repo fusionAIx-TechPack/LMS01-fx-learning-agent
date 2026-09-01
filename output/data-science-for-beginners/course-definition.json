@@ -1,0 +1,227 @@
+{
+  "identity": {
+    "fullname": "Data Science for Beginners",
+    "shortname": "data-science-for-beginners-beginner",
+    "summary": "A focused introduction to data science built from Microsoft's open 'Data Science for Beginners' curriculum: what data science is, its ethical obligations, the kinds of data practitioners work with, and how to produce an honest visualization of quantitative data."
+  },
+  "settings": {
+    "format": "topics",
+    "visible": false,
+    "completion_tracking": true
+  },
+  "brief": {
+    "topic": "Data Science for Beginners",
+    "audience": "Students and professionals new to data science, with only basic computer literacy assumed",
+    "entry_level": "beginner",
+    "language": "en-US",
+    "intended_learning_outcome": "Explain what data science is, recognize its ethical obligations and the main kinds of data, and produce a simple honest visualization of quantitative data",
+    "learning_time_minutes": 60,
+    "sources": [
+      {
+        "title": "Data Science for Beginners - Lesson 1: Defining Data Science",
+        "activity_name": "Study: Defining Data Science",
+        "url": "https://github.com/microsoft/Data-Science-For-Beginners/tree/main/1-Introduction/01-defining-data-science",
+        "publisher": "Microsoft",
+        "provider_item_id": "github.com/microsoft/Data-Science-For-Beginners/1-Introduction/01-defining-data-science",
+        "source_type": "article",
+        "language": "en-US",
+        "activity_duration_minutes": 15,
+        "duration_minutes": 15,
+        "access": {
+          "free": true,
+          "basis": "Public MIT-licensed Microsoft curriculum on GitHub",
+          "evidence_url": "https://github.com/microsoft/Data-Science-For-Beginners/blob/main/LICENSE"
+        },
+        "activity_purpose": "Frame the field: understand what data science is, what data scientists do, and how it relates to statistics and AI.",
+        "activity_instructions": "Read the lesson and watch its intro video, then write a one-sentence definition of data science in your own words and list two tasks a data scientist performs."
+      },
+      {
+        "title": "Data Science for Beginners - Lesson 2: Data Science Ethics",
+        "activity_name": "Study: Data Science Ethics",
+        "url": "https://github.com/microsoft/Data-Science-For-Beginners/tree/main/1-Introduction/02-ethics",
+        "publisher": "Microsoft",
+        "provider_item_id": "github.com/microsoft/Data-Science-For-Beginners/1-Introduction/02-ethics",
+        "source_type": "article",
+        "language": "en-US",
+        "activity_duration_minutes": 15,
+        "duration_minutes": 15,
+        "access": {
+          "free": true,
+          "basis": "Public MIT-licensed Microsoft curriculum on GitHub",
+          "evidence_url": "https://github.com/microsoft/Data-Science-For-Beginners/blob/main/LICENSE"
+        },
+        "activity_purpose": "Understand the ethical obligations that apply before any analysis: privacy, consent, bias, and accountability.",
+        "activity_instructions": "Read the lesson, then note three data-ethics principles and one example of how each could be violated in a real project."
+      },
+      {
+        "title": "Data Science for Beginners - Lesson 3: Defining Data",
+        "activity_name": "Study: Defining Data",
+        "url": "https://github.com/microsoft/Data-Science-For-Beginners/tree/main/1-Introduction/03-defining-data",
+        "publisher": "Microsoft",
+        "provider_item_id": "github.com/microsoft/Data-Science-For-Beginners/1-Introduction/03-defining-data",
+        "source_type": "article",
+        "language": "en-US",
+        "activity_duration_minutes": 15,
+        "duration_minutes": 12,
+        "access": {
+          "free": true,
+          "basis": "Public MIT-licensed Microsoft curriculum on GitHub",
+          "evidence_url": "https://github.com/microsoft/Data-Science-For-Beginners/blob/main/LICENSE"
+        },
+        "activity_purpose": "Learn the vocabulary of data: structured, semi-structured, and unstructured data and where each comes from.",
+        "activity_instructions": "Read the lesson, then classify three datasets you have seen (for example a spreadsheet, a set of emails, a folder of photos) by structure and source."
+      },
+      {
+        "title": "Data Science for Beginners - Lesson 9: Visualizing Quantities",
+        "activity_name": "Study: Visualizing Quantities",
+        "url": "https://github.com/microsoft/Data-Science-For-Beginners/tree/main/3-Data-Visualization/09-visualization-quantities",
+        "publisher": "Microsoft",
+        "provider_item_id": "github.com/microsoft/Data-Science-For-Beginners/3-Data-Visualization/09-visualization-quantities",
+        "source_type": "article",
+        "language": "en-US",
+        "activity_duration_minutes": 15,
+        "duration_minutes": 15,
+        "access": {
+          "free": true,
+          "basis": "Public MIT-licensed Microsoft curriculum on GitHub",
+          "evidence_url": "https://github.com/microsoft/Data-Science-For-Beginners/blob/main/LICENSE"
+        },
+        "activity_purpose": "Apply the ideas: choose an appropriate chart for a quantity and understand what makes a visualization honest.",
+        "activity_instructions": "Work through the lesson, then sketch or describe one chart for a small dataset and note one choice you made to avoid misleading the reader."
+      }
+    ],
+    "course_description": "A focused introduction to data science built from Microsoft's open 'Data Science for Beginners' curriculum: what data science is, its ethical obligations, the kinds of data practitioners work with, and how to produce an honest visualization of quantitative data.",
+    "learning_path": [
+      {
+        "name": "Introduction",
+        "introduction": "Establish what data science is, the ethical obligations that come first, and the kinds of data you will work with.",
+        "source_provider_item_ids": [
+          "github.com/microsoft/Data-Science-For-Beginners/1-Introduction/01-defining-data-science",
+          "github.com/microsoft/Data-Science-For-Beginners/1-Introduction/02-ethics",
+          "github.com/microsoft/Data-Science-For-Beginners/1-Introduction/03-defining-data"
+        ]
+      },
+      {
+        "name": "First Visualization",
+        "introduction": "Turn the concepts into a concrete result by building an honest visualization of quantitative data.",
+        "source_provider_item_ids": [
+          "github.com/microsoft/Data-Science-For-Beginners/3-Data-Visualization/09-visualization-quantities"
+        ]
+      }
+    ]
+  },
+  "general": {
+    "name": "Start here",
+    "introduction": "A focused introduction to data science built from Microsoft's open 'Data Science for Beginners' curriculum: what data science is, its ethical obligations, the kinds of data practitioners work with, and how to produce an honest visualization of quantitative data."
+  },
+  "modules": [
+    {
+      "name": "Introduction",
+      "introduction": "Establish what data science is, the ethical obligations that come first, and the kinds of data you will work with.",
+      "activities": [
+        {
+          "name": "Study: Defining Data Science",
+          "purpose": "Frame the field: understand what data science is, what data scientists do, and how it relates to statistics and AI.",
+          "instructions": "Read the lesson and watch its intro video, then write a one-sentence definition of data science in your own words and list two tasks a data scientist performs.",
+          "duration_minutes": 15,
+          "source": {
+            "title": "Data Science for Beginners - Lesson 1: Defining Data Science",
+            "url": "https://github.com/microsoft/Data-Science-For-Beginners/tree/main/1-Introduction/01-defining-data-science",
+            "publisher": "Microsoft",
+            "provider_item_id": "github.com/microsoft/Data-Science-For-Beginners/1-Introduction/01-defining-data-science",
+            "source_type": "article",
+            "language": "en-US",
+            "duration_minutes": 15,
+            "availability": {
+              "status": 200,
+              "checked_at": "2026-08-27T14:06:50.449649+00:00"
+            },
+            "access": {
+              "free": true,
+              "basis": "Public MIT-licensed Microsoft curriculum on GitHub",
+              "evidence_url": "https://github.com/microsoft/Data-Science-For-Beginners/blob/main/LICENSE"
+            }
+          }
+        },
+        {
+          "name": "Study: Data Science Ethics",
+          "purpose": "Understand the ethical obligations that apply before any analysis: privacy, consent, bias, and accountability.",
+          "instructions": "Read the lesson, then note three data-ethics principles and one example of how each could be violated in a real project.",
+          "duration_minutes": 15,
+          "source": {
+            "title": "Data Science for Beginners - Lesson 2: Data Science Ethics",
+            "url": "https://github.com/microsoft/Data-Science-For-Beginners/tree/main/1-Introduction/02-ethics",
+            "publisher": "Microsoft",
+            "provider_item_id": "github.com/microsoft/Data-Science-For-Beginners/1-Introduction/02-ethics",
+            "source_type": "article",
+            "language": "en-US",
+            "duration_minutes": 15,
+            "availability": {
+              "status": 200,
+              "checked_at": "2026-08-27T14:06:50.449649+00:00"
+            },
+            "access": {
+              "free": true,
+              "basis": "Public MIT-licensed Microsoft curriculum on GitHub",
+              "evidence_url": "https://github.com/microsoft/Data-Science-For-Beginners/blob/main/LICENSE"
+            }
+          }
+        },
+        {
+          "name": "Study: Defining Data",
+          "purpose": "Learn the vocabulary of data: structured, semi-structured, and unstructured data and where each comes from.",
+          "instructions": "Read the lesson, then classify three datasets you have seen (for example a spreadsheet, a set of emails, a folder of photos) by structure and source.",
+          "duration_minutes": 15,
+          "source": {
+            "title": "Data Science for Beginners - Lesson 3: Defining Data",
+            "url": "https://github.com/microsoft/Data-Science-For-Beginners/tree/main/1-Introduction/03-defining-data",
+            "publisher": "Microsoft",
+            "provider_item_id": "github.com/microsoft/Data-Science-For-Beginners/1-Introduction/03-defining-data",
+            "source_type": "article",
+            "language": "en-US",
+            "duration_minutes": 12,
+            "availability": {
+              "status": 200,
+              "checked_at": "2026-08-27T14:06:50.449649+00:00"
+            },
+            "access": {
+              "free": true,
+              "basis": "Public MIT-licensed Microsoft curriculum on GitHub",
+              "evidence_url": "https://github.com/microsoft/Data-Science-For-Beginners/blob/main/LICENSE"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "First Visualization",
+      "introduction": "Turn the concepts into a concrete result by building an honest visualization of quantitative data.",
+      "activities": [
+        {
+          "name": "Study: Visualizing Quantities",
+          "purpose": "Apply the ideas: choose an appropriate chart for a quantity and understand what makes a visualization honest.",
+          "instructions": "Work through the lesson, then sketch or describe one chart for a small dataset and note one choice you made to avoid misleading the reader.",
+          "duration_minutes": 15,
+          "source": {
+            "title": "Data Science for Beginners - Lesson 9: Visualizing Quantities",
+            "url": "https://github.com/microsoft/Data-Science-For-Beginners/tree/main/3-Data-Visualization/09-visualization-quantities",
+            "publisher": "Microsoft",
+            "provider_item_id": "github.com/microsoft/Data-Science-For-Beginners/3-Data-Visualization/09-visualization-quantities",
+            "source_type": "article",
+            "language": "en-US",
+            "duration_minutes": 15,
+            "availability": {
+              "status": 200,
+              "checked_at": "2026-08-27T14:06:50.449649+00:00"
+            },
+            "access": {
+              "free": true,
+              "basis": "Public MIT-licensed Microsoft curriculum on GitHub",
+              "evidence_url": "https://github.com/microsoft/Data-Science-For-Beginners/blob/main/LICENSE"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

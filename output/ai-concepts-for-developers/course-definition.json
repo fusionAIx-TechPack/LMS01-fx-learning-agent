@@ -1,0 +1,243 @@
+{
+  "identity": {
+    "fullname": "AI Concepts for Developers and Technology Professionals",
+    "shortname": "ai-concepts-for-developers-and-technology-professionals-beginner",
+    "summary": "Microsoft Learn's 'AI concepts for developers and technology professionals' path: seven short modules covering core AI concepts and terminology across generative AI and agents, natural language processing, speech, computer vision, information extraction, and retrieval-augmented generation. All modules are free on Microsoft Learn and need no account."
+  },
+  "settings": {
+    "format": "topics",
+    "visible": true,
+    "completion_tracking": true
+  },
+  "brief": {
+    "topic": "AI Concepts for Developers and Technology Professionals",
+    "audience": "Developers and technology professionals starting with AI",
+    "entry_level": "beginner",
+    "language": "en-US",
+    "intended_learning_outcome": "Explain core AI concepts and terminology across generative AI and agents, natural language processing, speech, computer vision, information extraction, and retrieval-augmented generation, and use them to reason about AI workloads and plan AI solutions",
+    "learning_time_minutes": 231,
+    "sources": [
+      {
+        "title": "Introduction to AI concepts",
+        "activity_name": "AI concepts",
+        "url": "https://learn.microsoft.com/en-us/training/modules/get-started-ai-fundamentals/",
+        "publisher": "Microsoft Learn",
+        "provider_item_id": "learn.wwl.get-started-ai-fundamentals",
+        "source_type": "course",
+        "language": "en-US",
+        "activity_duration_minutes": 40,
+        "duration_minutes": 40,
+        "access": {
+          "free": true,
+          "basis": "Free Microsoft Learn training content, no account required",
+          "evidence_url": "https://learn.microsoft.com/en-us/training/support/faq"
+        },
+        "activity_purpose": "Establish the vocabulary of AI: workloads, models, data, and responsible AI.",
+        "availability": {
+          "status": 200,
+          "checked_at": "2026-08-31T10:14:15.220634+00:00"
+        }
+      },
+      {
+        "title": "Introduction to generative AI and agents",
+        "activity_name": "Generative AI and agents",
+        "url": "https://learn.microsoft.com/en-us/training/modules/fundamentals-generative-ai/",
+        "publisher": "Microsoft Learn",
+        "provider_item_id": "learn.wwl.fundamentals-generative-ai",
+        "source_type": "course",
+        "language": "en-US",
+        "activity_duration_minutes": 37,
+        "duration_minutes": 37,
+        "access": {
+          "free": true,
+          "basis": "Free Microsoft Learn training content, no account required",
+          "evidence_url": "https://learn.microsoft.com/en-us/training/support/faq"
+        },
+        "activity_purpose": "Explain how large language models and agents generate and act on content.",
+        "availability": {
+          "status": 200,
+          "checked_at": "2026-08-31T10:14:15.220634+00:00"
+        }
+      },
+      {
+        "title": "Introduction to natural language processing concepts",
+        "activity_name": "Natural language processing",
+        "url": "https://learn.microsoft.com/en-us/training/modules/introduction-language/",
+        "publisher": "Microsoft Learn",
+        "provider_item_id": "learn.wwl.introduction-language",
+        "source_type": "course",
+        "language": "en-US",
+        "activity_duration_minutes": 30,
+        "duration_minutes": 30,
+        "access": {
+          "free": true,
+          "basis": "Free Microsoft Learn training content, no account required",
+          "evidence_url": "https://learn.microsoft.com/en-us/training/support/faq"
+        },
+        "activity_purpose": "Describe how machines analyse and generate human language.",
+        "availability": {
+          "status": 200,
+          "checked_at": "2026-08-31T10:14:15.220634+00:00"
+        }
+      },
+      {
+        "title": "Introduction to AI speech concepts",
+        "activity_name": "AI speech",
+        "url": "https://learn.microsoft.com/en-us/training/modules/introduction-ai-speech/",
+        "publisher": "Microsoft Learn",
+        "provider_item_id": "learn.wwl.introduction-ai-speech",
+        "source_type": "course",
+        "language": "en-US",
+        "activity_duration_minutes": 28,
+        "duration_minutes": 28,
+        "access": {
+          "free": true,
+          "basis": "Free Microsoft Learn training content, no account required",
+          "evidence_url": "https://learn.microsoft.com/en-us/training/support/faq"
+        },
+        "activity_purpose": "Describe speech-to-text, text-to-speech, and speech translation.",
+        "availability": {
+          "status": 200,
+          "checked_at": "2026-08-31T10:14:15.220634+00:00"
+        }
+      },
+      {
+        "title": "Introduction to computer vision concepts",
+        "activity_name": "Computer vision",
+        "url": "https://learn.microsoft.com/en-us/training/modules/introduction-computer-vision/",
+        "publisher": "Microsoft Learn",
+        "provider_item_id": "learn.wwl.introduction-computer-vision",
+        "source_type": "course",
+        "language": "en-US",
+        "activity_duration_minutes": 34,
+        "duration_minutes": 34,
+        "access": {
+          "free": true,
+          "basis": "Free Microsoft Learn training content, no account required",
+          "evidence_url": "https://learn.microsoft.com/en-us/training/support/faq"
+        },
+        "activity_purpose": "Describe image classification, object detection, and OCR.",
+        "availability": {
+          "status": 200,
+          "checked_at": "2026-08-31T10:14:15.220634+00:00"
+        }
+      },
+      {
+        "title": "Introduction to AI-powered information extraction concepts",
+        "activity_name": "Information extraction",
+        "url": "https://learn.microsoft.com/en-us/training/modules/introduction-information-extraction/",
+        "publisher": "Microsoft Learn",
+        "provider_item_id": "learn.wwl.introduction-information-extraction",
+        "source_type": "course",
+        "language": "en-US",
+        "activity_duration_minutes": 28,
+        "duration_minutes": 28,
+        "access": {
+          "free": true,
+          "basis": "Free Microsoft Learn training content, no account required",
+          "evidence_url": "https://learn.microsoft.com/en-us/training/support/faq"
+        },
+        "activity_purpose": "Explain how AI extracts fields and structure from documents and forms.",
+        "availability": {
+          "status": 200,
+          "checked_at": "2026-08-31T10:14:15.220634+00:00"
+        }
+      },
+      {
+        "title": "Introduction to retrieval-augmented generation concepts",
+        "activity_name": "Retrieval-augmented generation",
+        "url": "https://learn.microsoft.com/en-us/training/modules/rag-fundamentals/",
+        "publisher": "Microsoft Learn",
+        "provider_item_id": "learn.wwl.rag-fundamentals",
+        "source_type": "course",
+        "language": "en-US",
+        "activity_duration_minutes": 34,
+        "duration_minutes": 34,
+        "access": {
+          "free": true,
+          "basis": "Free Microsoft Learn training content, no account required",
+          "evidence_url": "https://learn.microsoft.com/en-us/training/support/faq"
+        },
+        "activity_purpose": "Explain how grounding a model in retrieved data improves its answers.",
+        "availability": {
+          "status": 200,
+          "checked_at": "2026-08-31T10:14:15.220634+00:00"
+        }
+      }
+    ],
+    "reference_videos": [
+      {
+        "title": "Generative AI in a Nutshell - how to survive and thrive in the age of AI",
+        "url": "https://www.youtube.com/watch?v=2IK3DFHRFfw",
+        "publisher": "Henrik Kniberg",
+        "note": "Whiteboard-style overview of how generative AI works and how to use it well.",
+        "duration_minutes": 18,
+        "availability": {
+          "status": 200,
+          "checked_at": "2026-08-31T10:14:15.220634+00:00"
+        }
+      },
+      {
+        "title": "Intro to Large Language Models",
+        "url": "https://www.youtube.com/watch?v=zjkBMFhNj_g",
+        "publisher": "Andrej Karpathy",
+        "note": "One-hour talk on what large language models are and how they are trained.",
+        "duration_minutes": 60,
+        "availability": {
+          "status": 200,
+          "checked_at": "2026-08-31T10:14:15.220634+00:00"
+        }
+      }
+    ],
+    "source_url": "https://learn.microsoft.com/en-us/training/paths/ai-concepts/",
+    "course_description": "Microsoft Learn's 'AI concepts for developers and technology professionals' path: seven short modules covering core AI concepts and terminology across generative AI and agents, natural language processing, speech, computer vision, information extraction, and retrieval-augmented generation. All modules are free on Microsoft Learn and need no account."
+  },
+  "structure": {
+    "section_name": "AI Concepts for Developers and Technology Professionals",
+    "section_introduction": "Microsoft Learn's 'AI concepts for developers and technology professionals' path: seven short modules covering core AI concepts and terminology across generative AI and agents, natural language processing, speech, computer vision, information extraction, and retrieval-augmented generation. All modules are free on Microsoft Learn and need no account. One must complete all contents to finish the course. On completion, candidates are requested to upload your badge, certification, or screenshot of completion in the assignment section.",
+    "activities": {
+      "overview": {
+        "name": "Course overview",
+        "module_count": 7,
+        "estimated_time_minutes": 231,
+        "estimated_time_label": "3 hours 51 minutes",
+        "outcome": "Explain core AI concepts and terminology across generative AI and agents, natural language processing, speech, computer vision, information extraction, and retrieval-augmented generation, and use them to reason about AI workloads and plan AI solutions.",
+        "instruction": "One must complete all contents to finish the course. On completion, candidates are requested to upload your badge, certification, or screenshot of completion in the assignment section."
+      },
+      "resources": {
+        "name": "AI Concepts for Developers and Technology Professionals",
+        "primary_url": "https://learn.microsoft.com/en-us/training/paths/ai-concepts/"
+      },
+      "videos": {
+        "name": "Watch reference videos",
+        "introduction": "Reference videos from public platforms that reinforce the course material. Watch the ones you find useful, then mark this activity done.",
+        "items": [
+          {
+            "title": "Generative AI in a Nutshell - how to survive and thrive in the age of AI",
+            "url": "https://www.youtube.com/watch?v=2IK3DFHRFfw",
+            "publisher": "Henrik Kniberg",
+            "note": "Whiteboard-style overview of how generative AI works and how to use it well.",
+            "duration_minutes": 18
+          },
+          {
+            "title": "Intro to Large Language Models",
+            "url": "https://www.youtube.com/watch?v=zjkBMFhNj_g",
+            "publisher": "Andrej Karpathy",
+            "note": "One-hour talk on what large language models are and how they are trained.",
+            "duration_minutes": 60
+          }
+        ]
+      },
+      "assignment": {
+        "name": "Submit Course Certification",
+        "introduction": "Upload proof that you completed this course: your certificate, your digital badge, or a screenshot of a completion screen. Accepted files are PDF or image. Submitting a file marks this activity complete.",
+        "max_files": 3,
+        "file_types": ".pdf,.png,.jpg,.jpeg,.webp"
+      },
+      "discussion": {
+        "name": "Discussion Forum",
+        "introduction": "Ask questions and share what you learned with other learners taking this course. Post at least once, then mark this activity done."
+      }
+    }
+  }
+}

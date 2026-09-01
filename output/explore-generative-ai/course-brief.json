@@ -1,0 +1,63 @@
+{
+  "topic": "Explore Generative AI",
+  "course_description": "Understand the fundamentals of generative AI: distinguish between NLP, NLG, and large language models; assess how generative AI differs from traditional AI models and the role of data; and evaluate how generative AI services such as Microsoft Copilot enhance creativity and productivity.",
+  "audience": "Developers, students, AI engineers, technology managers, and solution architects who are new to generative AI",
+  "entry_level": "beginner",
+  "language": "en-US",
+  "intended_learning_outcome": "Explain what generative AI is, how it differs from traditional AI, and how generative AI services support creativity and productivity",
+  "learning_time_minutes": 60,
+  "sources": [
+    {
+      "title": "Generative AI in a Nutshell - how to survive and thrive in the age of AI",
+      "activity_name": "Watch Generative AI in a Nutshell",
+      "url": "https://www.youtube.com/watch?v=2IK3DFHRFfw",
+      "publisher": "Henrik Kniberg",
+      "provider_item_id": "youtube.com/watch?v=2IK3DFHRFfw",
+      "source_type": "video",
+      "language": "en-US",
+      "duration_minutes": 18,
+      "activity_duration_minutes": 20,
+      "activity_purpose": "Build an intuitive mental model of how generative AI works before studying it formally.",
+      "activity_instructions": "Watch the full video, then write down one analogy from it that explains how a large language model generates text.",
+      "access": {
+        "free": true,
+        "basis": "Public YouTube video",
+        "evidence_url": "https://www.youtube.com/static?template=terms"
+      }
+    },
+    {
+      "title": "Explore Generative AI",
+      "activity_name": "Work through Explore Generative AI",
+      "url": "https://learn.microsoft.com/en-us/training/modules/explore-generative-ai/",
+      "publisher": "Microsoft Learn",
+      "provider_item_id": "learn.philanthropies.explore-generative-ai",
+      "source_type": "course",
+      "language": "en-US",
+      "duration_minutes": 35,
+      "activity_duration_minutes": 40,
+      "activity_purpose": "Ground your understanding of how generative AI produces language and images and how it differs from traditional AI.",
+      "activity_instructions": "Complete all nine units including the exercise and knowledge check, then record two ways generative AI differs from traditional AI models.",
+      "access": {
+        "free": true,
+        "basis": "Public Microsoft Learn training module",
+        "evidence_url": "https://learn.microsoft.com/en-us/legal/termsofuse"
+      }
+    }
+  ],
+  "learning_path": [
+    {
+      "name": "Foundations",
+      "introduction": "Build an intuitive picture of what generative AI is and how it produces new content.",
+      "source_provider_item_ids": [
+        "youtube.com/watch?v=2IK3DFHRFfw"
+      ]
+    },
+    {
+      "name": "Core Concepts",
+      "introduction": "Study NLP, NLG, and large language models and how generative AI differs from traditional AI models.",
+      "source_provider_item_ids": [
+        "learn.philanthropies.explore-generative-ai"
+      ]
+    }
+  ]
+}
