@@ -27,6 +27,13 @@ Consequences:
   accept/reject prompt are no longer part of a normal run. `bin/course-package`
   keeps `--accept`, `--reject`, `--reuse`, and `--skip-restore`; the full
   interactive flow (omit the flags) still works for anyone who wants it.
+- The `create-course` workflow builds **warm by default**: it passes `--reuse`
+  on every `bin/course-package build` and does not run `bin/course-package down`,
+  so the local Moodle install is kept between runs (~1-2 min/course instead of a
+  cold ~2-3 min). It surfaces one line to the Course Requester when a cold build
+  is unavoidable (the `*_source-db` / `*_source-data` volumes are gone, or the
+  DB seed predates a `docker/moodle` / `moodle-cli` change) and continues.
+  `bin/course-package down` is run only on request or for a release-clean build.
 - A packaged `.mbz` is code-generated and smoke-checked but **not proven to
   restore**. `bin/course-package verify --package ... --definition ...` runs the
   clean-Moodle Trial Restoration on demand and is recommended before any

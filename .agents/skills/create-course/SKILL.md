@@ -22,6 +22,17 @@ Then wait for their input before doing anything else.
 
 If the Course Requester replies `build from input` (or otherwise asks to build from the spreadsheet / `input/` folder), or attaches or names a spreadsheet: extract the ordered URL list with `bin/course-urls <file-or-dir>` - pass `input` to use the single spreadsheet in that folder, or the exact path when they named one. It prints one URL per line, in row order; the column name does not matter and a header row is skipped. Treat that list exactly as a pasted ordered list from step 2 onward.
 
+## Build environment: warm by default
+
+Packaging (step 6) reuses the local Moodle between runs and passes `--reuse` every time - a **warm build** (~1-2 min/course). It does **not** run `bin/course-package down`; the environment is left up for the next run.
+
+Right after the Course Requester gives their input, before step 1, check whether a **cold build** is unavoidable this run and, if so, tell them once - one line, then continue (do not block):
+
+- Run `docker volume ls --format '{{.Name}}'` and look for `*_source-db` and `*_source-data`. If either is missing, this run rebuilds the Moodle environment from scratch: say *"First build will be a cold build (~2-3 min) because the local Moodle volumes don't exist yet; builds after it will be warm."*
+- If `git log -1 --format=%cd -- docker/moodle moodle-cli` is newer than the seed file `docker/mariadb-seed/moodle.sql.gz` (or the seed is absent), the warm reset may be stale: say *"The Moodle build files changed since the DB seed was made - run `bin/build-moodle-seed` once for fast cold builds again."* and continue with `--reuse` anyway.
+
+Only run `bin/course-package down` when the Course Requester asks for it, or when they explicitly want a guaranteed-clean environment for a release package. A cold build otherwise happens on its own whenever the volumes are already gone.
+
 ## Workflow
 
 ### 1. Reconstruct the current contract
@@ -93,28 +104,28 @@ Finish when the Definition is contract-valid, traceable to the selected Sources,
 
 ### 6. Package the Course
 
-Build the native `.mbz` from the Definition, unattended:
+Build the native `.mbz` from the Definition, unattended, and always with `--reuse` (warm build - see "Build environment: warm by default"):
 
 ```bash
 bin/course-package build \
   --definition output/<course-slug>/course-definition.json \
   --output output/<course-slug>/course-package.mbz \
-  --accept --skip-restore
+  --accept --skip-restore --reuse
 ```
 
-This stands up a local Moodle, generates the fixed five-activity Course, runs the automated review-learner HTTP verification, auto-accepts, and writes the `.mbz`. It does not pause for human review and does not run clean-Moodle Trial Restoration.
+This reuses the running local Moodle (installing it only if the volumes are gone), generates the fixed five-activity Course, runs the automated review-learner HTTP verification, auto-accepts, and writes the `.mbz`. `--reuse` keeps the Moodle volumes and clears only the prior Course; it is safe on a fresh environment too (the reset is then a no-op). It does not pause for human review and does not run clean-Moodle Trial Restoration.
 
 Treat any of these as a blocking failure: a missing or failed review-learner HTTP verification, a non-zero exit, or a Moodle generation or backup error. Report the failing gate and return to the earliest affected step.
 
-Add `--reuse` to skip the volume wipe when re-running the build after correcting a Brief or Definition, and for every course after the first in a list. Choose a new `--output` filename when one already exists.
+Re-run the same `--reuse` build after correcting a Brief or Definition, and for every course in a list. Choose a new `--output` filename when one already exists. Drop `--reuse` only for a deliberate clean rebuild.
 
 ### 7. Hand off the Course Package(s)
 
-Run `bin/course-package down` once the last `.mbz` exists.
+Leave the local Moodle environment **up** so the next `create-course` run is a warm build. Do not run `bin/course-package down` - run it only when the Course Requester asks, or when they want a guaranteed-clean environment for a release package.
 
 When a `.mbz` was created successfully, lead the handoff with the exact line **"your mbz file created and ready to use"**. Then report the Brief, Definition, and Course Package paths, the automated review-learner HTTP verification evidence, the Moodle compatibility stated by the repository, and the manual production-import boundary.
 
-For a **list**: build the courses one at a time. As soon as each course's `.mbz` exists, immediately post **"your mbz file created and ready to use"** with that course's folder and `.mbz` path, then start the next course - do not wait for the user between courses. After the last one, post a one-line summary table (a row per course: folder, `.mbz` path, activity count, elapsed time) plus any URLs skipped for a failed gate. Keep the local Moodle up between courses with `--reuse` and only run `bin/course-package down` after the final course.
+For a **list**: build the courses one at a time, each with `--reuse`. As soon as each course's `.mbz` exists, immediately post **"your mbz file created and ready to use"** with that course's folder and `.mbz` path, then start the next course - do not wait for the user between courses. After the last one, post a one-line summary table (a row per course: folder, `.mbz` path, activity count, elapsed time) plus any URLs skipped for a failed gate. Leave the local Moodle up when the list is done.
 
 The `.mbz` has not been restore-tested. State this plainly. Before any production import, restore proof is available on demand:
 
