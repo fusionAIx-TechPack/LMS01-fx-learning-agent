@@ -1,4 +1,13 @@
 /artifacts/*
 __pycache__/
 *.py[cod]
+
+# Generated course artifacts (briefs, definitions, .mbz) - not source.
+/output/
+
+# Batch input spreadsheets - keep the folder and its README, ignore the sheets.
+/input/*
+!/input/README.md
+
+# Visual Studio local state.
 .vs/

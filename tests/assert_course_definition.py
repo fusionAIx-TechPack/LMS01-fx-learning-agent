@@ -7,59 +7,65 @@ from pathlib import Path
 
 
 definition = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+
 assert definition["settings"] == {
     "format": "topics",
-    "visible": False,
+    "visible": True,
     "completion_tracking": True,
 }
 assert definition["brief"]["learning_time_minutes"] == 90
 assert definition["brief"]["entry_level"] == "beginner"
 assert definition["brief"]["language"] == "en-US"
-assert len(definition["modules"]) >= 2
-activities = [activity for module in definition["modules"] for activity in module["activities"]]
-assert len(activities) >= 2
-used_minutes = sum(activity["source"]["duration_minutes"] for activity in activities)
+
+sources = definition["brief"]["sources"]
+assert len(sources) == 3
+used_minutes = sum(source["duration_minutes"] for source in sources)
 assert 67 <= used_minutes <= 90
-activity_minutes = sum(activity["duration_minutes"] for activity in activities)
-assert activity_minutes == 90
-assert definition["modules"][0]["name"] == "Foundations"
-assert definition["modules"][1]["name"] == "Practice"
-assert all(len(module["name"]) <= 40 for module in definition["modules"])
-assert all(len(activity["name"]) <= 40 for activity in activities)
-assert all(activity["source"]["publisher"] == "Microsoft Learn" for activity in activities)
-assert all(activity["source"]["language"] == "en-US" for activity in activities)
-assert all(activity["source"]["provider_item_id"] for activity in activities)
-assert {activity["source"]["source_type"] for activity in activities} == {"article", "video"}
-assert all(activity["source"]["availability"]["status"] == 200 for activity in activities)
-assert all(activity["source"]["access"]["free"] is True for activity in activities)
-assert all(activity["source"]["access"]["basis"] for activity in activities)
+activity_minutes = sum(source["activity_duration_minutes"] for source in sources)
+assert activity_minutes <= 90
+assert all(source["publisher"] == "Microsoft Learn" for source in sources)
+assert all(source["language"] == "en-US" for source in sources)
+assert all(source["provider_item_id"] for source in sources)
+assert {source["source_type"] for source in sources} == {"article", "video"}
+assert all(source["availability"]["status"] == 200 for source in sources)
+assert all(source["access"]["free"] is True for source in sources)
+assert all(source["access"]["basis"] for source in sources)
 assert all(
-    activity["source"]["access"]["evidence_url"]
+    source["access"]["evidence_url"]
     == "https://learn.microsoft.com/en-us/training/support/integrations"
-    for activity in activities
+    for source in sources
 )
-brief_sources = {
-    source["provider_item_id"]: source for source in definition["brief"]["sources"]
-}
-assert all(
-    activity["name"]
-    == brief_sources[activity["source"]["provider_item_id"]]["activity_name"]
-    for activity in activities
-)
-assert all(
-    activity["source"]["title"]
-    == brief_sources[activity["source"]["provider_item_id"]]["title"]
-    for activity in activities
-)
-assert all(
-    activity["duration_minutes"]
-    == brief_sources[activity["source"]["provider_item_id"]]["activity_duration_minutes"]
-    for activity in activities
-)
-assert all(
-    activity["duration_minutes"] >= activity["source"]["duration_minutes"]
-    for activity in activities
-)
-assert len({activity["purpose"] for activity in activities}) == len(activities)
-assert len({activity["instructions"] for activity in activities}) == len(activities)
-assert all(activity["instructions"].startswith("Open the Source") for activity in activities)
+
+videos = definition["brief"]["reference_videos"]
+assert len(videos) == 1
+assert all(video["availability"]["status"] == 200 for video in videos)
+assert all(video["title"] and video["note"] and video["publisher"] for video in videos)
+
+structure = definition["structure"]
+assert structure["section_name"] == definition["identity"]["fullname"]
+activities = structure["activities"]
+
+overview = activities["overview"]
+assert overview["name"] == "Course overview"
+assert overview["module_count"] == len(sources)
+assert overview["estimated_time_minutes"] == 90
+assert overview["estimated_time_label"] == "1 hour 30 minutes"
+assert overview["instruction"] and overview["outcome"]
+
+resources = activities["resources"]
+assert resources["name"] == definition["identity"]["fullname"]
+assert resources["primary_url"] == definition["brief"]["source_url"]
+assert "items" not in resources and "introduction" not in resources
+
+video_activity = activities["videos"]
+assert video_activity["name"] == "Watch reference videos"
+assert len(video_activity["items"]) == len(videos)
+
+assignment = activities["assignment"]
+assert assignment["name"] == "Submit Course Certification"
+assert assignment["max_files"] >= 1
+assert assignment["file_types"]
+
+discussion = activities["discussion"]
+assert discussion["name"] == "Discussion Forum"
+assert discussion["introduction"]

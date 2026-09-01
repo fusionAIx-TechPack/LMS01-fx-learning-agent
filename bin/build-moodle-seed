@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# Build a pre-installed Moodle database snapshot so cold `bin/course-package`
+# runs skip the multi-minute `install_database.php` step.
+#
+# It installs the `source` Moodle once, dumps its database to
+# docker/mariadb-seed/moodle.sql.gz, and resets the local environment. MariaDB
+# imports that file automatically whenever it starts on a fresh volume (see
+# compose.yaml), after which entrypoint.sh only rebuilds caches instead of
+# installing.
+#
+# Re-run this after changing docker/moodle or bumping the Moodle version.
+# Delete docker/mariadb-seed/moodle.sql.gz to go back to installing from scratch.
+set -euo pipefail
+export MSYS_NO_PATHCONV=1
+export MSYS2_ARG_CONV_EXCL="*"
+repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+cd "$repo_root"
+
+seed_file=docker/mariadb-seed/moodle.sql.gz
+
+echo "Removing any existing seed so Moodle installs from scratch..."
+rm -f "$seed_file"
+docker compose down --volumes >/dev/null 2>&1 || true
+
+echo "Starting the source Moodle and running the one-time install (the slow step)..."
+docker compose up -d --build source
+
+# entrypoint.sh runs install_database.php to completion before it starts Apache,
+# so a served HTTP page is the reliable "install finished" signal. cfg.php turns
+# true partway through the install and would capture a half-populated database.
+for _ in $(seq 1 300); do
+  if curl -fsS http://localhost:8080/login/index.php >/dev/null 2>&1; then
+    installed=1
+    break
+  fi
+  sleep 2
+done
+[[ ${installed:-} == 1 ]] || { echo "Moodle did not finish installing in time." >&2; exit 1; }
+
+# Let entrypoint's post-install steps settle, then confirm the CLI agrees.
+docker compose exec -T source php admin/cli/cfg.php --name=version >/dev/null 2>&1 \
+  || { echo "Moodle reports it is not installed." >&2; exit 1; }
+
+echo "Dumping the installed database to $seed_file ..."
+docker compose exec -T source-db sh -c \
+  'MYSQL_PWD="$MARIADB_ROOT_PASSWORD" exec mariadb-dump -uroot \
+     --databases moodle --single-transaction --routines --triggers --events' \
+  | gzip >"$seed_file"
+
+test -s "$seed_file" || { echo "The database dump was empty." >&2; rm -f "$seed_file"; exit 1; }
+
+echo "Resetting the local environment so the next build imports the seed..."
+docker compose down --volumes >/dev/null 2>&1 || true
+
+echo "Done: $seed_file ($(du -h "$seed_file" | cut -f1)). Cold builds will now import"
+echo "it instead of installing Moodle. 'bin/course-package down' still works as before."

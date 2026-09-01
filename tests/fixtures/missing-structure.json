@@ -96,46 +96,5 @@
     ],
     "source_url": "https://learn.microsoft.com/en-us/training/paths/create-extend-custom-copilots-microsoft-copilot-studio/",
     "course_description": "A deterministic fixture Course Definition."
-  },
-  "structure": {
-    "section_name": "Microsoft Copilot Studio",
-    "section_introduction": "A deterministic fixture Course Definition. One must complete all contents to finish the course. On completion, candidates are requested to upload your badge, certification, or screenshot of completion in the assignment section.",
-    "activities": {
-      "overview": {
-        "name": "Course overview",
-        "module_count": 3,
-        "estimated_time_minutes": 90,
-        "estimated_time_label": "1 hour 30 minutes",
-        "outcome": "Build and publish a first agent.",
-        "instruction": "One must complete all contents to finish the course. On completion, candidates are requested to upload your badge, certification, or screenshot of completion in the assignment section."
-      },
-      "resources": {
-        "name": "Microsoft Copilot Studio",
-        "primary_url": "https://learn.microsoft.com/en-us/training/paths/create-extend-custom-copilots-microsoft-copilot-studio/"
-      },
-      "videos": {
-        "name": "Watch reference videos",
-        "introduction": "Reference videos from public platforms that reinforce the course material. Watch the ones you find useful, then mark this activity done.",
-        "items": [
-          {
-            "title": "Create your first agent in Copilot Studio",
-            "url": "https://learn.microsoft.com/en-us/shows/mastering-copilot-studio/create-first-agent-copilot-studio",
-            "publisher": "Microsoft Learn Shows",
-            "note": "A short walkthrough of creating and testing a first agent.",
-            "duration_minutes": 10
-          }
-        ]
-      },
-      "assignment": {
-        "name": "Submit Course Certification",
-        "introduction": "Upload proof that you completed this course: your certificate, your digital badge, or a screenshot of a completion screen. Accepted files are PDF or image. Submitting a file marks this activity complete.",
-        "max_files": 3,
-        "file_types": ".pdf,.png,.jpg,.jpeg,.webp"
-      },
-      "discussion": {
-        "name": "Discussion Forum",
-        "introduction": "Ask questions and share what you learned with other learners taking this course. Post at least once, then mark this activity done."
-      }
-    }
   }
 }

@@ -34,24 +34,24 @@ grep -F 'Course Definition and Course Package outputs must use different paths.'
 test ! -e "$output_dir/same-output"
 
 if invalid_output=$("$repo_root/bin/course-package" build \
-  --definition "$repo_root/tests/fixtures/invalid-modules-object.json" \
-  --output "$output_dir/invalid-modules.mbz" --accept 2>&1); then
-  echo "Object-valued modules unexpectedly passed Course Definition validation" >&2
+  --definition "$repo_root/tests/fixtures/missing-structure.json" \
+  --output "$output_dir/missing-structure.mbz" --accept 2>&1); then
+  echo "A Course Definition without a structure block unexpectedly passed validation" >&2
   exit 1
 fi
 echo "$invalid_output"
-grep -F 'Course Definition modules must be a JSON array.' <<<"$invalid_output"
-test ! -e "$output_dir/invalid-modules.mbz"
+grep -F 'Course Definition requires a structure object.' <<<"$invalid_output"
+test ! -e "$output_dir/missing-structure.mbz"
 
 if invalid_output=$("$repo_root/bin/course-package" build \
-  --definition "$repo_root/tests/fixtures/invalid-activities-object.json" \
-  --output "$output_dir/invalid-activities.mbz" --accept 2>&1); then
-  echo "Object-valued activities unexpectedly passed Course Definition validation" >&2
+  --definition "$repo_root/tests/fixtures/invalid-sources-object.json" \
+  --output "$output_dir/invalid-sources.mbz" --accept 2>&1); then
+  echo "Object-valued brief.sources unexpectedly passed Course Definition validation" >&2
   exit 1
 fi
 echo "$invalid_output"
-grep -F 'Course Definition module 0 activities must be a JSON array.' <<<"$invalid_output"
-test ! -e "$output_dir/invalid-activities.mbz"
+grep -F 'Course Definition brief.sources must be a JSON array.' <<<"$invalid_output"
+test ! -e "$output_dir/invalid-sources.mbz"
 
 if "$repo_root/bin/course-package" build \
   --definition "$repo_root/tests/fixtures/course-definition.json" \
@@ -91,11 +91,13 @@ if ! build_output=$("$repo_root/bin/course-package" build \
 fi
 echo "$build_output"
 grep -F 'http://localhost:8080/course/view.php?id=' <<<"$build_output"
-grep -F 'Local review admin login: admin / LocalOnly-ChangeMe1!' <<<"$build_output"
-grep -F 'Local review learner login: course-review-learner / LocalOnly-Review1!' <<<"$build_output"
-grep -F 'Verified hidden Course through review learner HTTP session (3 Learning Activities).' <<<"$build_output"
+grep -F 'Local review admin login: admin / Local-Admin-2026' <<<"$build_output"
+grep -F 'Local review learner login: course-review-learner / Local-Review-2026' <<<"$build_output"
+grep -F 'Verified Course through review learner HTTP session (5 Learning Activities).' <<<"$build_output"
 grep -F 'Verified restored Course through learner HTTP session.' <<<"$build_output"
-grep -F "Course Definition generated and ready for review: $output_dir/generated-course-definition.json" <<<"$build_output"
+# bin/course-definition prints the OS-native path, which is a Windows path under
+# Git Bash; match the message and filename without pinning the directory form.
+grep -E "Course Definition generated and ready for review: .*generated-course-definition\.json" <<<"$build_output"
 grep -F 'Manual production import: in a compatible Moodle 5.0.x site' <<<"$build_output"
 
 test -s "$output_dir/generated-course-definition.json"

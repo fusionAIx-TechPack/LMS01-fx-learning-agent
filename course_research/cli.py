@@ -10,7 +10,7 @@ from urllib.parse import urlparse
 from .domain import (
     CourseBrief,
     CourseDefinitionError,
-    LearningPathModule,
+    ReferenceVideo,
     SelectedSource,
     level_for_entry,
     locale_for_language,
@@ -44,6 +44,13 @@ def _http_url(document: dict[str, Any], field: str, context: str) -> str:
     return value.strip()
 
 
+def _positive_int(document: dict[str, Any], field: str, context: str) -> int:
+    value = document.get(field)
+    if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+        raise CourseDefinitionError(f"{context} requires positive integer {field}.")
+    return value
+
+
 def _selected_sources(document: dict[str, Any]) -> tuple[SelectedSource, ...]:
     values = document.get("sources")
     if not isinstance(values, list) or not values:
@@ -53,14 +60,8 @@ def _selected_sources(document: dict[str, Any]) -> tuple[SelectedSource, ...]:
         context = f"Course Brief Source {index}"
         if not isinstance(value, dict):
             raise CourseDefinitionError(f"{context} must be a JSON object.")
-        duration = value.get("duration_minutes")
-        if isinstance(duration, bool) or not isinstance(duration, int) or duration <= 0:
-            raise CourseDefinitionError(f"{context} requires positive integer duration_minutes.")
-        activity_duration = value.get("activity_duration_minutes")
-        if isinstance(activity_duration, bool) or not isinstance(activity_duration, int) or activity_duration <= 0:
-            raise CourseDefinitionError(
-                f"{context} requires positive integer activity_duration_minutes."
-            )
+        duration = _positive_int(value, "duration_minutes", context)
+        activity_duration = _positive_int(value, "activity_duration_minutes", context)
         if activity_duration < duration:
             raise CourseDefinitionError(
                 f"{context} activity_duration_minutes must be at least Source duration_minutes."
@@ -73,7 +74,7 @@ def _selected_sources(document: dict[str, Any]) -> tuple[SelectedSource, ...]:
         access = value.get("access")
         if not isinstance(access, dict) or access.get("free") is not True:
             raise CourseDefinitionError(f"{context} must record free access evidence.")
-        sources.append(SelectedSource(
+        source = SelectedSource(
             title=_required_text(value, "title"),
             activity_name=_required_text(value, "activity_name"),
             url=_http_url(value, "url", context),
@@ -86,84 +87,47 @@ def _selected_sources(document: dict[str, Any]) -> tuple[SelectedSource, ...]:
             access_basis=_required_text(access, "basis"),
             access_evidence_url=_http_url(access, "evidence_url", f"{context} access"),
             activity_purpose=_optional_text(value, "activity_purpose"),
-            activity_instructions=_optional_text(value, "activity_instructions"),
-        ))
-        if (sources[-1].activity_purpose is None) != (sources[-1].activity_instructions is None):
-            raise CourseDefinitionError(
-                f"{context} must provide activity_purpose and activity_instructions together."
-            )
-        if len(sources[-1].activity_name) > MAX_NAVIGATION_NAME_LENGTH:
+        )
+        if len(source.activity_name) > MAX_NAVIGATION_NAME_LENGTH:
             raise CourseDefinitionError(
                 f"{context} activity_name must be at most {MAX_NAVIGATION_NAME_LENGTH} characters for Moodle navigation."
             )
+        sources.append(source)
     provider_ids = [source.provider_item_id for source in sources]
     if len(provider_ids) != len(set(provider_ids)):
         raise CourseDefinitionError("Course Brief Source provider_item_id values must be unique.")
     return tuple(sources)
 
 
-def _learning_path(
-    document: dict[str, Any], sources: tuple[SelectedSource, ...]
-) -> tuple[LearningPathModule, ...]:
-    values = document.get("learning_path")
+def _reference_videos(document: dict[str, Any]) -> tuple[ReferenceVideo, ...]:
+    values = document.get("reference_videos")
     if values is None:
         return ()
-    if not isinstance(values, list) or not values:
-        raise CourseDefinitionError("Course Brief learning_path must be a non-empty JSON array.")
-
-    known_ids = {source.provider_item_id for source in sources}
-    referenced_ids: list[str] = []
-    module_names: set[str] = set()
-    modules = []
+    if not isinstance(values, list):
+        raise CourseDefinitionError("Course Brief reference_videos must be a JSON array.")
+    videos = []
     for index, value in enumerate(values):
-        context = f"Course Brief learning_path module {index}"
+        context = f"Course Brief reference video {index}"
         if not isinstance(value, dict):
             raise CourseDefinitionError(f"{context} must be a JSON object.")
-        name = _required_text(value, "name")
-        if len(name) > MAX_NAVIGATION_NAME_LENGTH:
-            raise CourseDefinitionError(
-                f"{context} name must be at most {MAX_NAVIGATION_NAME_LENGTH} characters for Moodle navigation."
-            )
-        if name in module_names:
-            raise CourseDefinitionError("Course Brief learning_path module names must be unique.")
-        module_names.add(name)
-        source_ids = value.get("source_provider_item_ids")
-        if (
-            not isinstance(source_ids, list)
-            or not source_ids
-            or any(not isinstance(item, str) or not item.strip() for item in source_ids)
+        duration = value.get("duration_minutes")
+        if duration is not None and (
+            isinstance(duration, bool) or not isinstance(duration, int) or duration <= 0
         ):
-            raise CourseDefinitionError(
-                f"{context} requires a non-empty source_provider_item_ids array."
-            )
-        normalized_ids = tuple(item.strip() for item in source_ids)
-        unknown_ids = [item for item in normalized_ids if item not in known_ids]
-        if unknown_ids:
-            raise CourseDefinitionError(
-                f"{context} references unknown Source provider_item_id: {unknown_ids[0]}"
-            )
-        referenced_ids.extend(normalized_ids)
-        modules.append(
-            LearningPathModule(
-                name=name,
-                introduction=_required_text(value, "introduction"),
-                source_provider_item_ids=normalized_ids,
+            raise CourseDefinitionError(f"{context} duration_minutes must be a positive integer when provided.")
+        videos.append(
+            ReferenceVideo(
+                title=_required_text(value, "title"),
+                url=_http_url(value, "url", context),
+                publisher=_required_text(value, "publisher"),
+                note=_required_text(value, "note"),
+                duration_minutes=duration,
             )
         )
-
-    if len(referenced_ids) != len(set(referenced_ids)):
-        raise CourseDefinitionError(
-            "Course Brief learning_path must reference each Source exactly once."
-        )
-    if set(referenced_ids) != known_ids:
-        raise CourseDefinitionError(
-            "Course Brief learning_path must reference every selected Source exactly once."
-        )
-    if any(source.activity_purpose is None for source in sources):
-        raise CourseDefinitionError(
-            "Course Brief Sources require activity_purpose and activity_instructions when learning_path is provided."
-        )
-    return tuple(modules)
+    urls = [video.url for video in videos]
+    if len(urls) != len(set(urls)):
+        raise CourseDefinitionError("Course Brief reference video URLs must be unique.")
+    return tuple(videos)
 
 
 def load_course_brief(path: Path) -> CourseBrief:
@@ -186,6 +150,10 @@ def load_course_brief(path: Path) -> CourseBrief:
     language = _required_text(document, "language")
     intended_learning_outcome = _required_text(document, "intended_learning_outcome")
     sources = _selected_sources(document)
+    reference_videos = _reference_videos(document)
+    source_url = document.get("source_url")
+    if source_url is not None:
+        source_url = _http_url(document, "source_url", "Course Brief")
     brief = CourseBrief(
         topic=topic,
         audience=audience,
@@ -195,18 +163,13 @@ def load_course_brief(path: Path) -> CourseBrief:
         learning_time_minutes=minutes,
         sources=sources,
         course_description=_optional_text(document, "course_description"),
-        learning_path=_learning_path(document, sources),
+        reference_videos=reference_videos,
+        source_url=source_url,
     )
     locale_for_language(brief.language)
     for source in brief.sources:
         locale_for_language(source.language)
     level_for_entry(brief.entry_level)
-    if brief.learning_path:
-        activity_minutes = sum(source.activity_duration_minutes for source in brief.sources)
-        if activity_minutes != brief.learning_time_minutes:
-            raise CourseDefinitionError(
-                "Course Brief with learning_path must allocate exactly learning_time_minutes across its Source Activities."
-            )
     return brief
 
 
@@ -214,7 +177,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="course-definition")
     subparsers = parser.add_subparsers(dest="command", required=True)
     build = subparsers.add_parser(
-        "build", help="validate human-selected Sources and build a Course Definition"
+        "build", help="validate selected Sources and build a Course Definition"
     )
     build.add_argument("--brief", required=True, type=Path)
     build.add_argument("--output", required=True, type=Path)
