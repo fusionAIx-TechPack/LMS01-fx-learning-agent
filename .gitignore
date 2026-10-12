@@ -1,6 +1,7 @@
 /artifacts/*
 __pycache__/
 *.py[cod]
+logs/
 
 # Generated course artifacts (briefs, definitions, .mbz) - not source.
 /output/

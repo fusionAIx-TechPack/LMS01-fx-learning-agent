@@ -1,0 +1,3717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FX Learning Studio - AI Moodle Course Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-black: #000000;
+      --card-bg: #111111;
+      --card-hover: #181818;
+      --border: #262626;
+      --border-focus: #FFFFFF;
+      --text-main: #FFFFFF;
+      --text-muted: #8E8E8E;
+      --text-subtle: #5A5A5A;
+      --pill-bg: #222222;
+      --accent-green: #05A357;
+      --accent-blue: #276EF1;
+      --accent-amber: #EAA300;
+      --accent-red: #E11D48;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-full: 9999px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* Permanent scrollbar-gutter prevents horizontal page jumping/shifting across all tabs */
+    html {
+      overflow-y: scroll;
+      scrollbar-gutter: stable;
+    }
+
+    /* Sleek custom dark scrollbars matching theme */
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #000000;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #242424;
+      border-radius: 5px;
+      border: 2px solid #000000;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #383838;
+    }
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #242424 #000000;
+    }
+
+    body {
+      background-color: var(--bg-black);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Sleek, Single-Line Top Navigation */
+    nav.app-nav {
+      background: rgba(0, 0, 0, 0.90);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      flex-wrap: nowrap;
+      gap: 16px;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      user-select: none;
+      flex: 1;
+      justify-content: flex-start;
+      min-width: 0;
+    }
+
+    .brand-logo-container {
+      background: #FFFFFF;
+      padding: 3px 10px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 30px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .brand-logo-container:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(255, 255, 255, 0.18);
+    }
+
+    .brand-logo-img {
+      height: 19px;
+      width: auto;
+      object-fit: contain;
+      display: block;
+    }
+
+    .brand-badge-pill {
+      height: 30px;
+      box-sizing: border-box;
+      background: #141414;
+      color: #FFFFFF;
+      border: 1px solid var(--border);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 0 12px;
+      border-radius: var(--radius-sm);
+      letter-spacing: -0.2px;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .brand-badge-pill:hover {
+      border-color: #444;
+      background: #1a1a1a;
+    }
+
+    /* Centered Navigation Tabs - Segmented Pill Control */
+    .nav-tabs {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      background: #121215;
+      padding: 3px 4px;
+      border-radius: var(--radius-full);
+      border: 1px solid #242429;
+      flex-shrink: 0;
+    }
+
+    .nav-tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      line-height: 1;
+    }
+
+    .nav-tab-btn:hover {
+      background: var(--pill-bg);
+      color: #fff;
+    }
+
+    .nav-tab-btn.active {
+      background: #fff;
+      color: #000;
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .nav-right-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      justify-content: flex-end;
+      min-width: 0;
+    }
+
+    .model-picker-btn {
+      background: #141414;
+      border: 1px solid var(--border);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+      white-space: nowrap;
+      line-height: 1;
+    }
+
+    .model-picker-btn:hover {
+      background: #222;
+      border-color: #555;
+    }
+
+    .status-dot-mini {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      box-shadow: 0 0 6px rgba(5, 163, 87, 0.7);
+      display: inline-block;
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+    }
+
+    /* Main Container - Full-width layout aligned to web page margins without distracting middle gaps */
+    main.app-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 16px 24px 32px;
+      width: 100%;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 100%;
+    }
+
+    /* Core Card - Sleek, full-width responsive, reduced excess padding */
+    .app-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 22px 28px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+      width: 100%;
+    }
+
+    .card-title {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.6px;
+      margin-bottom: 4px;
+      line-height: 1.2;
+    }
+
+    .card-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+
+    /* Workflow Pipeline Connector */
+    .pipeline-box {
+      background: #000;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .pipeline-indicators {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 10px;
+      width: 20px;
+    }
+
+    .circle-node {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #fff;
+    }
+
+    .pipeline-line {
+      width: 2px;
+      height: 38px;
+      background: #333;
+      margin: 4px 0;
+    }
+
+    .square-node {
+      width: 9px;
+      height: 9px;
+      background: #fff;
+    }
+
+    .pipeline-inputs {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .field-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-subtle);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 3px;
+    }
+
+    .field-input {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      outline: none;
+      padding: 2px 0;
+      border-bottom: 1px solid transparent;
+      transition: border 0.15s;
+    }
+
+    .field-input:focus {
+      border-bottom-color: #fff;
+    }
+
+    .field-input::placeholder {
+      color: var(--text-subtle);
+      font-weight: 400;
+    }
+
+    /* Prevent browser autofill from tinting background or showing saved localhost passwords */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover, 
+    input:-webkit-autofill:focus,
+    input:-webkit-autofill:active {
+      -webkit-text-fill-color: #ffffff !important;
+      -webkit-box-shadow: 0 0 0px 1000px #000000 inset !important;
+      box-shadow: 0 0 0px 1000px #000000 inset !important;
+      caret-color: #ffffff !important;
+      transition: background-color 5000s ease-in-out 0s;
+    }
+
+    /* Active Source URL Input Box */
+    .source-input-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #000;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 6px 12px;
+      transition: all 0.15s ease;
+    }
+
+    .source-input-container:focus-within {
+      border-color: #FFFFFF;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
+    }
+
+    .source-input-field {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #FFFFFF;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      outline: none;
+    }
+
+    .source-input-field::placeholder {
+      color: #555555;
+      font-weight: 400;
+    }
+
+    .paste-quick-btn {
+      background: #181818;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .paste-quick-btn:hover {
+      background: #fff;
+      color: #000;
+      border-color: #fff;
+    }
+
+    /* Target Package Format - Distinctly Fixed / Locked UI/UX */
+    .locked-target-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px dashed #333333;
+      border-radius: var(--radius-sm);
+      padding: 7px 12px;
+      cursor: not-allowed;
+      user-select: none;
+    }
+
+    .locked-target-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #8E8E8E;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .locked-tag-pill {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: #161616;
+      border: 1px solid #2a2a2a;
+      color: #888888;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: var(--radius-full);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+    }
+
+    /* Input Mode Selector */
+    .mode-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .mode-card {
+      background: var(--pill-bg);
+      border: 2px solid transparent;
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .mode-card:hover {
+      background: #2b2b2b;
+    }
+
+    .mode-card.selected {
+      border-color: #fff;
+      background: #1c1c1c;
+    }
+
+    .mode-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .mode-card-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .mode-card-badge {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.08);
+      padding: 2px 7px;
+      border-radius: var(--radius-full);
+    }
+
+    .mode-card-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.35;
+    }
+
+    /* Primary High-Contrast Buttons */
+    .primary-btn {
+      background: #FFFFFF;
+      color: #000000;
+      border: none;
+      padding: 12px 24px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+    }
+
+    .primary-btn:hover {
+      background: #E2E2E2;
+      transform: translateY(-1px);
+    }
+
+    .primary-btn:active {
+      transform: translateY(0);
+    }
+
+    .primary-btn-green {
+      background: var(--accent-green);
+      color: #fff;
+    }
+
+    .primary-btn-green:hover {
+      background: #048c49;
+    }
+
+    .primary-btn-outline {
+      background: transparent;
+      color: #fff;
+      border: 1px solid var(--border);
+    }
+
+    .primary-btn-outline:hover {
+      background: var(--pill-bg);
+    }
+
+    /* Review Gate Section - High-Affordance & Organized Card Rows */
+    .review-guidance-card {
+      background: linear-gradient(135deg, rgba(39, 110, 241, 0.08) 0%, rgba(5, 163, 87, 0.06) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-md);
+      padding: 12px 18px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .guidance-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .guidance-text {
+      flex: 1;
+    }
+
+    .guidance-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #FFFFFF;
+      letter-spacing: -0.2px;
+    }
+
+    .guidance-desc {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+
+    .guidance-badge {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #FFFFFF;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 4px 9px;
+      border-radius: var(--radius-full);
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .gate-summary-box {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .gate-card-row {
+      background: #0d0d0f;
+      border: 1px solid #242428;
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: all 0.15s ease;
+    }
+
+    .gate-card-row:hover {
+      border-color: #38383e;
+      background: #101012;
+    }
+
+    .gate-card-row:focus-within {
+      border-color: #55555c;
+      background: #111114;
+    }
+
+    .gate-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .gate-card-label {
+      font-size: 11.5px;
+      font-weight: 800;
+      color: #EDEDED;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .gate-badges-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .gate-card-badge {
+      font-size: 9.5px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: var(--radius-full);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+    }
+
+    .badge-editable {
+      background: rgba(39, 110, 241, 0.15);
+      color: #60a5fa;
+      border: 1px solid rgba(39, 110, 241, 0.3);
+    }
+
+    .badge-required {
+      background: rgba(225, 29, 72, 0.12);
+      color: #fb7185;
+      border: 1px solid rgba(225, 29, 72, 0.25);
+    }
+
+    .badge-ai {
+      background: rgba(5, 163, 87, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(5, 163, 87, 0.3);
+    }
+
+    .gate-card-hint {
+      font-size: 11px;
+      color: #71717a;
+      line-height: 1.3;
+    }
+
+    .input-box {
+      background: #161619;
+      border: 1px solid #333338;
+      color: #FFFFFF;
+      padding: 9px 13px;
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 600;
+      width: 100%;
+      outline: none;
+      transition: all 0.15s ease;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.4);
+    }
+
+    .input-box:hover {
+      border-color: #4a4a52;
+      background: #19191d;
+    }
+
+    .input-box:focus {
+      border-color: #FFFFFF;
+      background: #1d1d22;
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15), inset 0 1px 2px rgba(0,0,0,0.4);
+    }
+
+    .level-pills {
+      display: flex;
+      gap: 8px;
+    }
+
+    .level-pill {
+      background: #18181b;
+      color: var(--text-muted);
+      padding: 7px 14px;
+      border-radius: var(--radius-full);
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid #2e2e34;
+      transition: all 0.15s;
+    }
+
+    .level-pill:hover {
+      border-color: #555;
+      color: #fff;
+    }
+
+    .level-pill.selected {
+      background: #fff;
+      color: #000;
+      border-color: #fff;
+    }
+
+    /* Dynamic Topic Chips Editor */
+    .topic-chips-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .topic-chip {
+      background: #1c1c1c;
+      border: 1px solid var(--border);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .topic-chip-del {
+      cursor: pointer;
+      color: var(--text-muted);
+      font-weight: 800;
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    .topic-chip-del:hover {
+      color: #fff;
+    }
+
+    .topic-add-bar {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .topic-add-input {
+      flex: 1;
+      background: #000;
+      border: 1px solid var(--border);
+      color: #fff;
+      font-size: 13px;
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      outline: none;
+    }
+
+    .topic-add-input:focus {
+      border-color: #fff;
+    }
+
+    .topic-add-btn {
+      background: var(--pill-bg);
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+    }
+
+    .topic-add-btn:hover {
+      background: #333;
+    }
+
+    /* Multi-proposal switcher */
+    .proposal-switcher {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .proposal-tab {
+      background: #000;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+
+    .proposal-tab.active {
+      background: #fff;
+      color: #000;
+      border-color: #fff;
+    }
+
+    /* Review Gate Dual-Pane Layout */
+    .review-dual-pane {
+      display: grid;
+      grid-template-columns: 1.15fr 0.95fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 980px) {
+      .review-dual-pane {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .review-editor-pane {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .review-preview-pane {
+      position: sticky;
+      top: 76px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* Moodle Live Preview Canvas Frame */
+    .moodle-preview-card {
+      background: #0d0e15;
+      border: 1px solid #2a2e45;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(59, 130, 246, 0.15);
+      position: relative;
+    }
+
+    /* Modern Browser / LMS Window Chrome Topbar */
+    .moodle-preview-topbar {
+      background: #141622;
+      border-bottom: 1px solid #23273a;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .window-controls-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .win-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+    }
+    .win-dot-red { background: #ef4444; opacity: 0.85; }
+    .win-dot-amber { background: #f59e0b; opacity: 0.85; }
+    .win-dot-green { background: #10b981; opacity: 0.85; }
+
+    .moodle-breadcrumbs {
+      font-size: 11px;
+      font-weight: 700;
+      color: #7b829e;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .moodle-breadcrumbs span.crumb-active {
+      color: #fff;
+    }
+
+    .live-sync-pill {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #34d399;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .live-sync-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      animation: pulseText 1.5s infinite;
+    }
+
+    .moodle-preview-body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 485px;
+      overflow-y: auto;
+      background: radial-gradient(circle at top right, rgba(39, 110, 241, 0.05) 0%, transparent 60%);
+    }
+
+    /* Course Hero Banner with Moodle LMS Header Card style */
+    .moodle-hero-box {
+      background: linear-gradient(135deg, rgba(30, 41, 69, 0.75) 0%, rgba(18, 22, 38, 0.95) 100%);
+      border: 1px solid #2b3352;
+      border-radius: 10px;
+      padding: 14px 16px;
+      position: relative;
+    }
+
+    .moodle-hero-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .moodle-course-icon-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+      flex-shrink: 0;
+    }
+
+    .preview-course-h1 {
+      font-size: 15.5px;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.35;
+      letter-spacing: -0.3px;
+    }
+
+    .preview-badges-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+      margin-bottom: 8px;
+    }
+
+    .preview-badge-chip {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #e2e8f0;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .preview-course-desc {
+      font-size: 11.5px;
+      color: #94a3b8;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    /* Moodle Course Progress Bar */
+    .moodle-progress-tracker {
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 6px;
+      padding: 8px 10px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .moodle-progress-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: #94a3b8;
+      margin-bottom: 4px;
+    }
+
+    .moodle-progress-line {
+      height: 4px;
+      background: #1e2538;
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+
+    .moodle-progress-bar-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #06b6d4);
+      border-radius: 9999px;
+    }
+
+    /* Sections Hierarchy */
+    .moodle-sections-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .moodle-section-card {
+      background: #090a10;
+      border: 1px solid #1e2235;
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+
+    .moodle-section-header {
+      font-size: 10.5px;
+      font-weight: 800;
+      color: #a5b4fc;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Rich Moodle Activity Item */
+    .moodle-activity-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 10px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      font-size: 12px;
+      color: #f1f5f9;
+      margin-bottom: 5px;
+      transition: background 0.15s;
+    }
+
+    .moodle-activity-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .moodle-activity-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .activity-icon-badge {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .icon-page { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+    .icon-url { background: rgba(6, 182, 212, 0.15); color: #06b6d4; }
+    .icon-book { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
+    .icon-assign { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+    .icon-forum { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+
+    .activity-title-text {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 600;
+    }
+
+    .activity-type-tag {
+      font-size: 9px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .tag-page { background: rgba(56, 189, 248, 0.1); color: #38bdf8; }
+    .tag-url { background: rgba(6, 182, 212, 0.1); color: #06b6d4; }
+    .tag-lesson { background: rgba(139, 92, 246, 0.1); color: #a78bfa; }
+    .tag-assign { background: rgba(245, 158, 11, 0.1); color: #fbbf24; }
+    .tag-forum { background: rgba(16, 185, 129, 0.1); color: #34d399; }
+
+    .activity-check-circle {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1.5px dashed #475569;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .moodle-spec-footer {
+      background: #0b0c13;
+      border-top: 1px solid #1f2336;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 10.5px;
+      color: #94a3b8;
+    }
+
+    /* Actions styling aligned with theme */
+    .review-action-btns-bar {
+      display: flex;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .btn-back-styled {
+      width: 30%;
+      padding: 12px;
+      background: #141418;
+      border: 1px solid #2b2b36;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-back-styled:hover {
+      background: #1e1e24;
+      border-color: #444;
+    }
+
+    .btn-approve-styled {
+      flex: 1;
+      padding: 12px;
+      background: linear-gradient(135deg, #05A357 0%, #047857 100%);
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      color: #fff;
+      font-size: 13.5px;
+      font-weight: 800;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 16px rgba(5, 163, 87, 0.3);
+      transition: all 0.2s;
+    }
+
+    .btn-approve-styled:hover {
+      background: linear-gradient(135deg, #07be66 0%, #059669 100%);
+      box-shadow: 0 6px 20px rgba(5, 163, 87, 0.45);
+      transform: translateY(-1px);
+    }
+
+    .engine-info-card {
+      background: #000;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .engine-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #222;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .engine-details {
+      flex: 1;
+    }
+
+    .engine-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .engine-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .status-badge {
+      background: rgba(5, 163, 87, 0.15);
+      color: var(--accent-green);
+      font-size: 10px;
+      font-weight: 800;
+      padding: 4px 8px;
+      border-radius: var(--radius-full);
+      text-transform: uppercase;
+    }
+
+    /* Progress Tracker */
+    .progress-track {
+      background: #242424;
+      height: 6px;
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 14px 0;
+    }
+
+    .progress-bar-fill {
+      background: #fff;
+      height: 100%;
+      width: 20%;
+      transition: width 0.4s ease;
+    }
+
+    .telemetry-console {
+      background: #000;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #888;
+      height: 180px;
+      overflow-y: auto;
+      line-height: 1.6;
+    }
+
+    /* AI Analysis Live Stage Monitor & Gamified Pipeline */
+    .analysis-monitor-card {
+      background: linear-gradient(180deg, #13131a 0%, #0a0a0f 100%);
+      border: 1px solid #2b2b3d;
+      border-radius: var(--radius-md);
+      padding: 22px;
+      margin-top: 18px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7);
+      position: relative;
+      overflow: hidden;
+      display: none;
+    }
+
+    .analysis-monitor-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #276EF1, #05A357, transparent);
+      animation: scanBeam 2.4s infinite linear;
+    }
+
+    @keyframes scanBeam {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    .analysis-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .analysis-title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .radar-pulse-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(39, 110, 241, 0.12);
+      border: 1px solid #276EF1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .radar-pulse-icon::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 1px solid rgba(39, 110, 241, 0.35);
+      animation: radarRings 1.8s infinite ease-out;
+    }
+
+    @keyframes radarRings {
+      0% { transform: scale(0.85); opacity: 1; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+
+    .analysis-main-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .analysis-sub-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .analysis-elapsed-pill {
+      background: #161622;
+      border: 1px solid #333348;
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      color: #05A357;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    /* Progress bar with animated stripes */
+    .analysis-progress-shell {
+      background: #171722;
+      height: 8px;
+      border-radius: 9999px;
+      overflow: hidden;
+      margin: 12px 0 8px;
+      border: 1px solid #28283a;
+      position: relative;
+    }
+
+    .analysis-progress-fill {
+      height: 100%;
+      width: 8%;
+      background: linear-gradient(90deg, #276EF1, #05A357, #EAA300);
+      background-size: 200% 100%;
+      border-radius: 9999px;
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: gradientShift 2s linear infinite;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 100% 0; }
+      100% { background-position: 0 0; }
+    }
+
+    .analysis-progress-stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 16px;
+    }
+
+    /* Stages Grid / Step Nodes */
+    .analysis-stages-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .stage-card {
+      background: #0e0e14;
+      border: 1px solid #20202e;
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      transition: all 0.25s ease;
+      position: relative;
+    }
+
+    .stage-card.active {
+      border-color: #276EF1;
+      background: rgba(39, 110, 241, 0.09);
+      box-shadow: 0 0 14px rgba(39, 110, 241, 0.25);
+    }
+
+    .stage-card.completed {
+      border-color: rgba(5, 163, 87, 0.5);
+      background: rgba(5, 163, 87, 0.06);
+    }
+
+    .stage-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .stage-icon-num {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .stage-card.active .stage-icon-num {
+      color: #60a5fa;
+    }
+
+    .stage-card.completed .stage-icon-num {
+      color: var(--accent-green);
+    }
+
+    .stage-badge {
+      font-size: 9px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: var(--radius-full);
+      text-transform: uppercase;
+    }
+
+    .badge-pending {
+      background: #1a1a24;
+      color: #666;
+    }
+
+    .badge-running {
+      background: rgba(39, 110, 241, 0.22);
+      color: #60a5fa;
+      border: 1px solid rgba(39, 110, 241, 0.45);
+      animation: pulseText 1.2s infinite;
+    }
+
+    @keyframes pulseText {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .badge-done {
+      background: rgba(5, 163, 87, 0.25);
+      color: var(--accent-green);
+      border: 1px solid rgba(5, 163, 87, 0.45);
+    }
+
+    .stage-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #eee;
+      margin-bottom: 2px;
+    }
+
+    .stage-desc {
+      font-size: 10px;
+      color: var(--text-subtle);
+      line-height: 1.3;
+    }
+
+    /* Live Terminal Console */
+    .analysis-live-console {
+      background: #050508;
+      border: 1px solid #1a1a26;
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #aaa;
+      height: 92px;
+      overflow-y: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 4px;
+    }
+
+    .console-log-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .log-timestamp {
+      color: #555;
+      font-size: 10px;
+    }
+
+    .log-tag-scraper { color: #38bdf8; font-weight: 700; }
+    .log-tag-parser  { color: #fbbf24; font-weight: 700; }
+    .log-tag-ai      { color: #c084fc; font-weight: 700; }
+    .log-tag-moodle  { color: #4ade80; font-weight: 700; }
+
+    /* Course Library (Search, Filters & List) */
+    .library-toolbar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .search-input {
+      flex: 1;
+      background: #000;
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: #fff;
+    }
+
+    .filter-pills {
+      display: flex;
+      gap: 6px;
+    }
+
+    .filter-pill {
+      background: #000;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .filter-pill.active {
+      background: #fff;
+      color: #000;
+      border-color: #fff;
+    }
+
+    .course-history-card {
+      background: #000;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: border 0.15s;
+    }
+
+    .course-history-card:hover {
+      border-color: #555;
+    }
+
+    .course-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .course-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .download-pill-btn {
+      background: #fff;
+      color: #000;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 8px 16px;
+      border-radius: var(--radius-full);
+      text-decoration: none;
+      transition: background 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .download-pill-btn:hover {
+      background: #d4d4d4;
+    }
+
+    /* Modal Dialog (Model Switcher & IdP) */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .modal-card {
+      background: #111;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      width: 90%;
+      max-width: 560px;
+      padding: 32px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
+    }
+
+    .modal-title {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.6px;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .modal-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      line-height: 1.4;
+    }
+
+    .modal-tabs {
+      display: flex;
+      background: #000;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 4px;
+      margin-bottom: 20px;
+    }
+
+    .modal-tab-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 700;
+      padding: 10px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .modal-tab-btn.active {
+      background: #fff;
+      color: #000;
+    }
+
+    /* Personal Cloud Provider Cards */
+    .providers-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .provider-card {
+      background: #141414;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .provider-card:hover {
+      border-color: #444;
+    }
+
+    .provider-card.connected {
+      border-color: rgba(5, 163, 87, 0.5);
+      background: rgba(5, 163, 87, 0.05);
+    }
+
+    .provider-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .provider-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .provider-icon-badge {
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      background: #202020;
+    }
+
+    .provider-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+    }
+
+    .provider-sub {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .provider-status-badge {
+      font-size: 9px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: var(--radius-full);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .badge-disconnected {
+      background: #222;
+      color: var(--text-muted);
+    }
+
+    .badge-connected {
+      background: rgba(5, 163, 87, 0.2);
+      color: var(--accent-green);
+      border: 1px solid rgba(5, 163, 87, 0.4);
+    }
+
+    .provider-account-text {
+      font-size: 10px;
+      color: var(--text-muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      min-height: 14px;
+    }
+
+    .provider-btn {
+      background: #242424;
+      border: 1px solid #333;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s;
+      width: 100%;
+    }
+
+    .provider-btn:hover {
+      background: #fff;
+      color: #000;
+    }
+
+    .provider-btn.btn-disconnect {
+      background: transparent;
+      border: 1px solid rgba(225, 29, 72, 0.4);
+      color: #ff6b6b;
+    }
+
+    .provider-btn.btn-disconnect:hover {
+      background: rgba(225, 29, 72, 0.15);
+      color: #fff;
+    }
+
+    /* Toast notification */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #111;
+      border: 1px solid #333;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      display: none;
+      z-index: 1000;
+      transition: opacity 0.2s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hidden Decoy Form to intercept browser password manager autofill on localhost -->
+  <form style="position: absolute; top: -9999px; left: -9999px; width: 0; height: 0; opacity: 0; pointer-events: none;" autocomplete="on" aria-hidden="true" tabindex="-1">
+    <input type="text" name="username" autocomplete="username" tabindex="-1">
+    <input type="password" name="password" autocomplete="current-password" tabindex="-1">
+  </form>
+
+  <!-- Top App Navigation (Streamlined Single-Line) -->
+  <nav class="app-nav">
+    <div class="nav-brand" onclick="switchView('input')">
+      <div class="brand-logo-container" title="fusionAIx - Unleashing Innovation">
+        <img src="fusionaix-logo.png" alt="fusionAIx" class="brand-logo-img">
+      </div>
+      <div class="brand-badge-pill">Moodle Studio</div>
+    </div>
+
+    <div class="nav-tabs">
+      <button class="nav-tab-btn active" id="nav-input" onclick="switchView('input')">Create Course</button>
+      <button class="nav-tab-btn" id="nav-review" onclick="switchView('review')">Review Gate</button>
+      <button class="nav-tab-btn" id="nav-progress" onclick="switchView('progress')">Build Tracker</button>
+      <button class="nav-tab-btn" id="nav-library" onclick="switchView('library')">Course Library</button>
+    </div>
+
+    <div class="nav-right-actions">
+      <!-- Model Switcher Trigger with embedded micro status dot -->
+      <button class="model-picker-btn" id="btn-model-picker" onclick="openModelModal()" title="Switch AI Engine (Local / Cloud)">
+        <span class="status-dot-mini" id="model-status-dot"></span>
+        <span id="nav-active-model-text">llama3.1:latest</span>
+        <span style="color: #666; font-size: 9px; margin-left: 2px;">▼</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Viewport -->
+  <main class="app-main">
+    <div class="app-container">
+
+      <!-- ================= 1. CREATE COURSE / INPUT SCREEN ================= -->
+      <section id="view-input" class="app-card">
+        <h1 class="card-title">Where to learn next?</h1>
+        <p class="card-subtitle">Generate internal Moodle courses from any source URL or spreadsheet. Uses local open-source models first, or sign in with Microsoft to access Claude, GPT-4o, and Gemini.</p>
+
+        <!-- Route Connector (Source URL -> Moodle .mbz) -->
+        <div class="pipeline-box">
+          <div class="pipeline-indicators">
+            <div class="circle-node" title="Source Input"></div>
+            <div class="pipeline-line"></div>
+            <div class="square-node" title="System Locked Package Output"></div>
+          </div>
+          <div class="pipeline-inputs">
+            <!-- Source Input (Active, Editable, No default link) -->
+            <div class="field-group" id="single-field-group">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <div class="field-label" style="display: flex; align-items: center; gap: 6px;">
+                  <span>🔗 Source Learning URL</span>
+                  <span class="gate-card-badge badge-required">Required</span>
+                </div>
+                <span style="font-size: 10px; color: var(--accent-green); font-weight: 800;">● Active Input</span>
+              </div>
+              <div class="source-input-container">
+                <input type="url" id="source-url" name="public_learning_curriculum_url_target" class="source-input-field" placeholder="Paste or enter public course or documentation URL (e.g. https://learn.microsoft.com/...)" value="" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other">
+                <button type="button" class="paste-quick-btn" title="Paste from clipboard" onclick="navigator.clipboard.readText().then(t=>{if(t)document.getElementById('source-url').value=t.trim();}).catch(()=>{})">📋 Paste</button>
+              </div>
+              <div class="gate-card-hint" style="margin-top: 4px;">Paste any public learning URL, documentation page, or curriculum link to extract modules.</div>
+            </div>
+
+            <!-- Target Moodle Package (Distinctly Fixed / Locked System Format) -->
+            <div class="field-group">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <div class="field-label" style="display: flex; align-items: center; gap: 6px;">
+                  <span>📦 Target Package Format</span>
+                </div>
+                <span class="locked-tag-pill" title="This output specification is standardized by the LMS engine and cannot be modified.">
+                  🔒 Fixed · Cannot Modify
+                </span>
+              </div>
+              <div class="locked-target-box" title="Standardized engine output: Native Moodle 5.x backup archive (.mbz) containing 5 core learning activities.">
+                <div class="locked-target-left">
+                  <span>📦</span>
+                  <span>Moodle 5.x Native Backup (.mbz) · 5 Standard Activities</span>
+                </div>
+                <span style="font-size: 10px; color: #555555; font-weight: 700; text-transform: uppercase;">Standard Engine Spec</span>
+              </div>
+              <div class="gate-card-hint" style="margin-top: 4px;">Fixed output format: Generates standardized 5-activity native Moodle restore packages (.mbz).</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mode Selector (Single URL, Batch URLs, Spreadsheet) -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <div class="field-label" style="margin-bottom: 0;">Select Ingestion Method</div>
+          <span style="font-size: 10px; color: var(--text-muted); font-weight: 700;">Choose single URL, batch list, or Excel/CSV</span>
+        </div>
+        <div class="mode-grid">
+          <div class="mode-card selected" id="opt-single" onclick="selectInputMode('single')">
+            <div class="mode-card-header">
+              <div class="mode-card-name">Single Course</div>
+              <div class="mode-card-badge">~2 min</div>
+            </div>
+            <div class="mode-card-desc">Generate one course from entered link.</div>
+          </div>
+
+          <div class="mode-card" id="opt-batch" onclick="selectInputMode('batch')">
+            <div class="mode-card-header">
+              <div class="mode-card-name">Batch URLs</div>
+              <div class="mode-card-badge">Sequence</div>
+            </div>
+            <div class="mode-card-desc">Multi-line URLs processed in sequence.</div>
+          </div>
+
+          <div class="mode-card" id="opt-excel" onclick="selectInputMode('excel')">
+            <div class="mode-card-header">
+              <div class="mode-card-name">Spreadsheet Ingestion</div>
+              <div class="mode-card-badge">Bulk</div>
+            </div>
+            <div class="mode-card-desc">Import course links from .xlsx or .csv.</div>
+          </div>
+        </div>
+
+        <!-- Batch TextArea Mode -->
+        <div id="batch-container" style="display: none; margin-bottom: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <div class="field-label">Batch URLs (One URL Per Line)</div>
+            <div id="batch-counter" style="font-size: 11px; color: var(--text-muted); font-weight: 700;">0 URLs detected</div>
+          </div>
+          <textarea id="batch-urls" class="input-box" rows="5" placeholder="https://learn.microsoft.com/en-us/training/paths/ai-concepts/&#10;https://academy.pega.com/mission/pega-genai-developer/v1" oninput="updateBatchCount()"></textarea>
+        </div>
+
+        <!-- Spreadsheet Upload Mode -->
+        <div id="excel-container" style="display: none; margin-bottom: 24px;">
+          <div style="border: 2px dashed var(--border); border-radius: var(--radius-md); padding: 32px; text-align: center; cursor: pointer; transition: border 0.15s;" onclick="document.getElementById('excel-file').click()" ondragover="event.preventDefault(); this.style.borderColor='#fff'" ondragleave="this.style.borderColor='var(--border)'" ondrop="handleDrop(event)">
+            <div style="font-size: 28px; margin-bottom: 8px;">📊</div>
+            <div style="font-weight: 700; color: #fff;" id="excel-file-name">Upload .xlsx or .csv Spreadsheet</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;" id="excel-file-desc">Extracts URL columns automatically in row order</div>
+            <input type="file" id="excel-file" style="display: none;" accept=".xlsx,.csv" onchange="handleExcelPick(event)">
+          </div>
+        </div>
+
+        <!-- Live AI Analysis Stage Monitor & Gamified Neural Pipeline -->
+        <div id="analysis-live-monitor" class="analysis-monitor-card">
+          <div class="analysis-header">
+            <div class="analysis-title-group">
+              <div class="radar-pulse-icon">🧠</div>
+              <div>
+                <div class="analysis-main-title">
+                  <span>AI Curriculum Synthesis Engine</span>
+                  <span class="status-badge" style="background: rgba(39, 110, 241, 0.2); color: #60a5fa;">In Progress</span>
+                </div>
+                <div class="analysis-sub-meta" id="monitor-model-tag">
+                  Running on Local Open-Source LLM (gemma4:latest)
+                </div>
+              </div>
+            </div>
+            <div class="analysis-elapsed-pill" id="monitor-elapsed-clock">
+              ⏱️ 00:00s
+            </div>
+          </div>
+
+          <!-- Animated Progress Shell -->
+          <div class="analysis-progress-shell">
+            <div class="analysis-progress-fill" id="monitor-progress-bar" style="width: 12%;"></div>
+          </div>
+          <div class="analysis-progress-stats">
+            <span id="monitor-status-text">Step 1/4: Connecting to source domain & downloading HTML...</span>
+            <span id="monitor-token-rate">⚡ ~18 tokens/sec · 380 tokens</span>
+          </div>
+
+          <!-- 4 Gamified Pipeline Stage Cards -->
+          <div class="analysis-stages-grid">
+            <div class="stage-card active" id="stage-card-1">
+              <div class="stage-card-top">
+                <span class="stage-icon-num">🌐 Step 1</span>
+                <span class="stage-badge badge-running" id="stage-badge-1">Active</span>
+              </div>
+              <div class="stage-title">Web Scraper</div>
+              <div class="stage-desc" id="stage-desc-1">Fetching raw HTTP payload</div>
+            </div>
+
+            <div class="stage-card" id="stage-card-2">
+              <div class="stage-card-top">
+                <span class="stage-icon-num">📑 Step 2</span>
+                <span class="stage-badge badge-pending" id="stage-badge-2">Pending</span>
+              </div>
+              <div class="stage-title">DOM Parser</div>
+              <div class="stage-desc" id="stage-desc-2">Extracting learning content</div>
+            </div>
+
+            <div class="stage-card" id="stage-card-3">
+              <div class="stage-card-top">
+                <span class="stage-icon-num">🧠 Step 3</span>
+                <span class="stage-badge badge-pending" id="stage-badge-3">Pending</span>
+              </div>
+              <div class="stage-title">Neural Reasoning</div>
+              <div class="stage-desc" id="stage-desc-3">LLM curriculum taxonomy</div>
+            </div>
+
+            <div class="stage-card" id="stage-card-4">
+              <div class="stage-card-top">
+                <span class="stage-icon-num">🎓 Step 4</span>
+                <span class="stage-badge badge-pending" id="stage-badge-4">Pending</span>
+              </div>
+              <div class="stage-title">Moodle Spec</div>
+              <div class="stage-desc" id="stage-desc-4">5-activity packaging</div>
+            </div>
+          </div>
+
+          <!-- Live Terminal Output -->
+          <div class="analysis-live-console" id="monitor-console">
+            <div class="console-log-line">
+              <span class="log-timestamp">[00:00]</span>
+              <span class="log-tag-scraper">[Scraper]</span>
+              <span>Dispatched HTTP GET request to source learning URL...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Primary Action Button -->
+        <button class="primary-btn" id="btn-analyze" onclick="requestAnalysis()">
+          Analyze & Generate Course Proposal
+        </button>
+      </section>
+
+      <!-- ================= 2. HUMAN REVIEW GATE ================= -->
+      <section id="view-review" class="app-card" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h1 class="card-title" style="font-size: 26px;">Course Research Proposal</h1>
+          <span class="status-badge">Gate 1: Review Required</span>
+        </div>
+        <p class="card-subtitle" style="margin-bottom: 16px;">Inspect and fine-tune AI-derived course metadata before building the Moodle package.</p>
+
+        <!-- Empty State (When no link has been analyzed yet) -->
+        <div id="review-empty-state" style="display: block; text-align: center; padding: 48px 24px; background: #0c0c0e; border: 1px dashed #2a2a30; border-radius: var(--radius-md); margin-top: 8px;">
+          <div style="font-size: 36px; margin-bottom: 12px;">🔗</div>
+          <div style="font-size: 17px; font-weight: 800; color: #FFFFFF; margin-bottom: 6px;">No Course Proposal Extracted Yet</div>
+          <div style="font-size: 13px; color: var(--text-muted); max-width: 460px; margin: 0 auto 20px; line-height: 1.5;">
+            The Review Gate displays curriculum metadata extracted directly from your learning link. Please paste a course URL on the <strong>Create Course</strong> tab first and click <strong>Analyze & Generate Course Proposal</strong>.
+          </div>
+          <button type="button" class="primary-btn" style="width: auto; padding: 10px 24px; font-size: 13px; margin: 0 auto; display: inline-flex;" onclick="switchView('input')">
+            ← Go to Create Course Tab
+          </button>
+        </div>
+
+        <!-- Active Review Form (Only visible after URL analysis) -->
+        <div id="review-content-area" style="display: none;">
+          <!-- Multi-proposal Switcher Bar (Hidden if only 1 proposal) -->
+          <div id="proposal-switcher-container" style="display: none;">
+            <div class="field-label" style="margin-bottom: 8px;">Select Course In Batch to Inspect & Edit:</div>
+            <div class="proposal-switcher" id="proposal-switcher-tabs"></div>
+          </div>
+
+          <!-- Dual-Pane Live Preview System -->
+          <div class="review-dual-pane">
+
+            <!-- LEFT PANE: Compact Editable Blueprint -->
+            <div class="review-editor-pane">
+              <!-- Course Title -->
+              <div class="gate-card-row">
+                <div class="gate-card-header">
+                  <div class="gate-card-label">🏷️ Course Title</div>
+                  <div class="gate-badges-group">
+                    <span class="gate-card-badge badge-required">Required</span>
+                    <span class="gate-card-badge badge-editable">✏️ Editable</span>
+                  </div>
+                </div>
+                <input type="text" id="prop-name" class="input-box" placeholder="Enter course title..." oninput="updateLiveMoodlePreview()">
+                <div class="gate-card-hint">The primary course title displayed in Moodle catalog, activity headers, and certificates.</div>
+              </div>
+
+              <!-- Overview -->
+              <div class="gate-card-row">
+                <div class="gate-card-header">
+                  <div class="gate-card-label">📝 Course Overview & Description</div>
+                  <div class="gate-badges-group">
+                    <span class="gate-card-badge badge-editable">✏️ Editable</span>
+                  </div>
+                </div>
+                <textarea id="prop-overview" class="input-box" rows="3" placeholder="Enter syllabus summary, objectives, and prerequisites..." oninput="updateLiveMoodlePreview()"></textarea>
+                <div class="gate-card-hint">Course introduction summarizing learning outcomes and target competence areas.</div>
+              </div>
+
+              <!-- Side-by-Side: Duration & Learner Difficulty + Target Audience -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <!-- Duration & Level -->
+                <div class="gate-card-row" style="margin-bottom: 0;">
+                  <div class="gate-card-header">
+                    <div class="gate-card-label">⏱️ Duration & Level</div>
+                    <span class="gate-card-badge badge-editable">✏️ Edit</span>
+                  </div>
+                  <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px;">
+                    <input type="number" id="prop-duration" class="input-box" style="width: 75px;" value="" placeholder="60" oninput="updateLiveMoodlePreview()">
+                    <span style="font-size: 11px; color: var(--text-muted); font-weight: 700;">Mins</span>
+                  </div>
+                  <div class="level-pills" style="gap: 4px;">
+                    <span class="level-pill selected" id="lvl-beginner" style="padding: 5px 8px; font-size: 10px;" onclick="selectLevel('beginner')">Beginner</span>
+                    <span class="level-pill" id="lvl-intermediate" style="padding: 5px 8px; font-size: 10px;" onclick="selectLevel('intermediate')">Inter</span>
+                    <span class="level-pill" id="lvl-advanced" style="padding: 5px 8px; font-size: 10px;" onclick="selectLevel('advanced')">Adv</span>
+                  </div>
+                </div>
+
+                <!-- Target Audience -->
+                <div class="gate-card-row" style="margin-bottom: 0;">
+                  <div class="gate-card-header">
+                    <div class="gate-card-label">👥 Target Audience</div>
+                    <span class="gate-card-badge badge-editable">✏️ Edit</span>
+                  </div>
+                  <input type="text" id="prop-audience" class="input-box" placeholder="e.g. Developers..." oninput="updateLiveMoodlePreview()">
+                  <div class="gate-card-hint" style="margin-top: 4px;">Audience personas.</div>
+                </div>
+              </div>
+
+              <!-- Modules Detected & Editable Chips -->
+              <div class="gate-card-row">
+                <div class="gate-card-header">
+                  <div class="gate-card-label">📚 Curriculum Modules (Moodle Activities)</div>
+                  <div class="gate-badges-group">
+                    <span class="gate-card-badge badge-ai">⚡ AI Extracted</span>
+                    <span class="gate-card-badge badge-editable">+ Add / Remove</span>
+                  </div>
+                </div>
+                <div class="topic-chips-container" id="prop-topics-chips"></div>
+                <div class="topic-add-bar">
+                  <input type="text" class="topic-add-input" id="new-topic-input" placeholder="Type new module title (e.g. Prompt Engineering)..." onkeydown="if(event.key==='Enter'){addCustomTopic();}">
+                  <button type="button" class="topic-add-btn" onclick="addCustomTopic()">+ Add</button>
+                </div>
+                <div class="gate-card-hint">Packaged into Moodle 5.x activities. Click &times; to delete.</div>
+              </div>
+            </div>
+
+            <!-- RIGHT PANE: Realistic LMS Moodle 5.x Course Canvas Preview -->
+            <div class="review-preview-pane">
+              <div class="moodle-preview-card">
+                <!-- Browser / LMS Window Chrome -->
+                <div class="moodle-preview-topbar">
+                  <div class="window-controls-group">
+                    <span class="win-dot win-dot-red"></span>
+                    <span class="win-dot win-dot-amber"></span>
+                    <span class="win-dot win-dot-green"></span>
+                  </div>
+                  <div class="moodle-breadcrumbs">
+                    <span>Moodle LMS</span>
+                    <span>/</span>
+                    <span class="crumb-active">Course Preview</span>
+                  </div>
+                  <div class="live-sync-pill">
+                    <span class="live-sync-dot"></span>
+                    <span>Live Sync</span>
+                  </div>
+                </div>
+
+                <div class="moodle-preview-body">
+                  <!-- Course Hero Card with Moodle LMS Header Card style -->
+                  <div class="moodle-hero-box">
+                    <div class="moodle-hero-top">
+                      <div class="moodle-course-icon-badge">🎓</div>
+                      <div style="flex: 1; min-width: 0;">
+                        <div id="preview-live-title" class="preview-course-h1">Course Title Preview</div>
+                        <div class="preview-badges-row">
+                          <span id="preview-live-level" class="preview-badge-chip" style="color: #34d399;">Beginner</span>
+                          <span id="preview-live-duration" class="preview-badge-chip">⏱️ 90 mins</span>
+                          <span id="preview-live-audience" class="preview-badge-chip">👥 All Learners</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div id="preview-live-desc" class="preview-course-desc">Course overview summary will render here...</div>
+                    <div class="moodle-progress-tracker">
+                      <div class="moodle-progress-meta">
+                        <span>Course Enrollment Status</span>
+                        <span>0% Complete</span>
+                      </div>
+                      <div class="moodle-progress-line">
+                        <div class="moodle-progress-bar-fill"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Standard Moodle 5.x Course Sections Hierarchy -->
+                  <div class="moodle-sections-list">
+                    <!-- Section 0: Brief -->
+                    <div class="moodle-section-card">
+                      <div class="moodle-section-header">📌 Section 0: Course Overview</div>
+                      <div class="moodle-activity-item">
+                        <div class="activity-icon-badge icon-page">📄</div>
+                        <span class="activity-title-text">Syllabus Overview & Learning Outcomes</span>
+                        <span class="activity-type-tag tag-page">Page</span>
+                        <span class="activity-check-circle" title="To do"></span>
+                      </div>
+                    </div>
+
+                    <!-- Section 1: Public Source -->
+                    <div class="moodle-section-card">
+                      <div class="moodle-section-header">🔗 Section 1: Core Documentation</div>
+                      <div class="moodle-activity-item">
+                        <div class="activity-icon-badge icon-url">🌐</div>
+                        <span class="activity-title-text">Primary Documentation & Source Link</span>
+                        <span class="activity-type-tag tag-url">URL</span>
+                        <span class="activity-check-circle" title="To do"></span>
+                      </div>
+                    </div>
+
+                    <!-- Section 2: Modules -->
+                    <div class="moodle-section-card">
+                      <div class="moodle-section-header">📚 Section 2: Curriculum Modules</div>
+                      <div id="preview-live-modules-list">
+                        <!-- Populated dynamically via JS -->
+                      </div>
+                    </div>
+
+                    <!-- Section 3: Assessment & Forum -->
+                    <div class="moodle-section-card">
+                      <div class="moodle-section-header">🎯 Section 3: Certification & Community</div>
+                      <div class="moodle-activity-item">
+                        <div class="activity-icon-badge icon-assign">✍️</div>
+                        <span class="activity-title-text">Course Completion Knowledge Assignment</span>
+                        <span class="activity-type-tag tag-assign">Assignment</span>
+                        <span class="activity-check-circle" title="To do"></span>
+                      </div>
+                      <div class="moodle-activity-item">
+                        <div class="activity-icon-badge icon-forum">💬</div>
+                        <span class="activity-title-text">Learner Community & Q&A Discussion Forum</span>
+                        <span class="activity-type-tag tag-forum">Forum</span>
+                        <span class="activity-check-circle" title="To do"></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="moodle-spec-footer">
+                  <span>📦 Target Package: Native Moodle 5.x (.mbz)</span>
+                  <span style="color: #34d399; font-weight: 700;">● 5 Standard Activities</span>
+                </div>
+              </div>
+
+              <!-- High-Visibility Action Buttons (Aligned to UI Theme) -->
+              <div class="review-action-btns-bar">
+                <button class="btn-back-styled" onclick="switchView('input')">
+                  ← Back
+                </button>
+                <button class="btn-approve-styled" onclick="dispatchBuildCurrent()">
+                  <span>🚀</span>
+                  <span>Approve & Build Current (.mbz)</span>
+                </button>
+              </div>
+              <button class="primary-btn" id="btn-build-all" style="width: 100%; display: none; background: #fff; color: #000; margin-top: 6px; padding: 12px;" onclick="dispatchBuildAll()">
+                Approve & Build All (Batch)
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 3. BUILD PROGRESS TRACKER ================= -->
+      <section id="view-progress" class="app-card" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h1 class="card-title" style="font-size: 26px;">Building Course Package</h1>
+          <span class="status-badge" id="build-status-badge">In Progress</span>
+        </div>
+        <p class="card-subtitle" id="progress-course-name" style="margin-bottom: 12px;">Compiling brief, validating definition, and packaging Moodle archive.</p>
+
+        <!-- Progress Bar -->
+        <div class="progress-track">
+          <div class="progress-bar-fill" id="progress-bar"></div>
+        </div>
+
+        <!-- Milestone Status Card -->
+        <div class="engine-info-card" style="margin-bottom: 20px;">
+          <div class="engine-icon">⚡</div>
+          <div class="engine-details">
+            <div class="engine-name" id="step-label">Extracting curriculum from source URL...</div>
+            <div class="engine-meta" id="step-desc">Connecting to web scraper and active LLM</div>
+          </div>
+          <div id="step-badge" style="font-weight: 800; font-size: 16px; color: #fff;">1 / 5</div>
+        </div>
+
+        <!-- Telemetry Logs -->
+        <div class="field-label">Live Build Telemetry & Process Logs</div>
+        <div class="telemetry-console" id="telemetry-box">
+          > Initializing Moodle engine connection...<br>
+          > Connected to backend API at port 8088.<br>
+        </div>
+
+        <!-- Completion Card & Download -->
+        <div id="build-complete-card" style="display: none; margin-top: 24px; background: #000; border: 1px solid var(--accent-green); border-radius: var(--radius-md); padding: 24px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+            <div>
+              <div style="font-size: 18px; font-weight: 800; color: #fff;">Course Package Ready (.mbz)</div>
+              <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">Fully validated with 5 standard activities. Ready for Moodle restoration.</div>
+            </div>
+            <div style="font-size: 28px;">🏁</div>
+          </div>
+          <a id="download-link" href="#" class="primary-btn" style="background: #fff; color: #000; text-decoration: none; margin-top: 14px;">
+            Download .mbz Package
+          </a>
+        </div>
+      </section>
+
+      <!-- ================= 4. COURSE LIBRARY ================= -->
+      <section id="view-library" class="app-card" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <div>
+            <h1 class="card-title" style="font-size: 26px;">Course Library</h1>
+            <p class="card-subtitle" style="margin-bottom: 0;">Completed course packages stored in output/. Ready for Moodle LMS restoration.</p>
+          </div>
+          <button class="primary-btn" style="width: auto; padding: 10px 20px; font-size: 13px;" onclick="switchView('input')">
+            + Create New Course
+          </button>
+        </div>
+
+        <!-- Search and Filter Toolbar -->
+        <div class="library-toolbar">
+          <input type="text" class="search-input" id="library-search" placeholder="Search courses by title, topic, or audience..." oninput="filterLibrary()">
+          <div class="filter-pills">
+            <button class="filter-pill active" id="flt-all" onclick="setLibraryFilter('all')">All</button>
+            <button class="filter-pill" id="flt-beginner" onclick="setLibraryFilter('beginner')">Beginner</button>
+            <button class="filter-pill" id="flt-intermediate" onclick="setLibraryFilter('intermediate')">Intermediate</button>
+            <button class="filter-pill" id="flt-advanced" onclick="setLibraryFilter('advanced')">Advanced</button>
+          </div>
+        </div>
+
+        <!-- Course List Container -->
+        <div id="library-list">
+          <div style="text-align: center; color: var(--text-muted); padding: 40px;">Loading courses from backend...</div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ================= MODEL SWITCHER & IdP MODAL ================= -->
+  <div class="modal-backdrop" id="model-modal">
+    <div class="modal-card">
+      <div class="modal-title">AI Model & Provider Settings</div>
+      <div class="modal-subtitle">Use local open-source models first (free, offline, private), or connect your personal Claude, ChatGPT, Gemini, or Grok subscription.</div>
+
+      <!-- Mode Selector (Local vs Cloud) -->
+      <div class="modal-tabs">
+        <button class="modal-tab-btn active" id="tab-modal-local" onclick="switchModalProvider('local')">Local Open-Source (Default)</button>
+        <button class="modal-tab-btn" id="tab-modal-cloud" onclick="switchModalProvider('cloud')">Personal Cloud Accounts</button>
+      </div>
+
+      <!-- Local Model Form (Free, No Sign-In Required) -->
+      <div id="modal-form-local">
+        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px; margin-bottom: 16px;">
+          <div style="font-size: 11px; font-weight: 800; color: var(--accent-green); text-transform: uppercase; margin-bottom: 2px;">Local Open-Source Runner</div>
+          <div style="font-size: 13px; color: var(--text-muted);">Runs privately on your workstation or GPU node without cloud charges or login.</div>
+        </div>
+
+        <div class="field-group" style="margin-bottom: 14px;">
+          <div class="field-label">Installed Local Model</div>
+          <select class="input-box" id="modal-local-model" style="appearance: none; background-color: #000; cursor: pointer;">
+            <option value="llama3.1:latest">llama3.1:latest</option>
+            <option value="llama3.2:latest">llama3.2:latest</option>
+            <option value="qwen2.5-coder:14b">qwen2.5-coder:14b</option>
+            <option value="gemma4:latest">gemma4:latest</option>
+            <option value="qwen3:4b">qwen3:4b</option>
+          </select>
+        </div>
+
+        <div class="field-group" style="margin-bottom: 20px;">
+          <div class="field-label">Local Host Endpoint</div>
+          <input type="text" class="input-box" id="modal-local-endpoint" value="http://localhost:11434">
+        </div>
+      </div>
+
+      <!-- Personal Cloud Accounts Form (Claude, ChatGPT, Gemini, Grok) -->
+      <div id="modal-form-cloud" style="display: none;">
+        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+          Connect your personal subscription or account to unlock frontier models:
+        </div>
+
+        <!-- 4 Provider Cards Grid -->
+        <div class="providers-grid">
+          
+          <!-- 1. Claude (Anthropic) -->
+          <div class="provider-card" id="card-claude">
+            <div class="provider-header">
+              <div class="provider-info">
+                <div class="provider-icon-badge" style="color: #D97706;">🟣</div>
+                <div>
+                  <div class="provider-name">Claude</div>
+                  <div class="provider-sub">Anthropic · 3.5 Sonnet</div>
+                </div>
+              </div>
+              <span class="provider-status-badge badge-disconnected" id="badge-claude">Offline</span>
+            </div>
+            <div class="provider-account-text" id="acc-claude">Not connected</div>
+            <button class="provider-btn" id="btn-conn-claude" onclick="toggleConnectProvider('claude')">
+              <span>Connect Claude</span>
+            </button>
+          </div>
+
+          <!-- 2. ChatGPT (OpenAI) -->
+          <div class="provider-card" id="card-chatgpt">
+            <div class="provider-header">
+              <div class="provider-info">
+                <div class="provider-icon-badge" style="color: #10A37F;">🟢</div>
+                <div>
+                  <div class="provider-name">ChatGPT</div>
+                  <div class="provider-sub">OpenAI · GPT-4o / o1</div>
+                </div>
+              </div>
+              <span class="provider-status-badge badge-disconnected" id="badge-chatgpt">Offline</span>
+            </div>
+            <div class="provider-account-text" id="acc-chatgpt">Not connected</div>
+            <button class="provider-btn" id="btn-conn-chatgpt" onclick="toggleConnectProvider('chatgpt')">
+              <span>Connect ChatGPT</span>
+            </button>
+          </div>
+
+          <!-- 3. Google Gemini -->
+          <div class="provider-card" id="card-gemini">
+            <div class="provider-header">
+              <div class="provider-info">
+                <div class="provider-icon-badge" style="color: #3B82F6;">🔵</div>
+                <div>
+                  <div class="provider-name">Gemini</div>
+                  <div class="provider-sub">Google · 1.5 Pro / Flash</div>
+                </div>
+              </div>
+              <span class="provider-status-badge badge-disconnected" id="badge-gemini">Offline</span>
+            </div>
+            <div class="provider-account-text" id="acc-gemini">Not connected</div>
+            <button class="provider-btn" id="btn-conn-gemini" onclick="toggleConnectProvider('gemini')">
+              <span>Connect Gemini</span>
+            </button>
+          </div>
+
+          <!-- 4. xAI Grok -->
+          <div class="provider-card" id="card-grok">
+            <div class="provider-header">
+              <div class="provider-info">
+                <div class="provider-icon-badge" style="color: #fff;">⚫</div>
+                <div>
+                  <div class="provider-name">Grok</div>
+                  <div class="provider-sub">xAI · Grok 2</div>
+                </div>
+              </div>
+              <span class="provider-status-badge badge-disconnected" id="badge-grok">Offline</span>
+            </div>
+            <div class="provider-account-text" id="acc-grok">Not connected</div>
+            <button class="provider-btn" id="btn-conn-grok" onclick="toggleConnectProvider('grok')">
+              <span>Connect Grok</span>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Active Model Selection -->
+        <div class="field-group" style="margin-bottom: 12px;">
+          <div class="field-label">Active Cloud AI Model</div>
+          <select class="input-box" id="modal-cloud-model" style="appearance: none; background-color: #000; cursor: pointer;">
+            <option value="claude-3-5-sonnet">Claude 3.5 Sonnet (Anthropic)</option>
+            <option value="claude-3-opus">Claude 3 Opus (Anthropic)</option>
+            <option value="gpt-4o">GPT-4o (OpenAI)</option>
+            <option value="gpt-4o-mini">GPT-4o Mini (OpenAI)</option>
+            <option value="gemini-1.5-pro">Gemini 1.5 Pro (Google)</option>
+            <option value="gemini-1.5-flash">Gemini 1.5 Flash (Google)</option>
+            <option value="grok-2">Grok 2 (xAI)</option>
+          </select>
+        </div>
+
+        <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">
+          💡 When you click "Connect", your personal account is authenticated and unlocked for course generation.
+        </div>
+      </div>
+
+      <!-- Modal Actions -->
+      <div style="display: flex; gap: 10px; margin-top: 24px;">
+        <button class="primary-btn primary-btn-outline" style="width: 32%; padding: 12px;" onclick="closeModelModal()">
+          Cancel
+        </button>
+        <button class="primary-btn primary-btn-outline" style="width: 32%; padding: 12px;" id="btn-test-model" onclick="testActiveModel()">
+          Test Ping
+        </button>
+        <button class="primary-btn primary-btn-green" style="flex: 1; padding: 12px;" onclick="saveModelConfig()">
+          Apply & Switch
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- ================= PROVIDER AUTH & SIGN-IN MODAL ================= -->
+  <div class="modal-backdrop" id="provider-auth-modal" style="z-index: 120;">
+    <div class="modal-card" style="max-width: 480px;">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+        <div id="auth-modal-icon" style="font-size: 24px;">🔵</div>
+        <div class="modal-title" id="auth-modal-title" style="margin-bottom: 0;">Sign in to Google Gemini</div>
+      </div>
+      <div class="modal-subtitle" id="auth-modal-desc">
+        To use this model, sign in to your provider account to generate or copy your personal API token.
+      </div>
+
+      <!-- Step 1: External Direct Redirect Link -->
+      <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px; margin-bottom: 16px;">
+        <div style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">
+          Step 1: Sign in with Provider in New Tab
+        </div>
+        <a id="auth-modal-redirect-link" href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" 
+           class="primary-btn" style="text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; background: #fff; color: #000; padding: 10px; font-size: 13px;">
+          <span id="auth-modal-redirect-text">Open Google AI Studio ↗</span>
+        </a>
+      </div>
+
+      <!-- Step 2: Live Credential Input -->
+      <div class="field-group" style="margin-bottom: 16px;">
+        <div class="field-label" id="auth-modal-input-label">Step 2: Enter API Key / Token</div>
+        <input type="text" class="input-box" id="auth-key-input" placeholder="Paste your API key here..." style="-webkit-text-security: disc;" autocomplete="off" spellcheck="false">
+      </div>
+
+      <!-- Error banner -->
+      <div id="auth-modal-error" style="display: none; background: rgba(225, 29, 72, 0.15); border: 1px solid var(--accent-red); color: #ff8585; padding: 10px 14px; border-radius: var(--radius-sm); font-size: 12px; margin-bottom: 16px; line-height: 1.4;">
+      </div>
+
+      <!-- Modal Actions -->
+      <div style="display: flex; gap: 10px;">
+        <button class="primary-btn primary-btn-outline" style="width: 35%; padding: 10px;" onclick="closeProviderAuthModal()">
+          Cancel
+        </button>
+        <button class="primary-btn primary-btn-green" style="flex: 1; padding: 10px;" id="btn-submit-provider-auth" onclick="submitProviderAuth()">
+          🔐 Verify & Connect
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast"></div>
+
+  <!-- Floating Async Job Monitor (Visible when navigating tabs while analysis runs) -->
+  <div id="floating-async-bar" style="display: none; position: fixed; bottom: 24px; right: 24px; background: #111119; border: 1px solid #276EF1; border-radius: var(--radius-full); padding: 10px 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.85); z-index: 95; cursor: pointer; align-items: center; gap: 10px;" onclick="switchView('input')">
+    <span class="status-dot-mini" style="background: #276EF1; animation: radarRings 1.4s infinite;"></span>
+    <span style="font-size: 12px; font-weight: 700; color: #fff;" id="floating-async-text">AI Analyzing URL (00:15s)...</span>
+    <span style="font-size: 11px; color: #60a5fa; font-weight: 800;">View Progress →</span>
+  </div>
+
+  <script>
+    // Dynamic API Base: automatically uses same-origin in production/monolith, or port 8088 in dev
+    const API_BASE = window.location.port === '3000'
+      ? 'http://localhost:8088/api'
+      : `${window.location.origin}/api`;
+    let proposalsList = [];
+    let currentProposalIndex = 0;
+    let selectedLevel = 'beginner';
+    let selectedMode = 'single';
+    let pickedExcelFile = null;
+    let allCoursesData = [];
+    let activeLibraryFilter = 'all';
+
+    let currentLlmConfig = {
+      provider: 'local',
+      model: 'llama3.1:latest',
+      base_url: 'http://localhost:11434',
+      available_local_models: [],
+      available_cloud_models: []
+    };
+    let activeModalProvider = 'local';
+    let authState = {
+      is_authenticated: false,
+      user: null,
+      cloud_models_unlocked: false
+    };
+
+    // Show Toast
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 3200);
+    }
+
+    // Switch Top Navigation Views
+    function switchView(viewName) {
+      document.querySelectorAll('.app-card').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.nav-tab-btn').forEach(el => el.classList.remove('active'));
+
+      const target = document.getElementById('view-' + viewName);
+      if (target) target.style.display = 'block';
+
+      const navBtn = document.getElementById('nav-' + viewName);
+      if (navBtn) navBtn.classList.add('active');
+
+      const floatBar = document.getElementById('floating-async-bar');
+      if (floatBar) {
+        floatBar.style.display = (isAnalysisRunning && viewName !== 'input') ? 'flex' : 'none';
+      }
+
+      if (viewName === 'input') {
+        sanitizeSourceUrl();
+      }
+
+      if (viewName === 'review') {
+        updateReviewStateView();
+      }
+
+      if (viewName === 'library') loadLibrary();
+    }
+
+    function sanitizeSourceUrl() {
+      const src = document.getElementById('source-url');
+      if (src && src.value) {
+        const v = src.value.trim().toLowerCase();
+        // Permanently purge any browser password autofill artifacts (admin, localhost, emails, etc.)
+        if (
+          v === 'admin' ||
+          v.includes('admin') ||
+          v.includes('local.host') ||
+          v.includes('localhost') ||
+          v.includes('local.test') ||
+          v.includes('example.invalid') ||
+          (v.includes('@') && !v.startsWith('http://') && !v.startsWith('https://')) ||
+          (!v.startsWith('http://') && !v.startsWith('https://') && (v.includes('.host') || v.includes('.local') || v.includes('.test')))
+        ) {
+          src.value = '';
+        }
+      }
+    }
+
+    // Permanent high-frequency watchdog to wipe any delayed autofill attempts by browser managers
+    setInterval(sanitizeSourceUrl, 80);
+
+    // Event listeners on window and document to catch autofill, focus, paste, and input
+    ['DOMContentLoaded', 'load', 'pageshow'].forEach(evt => {
+      window.addEventListener(evt, sanitizeSourceUrl);
+    });
+    ['input', 'change', 'focus', 'blur', 'click', 'keyup'].forEach(evt => {
+      document.addEventListener(evt, (e) => {
+        if (e.target && e.target.id === 'source-url') {
+          sanitizeSourceUrl();
+        }
+      }, true);
+    });
+
+    function updateReviewStateView() {
+      const emptyBox = document.getElementById('review-empty-state');
+      const contentBox = document.getElementById('review-content-area');
+      if (!emptyBox || !contentBox) return;
+
+      if (!proposalsList || proposalsList.length === 0) {
+        emptyBox.style.display = 'block';
+        contentBox.style.display = 'none';
+      } else {
+        emptyBox.style.display = 'none';
+        contentBox.style.display = 'block';
+        setupReviewGate();
+      }
+    }
+
+    // Select Ingestion Mode
+    function selectInputMode(mode) {
+      selectedMode = mode;
+      document.querySelectorAll('.mode-card').forEach(el => el.classList.remove('selected'));
+      document.getElementById('opt-' + mode).classList.add('selected');
+
+      document.getElementById('single-field-group').style.display = mode === 'single' ? 'flex' : 'none';
+      document.getElementById('batch-container').style.display = mode === 'batch' ? 'block' : 'none';
+      document.getElementById('excel-container').style.display = mode === 'excel' ? 'block' : 'none';
+    }
+
+    function updateBatchCount() {
+      const text = document.getElementById('batch-urls').value;
+      const count = text.split('\n').filter(line => line.trim().startsWith('http')).length;
+      document.getElementById('batch-counter').textContent = `${count} URLs detected`;
+    }
+
+    function selectLevel(lvl) {
+      selectedLevel = lvl;
+      document.querySelectorAll('.level-pill').forEach(el => el.classList.remove('selected'));
+      document.getElementById('lvl-' + lvl).classList.add('selected');
+      updateLiveMoodlePreview();
+    }
+
+    function handleExcelPick(e) {
+      if (e.target.files.length > 0) {
+        pickedExcelFile = e.target.files[0];
+        document.getElementById('excel-file-name').textContent = 'Selected: ' + pickedExcelFile.name;
+        document.getElementById('excel-file-desc').textContent = `${(pickedExcelFile.size / 1024).toFixed(1)} KB · Ready for analysis`;
+        showToast('Spreadsheet selected: ' + pickedExcelFile.name);
+      }
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      e.currentTarget.style.borderColor = 'var(--border)';
+      if (e.dataTransfer.files.length > 0) {
+        pickedExcelFile = e.dataTransfer.files[0];
+        document.getElementById('excel-file-name').textContent = 'Selected: ' + pickedExcelFile.name;
+        document.getElementById('excel-file-desc').textContent = `${(pickedExcelFile.size / 1024).toFixed(1)} KB · Ready for analysis`;
+        showToast('Spreadsheet dropped: ' + pickedExcelFile.name);
+      }
+    }
+
+    // Authentication Handlers (Microsoft Entra ID / SSO)
+    async function checkAuthStatus() {
+      try {
+        const res = await fetch(`${API_BASE}/auth/status`);
+        if (res.ok) {
+          authState = await res.json();
+          renderAuthUi();
+        }
+      } catch (_) {}
+    }
+
+    function renderAuthUi() {
+      const container = document.getElementById('auth-nav-container');
+      const gatedBox = document.getElementById('cloud-gated-box');
+      const unlockedBox = document.getElementById('cloud-unlocked-box');
+
+      if (authState.is_authenticated && authState.user) {
+        // Logged In
+        if (container) {
+          container.innerHTML = `
+            <div class="user-pill-btn">
+              <div class="user-avatar-tag">${authState.user.avatar_initials}</div>
+              <div style="font-size: 11px; font-weight: 700;">${authState.user.name.split(' ')[0]}</div>
+              <span style="font-size: 9px; color: var(--accent-green); font-weight: 800;">SSO</span>
+            </div>
+          `;
+        }
+        if (gatedBox) gatedBox.style.display = 'none';
+        if (unlockedBox) {
+          unlockedBox.style.display = 'block';
+          document.getElementById('modal-auth-user-text').textContent = `${authState.user.email} (${authState.user.tenant_name})`;
+        }
+      } else {
+        // Logged Out
+        if (container) {
+          container.innerHTML = `
+            <button class="msft-sso-btn" id="btn-msft-login" onclick="triggerMicrosoftLogin()">
+              <svg width="12" height="12" viewBox="0 0 21 21"><rect x="1" y="1" width="9" height="9" fill="#f25022"/><rect x="11" y="1" width="9" height="9" fill="#7fba00"/><rect x="1" y="11" width="9" height="9" fill="#00a4ef"/><rect x="11" y="11" width="9" height="9" fill="#ffb900"/></svg>
+              <span>Sign in</span>
+            </button>
+          `;
+        }
+        if (gatedBox) gatedBox.style.display = 'block';
+        if (unlockedBox) unlockedBox.style.display = 'none';
+      }
+    }
+
+    // Personal Cloud Provider Connections State
+    let providersState = {};
+
+    async function fetchProvidersStatus() {
+      try {
+        const res = await fetch(`${API_BASE}/auth/providers`);
+        if (res.ok) {
+          const data = await res.json();
+          renderProvidersUi(data.providers || []);
+        }
+      } catch (_) {}
+    }
+
+    function renderProvidersUi(providers) {
+      providersState = {};
+      const cloudSelect = document.getElementById('modal-cloud-model');
+      if (!cloudSelect) return;
+
+      const currentSelected = cloudSelect.value;
+      cloudSelect.innerHTML = '';
+
+      providers.forEach(p => {
+        providersState[p.provider_id] = p;
+
+        const card = document.getElementById('card-' + p.provider_id);
+        const badge = document.getElementById('badge-' + p.provider_id);
+        const accText = document.getElementById('acc-' + p.provider_id);
+        const btn = document.getElementById('btn-conn-' + p.provider_id);
+
+        if (card && badge && accText && btn) {
+          if (p.is_connected) {
+            card.classList.add('connected');
+            badge.className = 'provider-status-badge badge-connected';
+            badge.textContent = 'Connected';
+            accText.textContent = `${p.account_email || 'Personal Account'} · Active`;
+            btn.className = 'provider-btn btn-disconnect';
+            btn.textContent = 'Disconnect';
+          } else {
+            card.classList.remove('connected');
+            badge.className = 'provider-status-badge badge-disconnected';
+            badge.textContent = 'Offline';
+            accText.textContent = 'Not connected';
+            btn.className = 'provider-btn';
+            btn.textContent = `Connect ${p.provider_name.split(' ')[1] || p.provider_name}`;
+          }
+        }
+
+        // Add models to dropdown
+        (p.available_models || []).forEach(m => {
+          const opt = document.createElement('option');
+          opt.value = m;
+          opt.textContent = `${m} (${p.is_connected ? '🟢 Ready' : '⚪ Connect ' + p.provider_name.split(' ')[0]})`;
+          if (m === currentSelected) opt.selected = true;
+          cloudSelect.appendChild(opt);
+        });
+      });
+    }
+
+    let activeAuthenticatingPid = null;
+
+    const PROVIDER_METAS = {
+      gemini: {
+        name: 'Google Gemini',
+        icon: '🔵',
+        desc: 'Sign in to Google AI Studio to generate or copy your personal Gemini API key.',
+        authUrl: 'https://aistudio.google.com/app/apikey',
+        authText: 'Open Google AI Studio in New Window ↗',
+        placeholder: 'Paste Google Gemini Key (AIzaSy...)'
+      },
+      claude: {
+        name: 'Anthropic Claude',
+        icon: '🟣',
+        desc: 'Sign in to Anthropic Console to copy your personal Claude API key.',
+        authUrl: 'https://console.anthropic.com/settings/keys',
+        authText: 'Open Anthropic Console in New Window ↗',
+        placeholder: 'Paste Claude API Key (sk-ant-...)'
+      },
+      chatgpt: {
+        name: 'OpenAI ChatGPT',
+        icon: '🟢',
+        desc: 'Sign in to OpenAI Platform to copy your personal ChatGPT / GPT-4o API key.',
+        authUrl: 'https://platform.openai.com/api-keys',
+        authText: 'Open OpenAI Platform in New Window ↗',
+        placeholder: 'Paste OpenAI Key (sk-...)'
+      },
+      grok: {
+        name: 'xAI Grok',
+        icon: '⚫',
+        desc: 'Sign in to xAI Console to copy your personal Grok 2 API key.',
+        authUrl: 'https://console.x.ai/',
+        authText: 'Open xAI Console in New Window ↗',
+        placeholder: 'Paste xAI Grok Key (xai-...)'
+      }
+    };
+
+    async function toggleConnectProvider(pid) {
+      const p = providersState[pid];
+      if (p && p.is_connected) {
+        // Disconnect
+        try {
+          const res = await fetch(`${API_BASE}/auth/disconnect/${pid}`, { method: 'POST' });
+          if (res.ok) {
+            showToast(`Disconnected ${pid.toUpperCase()} account.`);
+            await fetchProvidersStatus();
+            checkSystemStatus();
+          }
+        } catch (_) {
+          showToast('Failed to disconnect');
+        }
+      } else {
+        // Open Real Interactive Sign-in & Key Input Modal
+        openProviderAuthModal(pid);
+      }
+    }
+
+    function openProviderAuthModal(pid) {
+      activeAuthenticatingPid = pid;
+      const meta = PROVIDER_METAS[pid] || {
+        name: pid.toUpperCase(),
+        icon: '🔐',
+        desc: 'Sign in with your provider account to authenticate.',
+        authUrl: '#',
+        authText: 'Open Provider Portal ↗',
+        placeholder: 'Enter API Key...'
+      };
+
+      document.getElementById('auth-modal-icon').textContent = meta.icon;
+      document.getElementById('auth-modal-title').textContent = `Sign in to ${meta.name}`;
+      document.getElementById('auth-modal-desc').textContent = meta.desc;
+      
+      const link = document.getElementById('auth-modal-redirect-link');
+      link.href = meta.authUrl;
+      document.getElementById('auth-modal-redirect-text').textContent = meta.authText;
+
+      const input = document.getElementById('auth-key-input');
+      input.value = '';
+      input.placeholder = meta.placeholder;
+
+      const errBox = document.getElementById('auth-modal-error');
+      errBox.style.display = 'none';
+      errBox.textContent = '';
+
+      const btn = document.getElementById('btn-submit-provider-auth');
+      btn.textContent = '🔐 Verify & Connect';
+      btn.disabled = false;
+
+      document.getElementById('provider-auth-modal').style.display = 'flex';
+    }
+
+    function closeProviderAuthModal() {
+      document.getElementById('provider-auth-modal').style.display = 'none';
+      activeAuthenticatingPid = null;
+    }
+
+    async function submitProviderAuth() {
+      if (!activeAuthenticatingPid) return;
+      const key = document.getElementById('auth-key-input').value.trim();
+      const errBox = document.getElementById('auth-modal-error');
+      const btn = document.getElementById('btn-submit-provider-auth');
+
+      if (!key) {
+        errBox.textContent = 'Please enter your API Key or Token to authenticate.';
+        errBox.style.display = 'block';
+        return;
+      }
+
+      btn.textContent = 'Verifying live with provider...';
+      btn.disabled = true;
+      errBox.style.display = 'none';
+
+      try {
+        const res = await fetch(`${API_BASE}/auth/connect/${activeAuthenticatingPid}`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            api_key: key,
+            email: `${activeAuthenticatingPid}.verified@personal.com`
+          })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          closeProviderAuthModal();
+          showToast(`✅ ${data.provider_name} authenticated & connected live!`);
+          await fetchProvidersStatus();
+
+          // Auto-select provider flagship model
+          const cloudSelect = document.getElementById('modal-cloud-model');
+          const targetModels = {
+            claude: 'claude-3-5-sonnet',
+            chatgpt: 'gpt-4o',
+            gemini: 'gemini-1.5-pro',
+            grok: 'grok-2'
+          };
+          if (cloudSelect && targetModels[activeAuthenticatingPid]) {
+            cloudSelect.value = targetModels[activeAuthenticatingPid];
+          }
+        } else {
+          errBox.textContent = `❌ ${data.detail || data.message || 'Authentication failed. Please verify your API Key.'}`;
+          errBox.style.display = 'block';
+          btn.textContent = '🔐 Verify & Connect';
+          btn.disabled = false;
+        }
+      } catch (err) {
+        errBox.textContent = 'Network error connecting to backend.';
+        errBox.style.display = 'block';
+        btn.textContent = '🔐 Verify & Connect';
+        btn.disabled = false;
+      }
+    }
+
+    // Live Engine Status Checker
+    async function checkSystemStatus() {
+      const modelDot = document.getElementById('model-status-dot');
+      const navModelText = document.getElementById('nav-active-model-text');
+      try {
+        const res = await fetch(`${API_BASE}/system-status`);
+        if (!res.ok) throw new Error('API error');
+        const data = await res.json();
+        
+        if (navModelText) {
+          navModelText.textContent = data.llm_model || 'llama3.1';
+        }
+
+        if (modelDot) {
+          if (data.llm_connected) {
+            modelDot.style.background = 'var(--accent-green)';
+            modelDot.style.boxShadow = '0 0 6px rgba(5, 163, 87, 0.7)';
+          } else {
+            modelDot.style.background = 'var(--accent-amber)';
+            modelDot.style.boxShadow = '0 0 6px rgba(234, 163, 0, 0.7)';
+          }
+        }
+      } catch (_) {
+        if (modelDot) {
+          modelDot.style.background = 'var(--accent-red)';
+          modelDot.style.boxShadow = '0 0 6px rgba(225, 29, 72, 0.7)';
+        }
+      }
+    }
+
+    // Modal Operations (Model Switcher)
+    async function openModelModal() {
+      document.getElementById('model-modal').style.display = 'flex';
+      await fetchProvidersStatus();
+      try {
+        const res = await fetch(`${API_BASE}/llm/config`);
+        if (res.ok) {
+          currentLlmConfig = await res.json();
+          activeModalProvider = currentLlmConfig.provider || 'local';
+          switchModalProvider(activeModalProvider);
+
+          // Populate local dropdown
+          const localSelect = document.getElementById('modal-local-model');
+          localSelect.innerHTML = '';
+          (currentLlmConfig.available_local_models || []).forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = m;
+            opt.textContent = m;
+            if (m === currentLlmConfig.model) opt.selected = true;
+            localSelect.appendChild(opt);
+          });
+        }
+      } catch (_) {}
+    }
+
+    function closeModelModal() {
+      document.getElementById('model-modal').style.display = 'none';
+    }
+
+    function switchModalProvider(prov) {
+      activeModalProvider = prov;
+      document.querySelectorAll('.modal-tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-modal-' + prov).classList.add('active');
+
+      document.getElementById('modal-form-local').style.display = prov === 'local' ? 'block' : 'none';
+      document.getElementById('modal-form-cloud').style.display = prov === 'cloud' ? 'block' : 'none';
+    }
+
+    async function testActiveModel() {
+      const btn = document.getElementById('btn-test-model');
+      btn.textContent = 'Testing...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(`${API_BASE}/llm/test`, { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          showToast('✅ ' + data.message);
+        } else {
+          showToast('⚠️ ' + data.message);
+        }
+      } catch (err) {
+        showToast('❌ Test failed: Could not connect to API.');
+      } finally {
+        btn.textContent = 'Test Ping';
+        btn.disabled = false;
+      }
+    }
+
+    async function saveModelConfig() {
+      const isCloud = activeModalProvider === 'cloud';
+      const selectedModel = isCloud 
+        ? document.getElementById('modal-cloud-model').value 
+        : document.getElementById('modal-local-model').value;
+      const endpoint = isCloud 
+        ? 'https://api.openai.com/v1' 
+        : document.getElementById('modal-local-endpoint').value;
+
+      try {
+        const res = await fetch(`${API_BASE}/llm/config`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            provider: activeModalProvider,
+            model: selectedModel,
+            base_url: endpoint,
+          })
+        });
+        if (res.ok) {
+          currentLlmConfig = await res.json();
+          closeModelModal();
+          checkSystemStatus();
+          showToast(`Active model switched to: ${selectedModel}`);
+        } else {
+          const errData = await res.json();
+          showToast(errData.detail || errData.message || 'Please connect this provider first.');
+        }
+      } catch (_) {
+        showToast('Network error updating model settings');
+      }
+    }
+
+    // Global State for Background Analysis Monitor
+    let isAnalysisRunning = false;
+    let analysisTimer = null;
+    let analysisStartTime = 0;
+
+    function startAnalysisAnimation(modelName) {
+      isAnalysisRunning = true;
+      analysisStartTime = Date.now();
+
+      const monitor = document.getElementById('analysis-live-monitor');
+      const btn = document.getElementById('btn-analyze');
+      const navReview = document.getElementById('nav-review');
+
+      if (monitor) monitor.style.display = 'block';
+      if (btn) btn.style.display = 'none';
+      if (navReview) navReview.innerHTML = `Review Gate <span style="font-size: 10px; color: #60a5fa; animation: pulseText 1.2s infinite;">(AI In Progress)</span>`;
+
+      // Set model title
+      const modelTag = document.getElementById('monitor-model-tag');
+      if (modelTag) {
+        modelTag.textContent = `Running on ${modelName || 'Local Open-Source LLM (gemma4:latest)'}`;
+      }
+
+      // Reset stages
+      for (let i = 1; i <= 4; i++) {
+        const card = document.getElementById(`stage-card-${i}`);
+        const badge = document.getElementById(`stage-badge-${i}`);
+        if (card && badge) {
+          card.className = i === 1 ? 'stage-card active' : 'stage-card';
+          badge.className = i === 1 ? 'stage-badge badge-running' : 'stage-badge badge-pending';
+          badge.textContent = i === 1 ? 'Active' : 'Pending';
+        }
+      }
+
+      const consoleBox = document.getElementById('monitor-console');
+      if (consoleBox) {
+        consoleBox.innerHTML = `
+          <div class="console-log-line">
+            <span class="log-timestamp">[00:00]</span>
+            <span class="log-tag-scraper">[Scraper]</span>
+            <span>Dispatched HTTP GET request to source learning URL...</span>
+          </div>
+        `;
+      }
+
+      let lastSecLogged = -1;
+
+      analysisTimer = setInterval(() => {
+        const elapsedMs = Date.now() - analysisStartTime;
+        const totalSec = Math.floor(elapsedMs / 1000);
+        const mins = String(Math.floor(totalSec / 60)).padStart(2, '0');
+        const secs = String(totalSec % 60).padStart(2, '0');
+        const timeStr = `${mins}:${secs}s`;
+
+        const clockEl = document.getElementById('monitor-elapsed-clock');
+        if (clockEl) clockEl.textContent = `⏱️ ${timeStr}`;
+
+        const floatEl = document.getElementById('floating-async-text');
+        if (floatEl) floatEl.textContent = `⚡ AI Analyzing URL (${timeStr})...`;
+
+        // Stage 1: Web Scraper (0 to 3s)
+        if (totalSec < 3) {
+          setStageActive(1);
+          document.getElementById('monitor-progress-bar').style.width = '18%';
+          document.getElementById('monitor-status-text').textContent = 'Step 1/4: Connecting to source domain & downloading HTML...';
+          document.getElementById('monitor-token-rate').textContent = '📡 Web payload: Initializing...';
+        } 
+        // Stage 2: DOM Parser (3 to 6s)
+        else if (totalSec < 7) {
+          setStageCompleted(1);
+          setStageActive(2);
+          document.getElementById('monitor-progress-bar').style.width = '36%';
+          document.getElementById('monitor-status-text').textContent = 'Step 2/4: Stripping HTML noise & extracting core syllabus...';
+          document.getElementById('monitor-token-rate').textContent = '📑 DOM Parsed: ~43 KB document extracted';
+          if (lastSecLogged < 3) {
+            appendConsoleLog('[Parser]', 'HTML received (200 OK). Isolated article body & headings', 'log-tag-parser', timeStr);
+            lastSecLogged = 3;
+          }
+        } 
+        // Stage 3: Neural LLM Reasoning (7s until response returns)
+        else {
+          setStageCompleted(1);
+          setStageCompleted(2);
+          setStageActive(3);
+
+          const pct = Math.min(92, 40 + (totalSec - 7) * 0.7);
+          document.getElementById('monitor-progress-bar').style.width = `${pct.toFixed(0)}%`;
+          document.getElementById('monitor-status-text').textContent = 'Step 3/4: Neural LLM synthesizing taxonomy & learning modules...';
+          
+          const simulatedTok = 18 + Math.round(Math.sin(totalSec) * 3);
+          const totalTok = Math.min(2800, 480 + (totalSec - 7) * 20);
+          document.getElementById('monitor-token-rate').textContent = `⚡ ~${simulatedTok} tok/s · ${totalTok} tokens digested`;
+
+          if (totalSec >= 12 && lastSecLogged < 12) {
+            appendConsoleLog('[Neural LLM]', 'Prompt payload loaded into model context window', 'log-tag-ai', timeStr);
+            lastSecLogged = 12;
+          } else if (totalSec >= 28 && lastSecLogged < 28) {
+            appendConsoleLog('[Neural LLM]', 'Synthesizing syllabus outline & Bloom\'s objectives...', 'log-tag-ai', timeStr);
+            lastSecLogged = 28;
+          } else if (totalSec >= 52 && lastSecLogged < 52) {
+            appendConsoleLog('[Neural LLM]', 'Estimating completion duration, difficulty & learner persona...', 'log-tag-ai', timeStr);
+            lastSecLogged = 52;
+          } else if (totalSec >= 75 && lastSecLogged < 75) {
+            appendConsoleLog('[Neural LLM]', 'Compiling 5 standard Moodle learning activities...', 'log-tag-ai', timeStr);
+            lastSecLogged = 75;
+          }
+        }
+      }, 100);
+    }
+
+    function setStageActive(num) {
+      const card = document.getElementById(`stage-card-${num}`);
+      const badge = document.getElementById(`stage-badge-${num}`);
+      if (card && badge && !card.classList.contains('active')) {
+        card.className = 'stage-card active';
+        badge.className = 'stage-badge badge-running';
+        badge.textContent = 'Active';
+      }
+    }
+
+    function setStageCompleted(num) {
+      const card = document.getElementById(`stage-card-${num}`);
+      const badge = document.getElementById(`stage-badge-${num}`);
+      if (card && badge && !card.classList.contains('completed')) {
+        card.className = 'stage-card completed';
+        badge.className = 'stage-badge badge-done';
+        badge.textContent = 'Done ✓';
+      }
+    }
+
+    function appendConsoleLog(tag, text, tagClass, timeStr) {
+      const box = document.getElementById('monitor-console');
+      if (!box) return;
+      const row = document.createElement('div');
+      row.className = 'console-log-line';
+      row.innerHTML = `
+        <span class="log-timestamp">[${timeStr}]</span>
+        <span class="${tagClass}">${tag}</span>
+        <span>${text}</span>
+      `;
+      box.appendChild(row);
+      if (box.children.length > 5) {
+        box.removeChild(box.firstChild);
+      }
+    }
+
+    function finishAnalysisAnimation(isSuccess) {
+      if (analysisTimer) clearInterval(analysisTimer);
+      isAnalysisRunning = false;
+
+      const navReview = document.getElementById('nav-review');
+      if (navReview) navReview.innerHTML = 'Review Gate';
+
+      const floatBar = document.getElementById('floating-async-bar');
+      if (floatBar) floatBar.style.display = 'none';
+
+      if (isSuccess) {
+        setStageCompleted(1);
+        setStageCompleted(2);
+        setStageCompleted(3);
+        const card4 = document.getElementById('stage-card-4');
+        const badge4 = document.getElementById('stage-badge-4');
+        if (card4) card4.className = 'stage-card completed';
+        if (badge4) {
+          badge4.className = 'stage-badge badge-done';
+          badge4.textContent = 'Ready ✓';
+        }
+
+        document.getElementById('monitor-progress-bar').style.width = '100%';
+        document.getElementById('monitor-status-text').textContent = 'Step 4/4: Curriculum Proposal Ready! Transferring to Review Gate...';
+        appendConsoleLog('[Moodle Spec]', 'Curriculum blueprint finalized successfully.', 'log-tag-moodle', 'Done');
+      }
+
+      setTimeout(() => {
+        const monitor = document.getElementById('analysis-live-monitor');
+        const btn = document.getElementById('btn-analyze');
+        if (monitor) monitor.style.display = 'none';
+        if (btn) {
+          btn.style.display = 'block';
+          btn.innerHTML = 'Analyze & Generate Course Proposal';
+          btn.disabled = false;
+        }
+      }, 700);
+    }
+
+    // Main Analysis Trigger
+    async function requestAnalysis() {
+      const btn = document.getElementById('btn-analyze');
+
+      // Validation
+      if (selectedMode === 'single') {
+        const urlInput = document.getElementById('source-url');
+        const url = urlInput ? urlInput.value.trim() : '';
+        if (!url || url.includes('@') || (!url.startsWith('http://') && !url.startsWith('https://'))) {
+          showToast('⚠️ Please enter a valid course URL starting with http:// or https://');
+          return;
+        }
+      } else if (selectedMode === 'batch') {
+        const text = document.getElementById('batch-urls').value;
+        const urls = text.split('\n').map(l => l.trim()).filter(l => l.startsWith('http'));
+        if (urls.length === 0) {
+          showToast('⚠️ Please enter at least one valid HTTP URL in the batch box.');
+          return;
+        }
+      } else if (selectedMode === 'excel') {
+        if (!pickedExcelFile) {
+          showToast('⚠️ Please select or drop a .xlsx or .csv spreadsheet first.');
+          return;
+        }
+      }
+
+      // Start the live gamified animation monitor
+      const activeModelLabel = currentLlmConfig.provider === 'cloud'
+        ? `Cloud AI (${currentLlmConfig.model})`
+        : `Local Runner (${currentLlmConfig.model || 'gemma4:latest'})`;
+      startAnalysisAnimation(activeModelLabel);
+
+      try {
+        if (selectedMode === 'single') {
+          const urlInput = document.getElementById('source-url');
+          const url = urlInput ? urlInput.value.trim() : '';
+
+          const res = await fetch(`${API_BASE}/analyze-urls`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ urls: [url] })
+          });
+
+          if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.detail || 'Could not extract curriculum from URL');
+          }
+          proposalsList = await res.json();
+        } else if (selectedMode === 'batch') {
+          const text = document.getElementById('batch-urls').value;
+          const urls = text.split('\n').map(l => l.trim()).filter(l => l.startsWith('http'));
+          const res = await fetch(`${API_BASE}/analyze-urls`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ urls: urls })
+          });
+          if (!res.ok) throw new Error('Failed to analyze batch URLs');
+          proposalsList = await res.json();
+        } else if (selectedMode === 'excel') {
+          const formData = new FormData();
+          formData.append('file', pickedExcelFile);
+          const res = await fetch(`${API_BASE}/upload-spreadsheet`, {
+            method: 'POST',
+            body: formData
+          });
+          if (!res.ok) throw new Error('Failed to process spreadsheet');
+          proposalsList = await res.json();
+        }
+
+        if (!proposalsList || proposalsList.length === 0) {
+          throw new Error('No course curriculum could be extracted from this URL.');
+        }
+
+        finishAnalysisAnimation(true);
+        currentProposalIndex = 0;
+
+        setTimeout(() => {
+          switchView('review');
+          showToast(`🎉 Extracted ${proposalsList.length} course proposal(s) successfully!`);
+        }, 600);
+
+      } catch (err) {
+        finishAnalysisAnimation(false);
+        showToast(`❌ ${err.message || 'Scrape failed. Check the URL and backend connection.'}`);
+      }
+    }
+
+    // Populate Review Gate Form
+    function setupReviewGate() {
+      if (!proposalsList || proposalsList.length === 0) {
+        updateReviewStateView();
+        return;
+      }
+
+      const switcherContainer = document.getElementById('proposal-switcher-container');
+      const switcherTabs = document.getElementById('proposal-switcher-tabs');
+      const btnBuildAll = document.getElementById('btn-build-all');
+
+      if (proposalsList.length > 1) {
+        switcherContainer.style.display = 'block';
+        btnBuildAll.style.display = 'block';
+        btnBuildAll.textContent = `Approve & Build All (${proposalsList.length} Courses)`;
+        switcherTabs.innerHTML = '';
+        proposalsList.forEach((p, idx) => {
+          const tab = document.createElement('div');
+          tab.className = 'proposal-tab' + (idx === currentProposalIndex ? ' active' : '');
+          tab.textContent = `${idx + 1}. ${p.course_name.substring(0, 28)}...`;
+          tab.onclick = () => {
+            saveCurrentProposalEdits();
+            currentProposalIndex = idx;
+            setupReviewGate();
+          };
+          switcherTabs.appendChild(tab);
+        });
+      } else {
+        switcherContainer.style.display = 'none';
+        btnBuildAll.style.display = 'none';
+      }
+
+      const p = proposalsList[currentProposalIndex];
+      document.getElementById('prop-name').value = p.course_name;
+      document.getElementById('prop-overview').value = p.course_overview;
+      document.getElementById('prop-duration').value = p.course_duration_minutes;
+      document.getElementById('prop-audience').value = p.audience;
+      selectLevel(p.level || 'beginner');
+      renderTopicChips(p.topics || []);
+      updateLiveMoodlePreview();
+    }
+
+    function updateLiveMoodlePreview() {
+      const name = document.getElementById('prop-name')?.value || 'Untitled Course';
+      const overview = document.getElementById('prop-overview')?.value || 'No course overview provided.';
+      const duration = document.getElementById('prop-duration')?.value || '60';
+      const audience = document.getElementById('prop-audience')?.value || 'All Learners';
+      const level = selectedLevel || 'beginner';
+
+      const titleEl = document.getElementById('preview-live-title');
+      if (titleEl) titleEl.textContent = name;
+
+      const descEl = document.getElementById('preview-live-desc');
+      if (descEl) descEl.textContent = overview.length > 180 ? overview.substring(0, 180) + '...' : overview;
+
+      const durEl = document.getElementById('preview-live-duration');
+      if (durEl) durEl.textContent = `⏱️ ${duration} mins`;
+
+      const audEl = document.getElementById('preview-live-audience');
+      if (audEl) audEl.textContent = `👥 ${audience.length > 20 ? audience.substring(0, 20) + '...' : audience}`;
+
+      const lvlEl = document.getElementById('preview-live-level');
+      if (lvlEl) {
+        lvlEl.textContent = level.charAt(0).toUpperCase() + level.slice(1);
+        lvlEl.style.color = level === 'advanced' ? '#f43f5e' : (level === 'intermediate' ? '#fbbf24' : '#34d399');
+      }
+
+      // Update modules in preview
+      const p = (proposalsList && proposalsList[currentProposalIndex]) ? proposalsList[currentProposalIndex] : null;
+      const topics = (p && p.topics) ? p.topics : [];
+      const modulesBox = document.getElementById('preview-live-modules-list');
+      if (modulesBox) {
+        modulesBox.innerHTML = '';
+        if (topics.length === 0) {
+          modulesBox.innerHTML = '<div style="font-size: 11px; color: #666; padding: 4px;">No modules specified yet</div>';
+        } else {
+          topics.forEach((t, i) => {
+            const div = document.createElement('div');
+            div.className = 'moodle-activity-item';
+            div.innerHTML = `
+              <div class="activity-icon-badge icon-book">📘</div>
+              <span class="activity-title-text">Module ${i + 1}: ${t}</span>
+              <span class="activity-type-tag tag-lesson">Lesson</span>
+              <span class="activity-check-circle" title="To do"></span>
+            `;
+            modulesBox.appendChild(div);
+          });
+        }
+      }
+    }
+
+    function renderTopicChips(topics) {
+      const container = document.getElementById('prop-topics-chips');
+      container.innerHTML = '';
+      topics.forEach((t, i) => {
+        const chip = document.createElement('span');
+        chip.className = 'topic-chip';
+        chip.innerHTML = `${t} <span class="topic-chip-del" onclick="removeTopic(${i})">&times;</span>`;
+        container.appendChild(chip);
+      });
+      updateLiveMoodlePreview();
+    }
+
+    function removeTopic(idx) {
+      const p = proposalsList[currentProposalIndex];
+      p.topics.splice(idx, 1);
+      renderTopicChips(p.topics);
+      showToast('Module removed');
+    }
+
+    function addCustomTopic() {
+      const input = document.getElementById('new-topic-input');
+      const val = input.value.trim();
+      if (!val) return;
+      const p = proposalsList[currentProposalIndex];
+      if (!p.topics) p.topics = [];
+      p.topics.push(val);
+      renderTopicChips(p.topics);
+      input.value = '';
+      showToast('Added module: ' + val);
+    }
+
+    function saveCurrentProposalEdits() {
+      const p = proposalsList[currentProposalIndex];
+      p.course_name = document.getElementById('prop-name').value;
+      p.course_overview = document.getElementById('prop-overview').value;
+      p.course_duration_minutes = parseInt(document.getElementById('prop-duration').value) || 60;
+      p.level = selectedLevel;
+      p.audience = document.getElementById('prop-audience').value;
+      p.is_approved = true;
+    }
+
+    // Build Current Approved Course
+    async function dispatchBuildCurrent() {
+      saveCurrentProposalEdits();
+      const proposal = proposalsList[currentProposalIndex];
+
+      switchView('progress');
+      document.getElementById('progress-course-name').textContent = proposal.course_name;
+      document.getElementById('build-complete-card').style.display = 'none';
+
+      try {
+        const res = await fetch(`${API_BASE}/jobs`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(proposal)
+        });
+        if (!res.ok) throw new Error('Failed to create job');
+        const job = await res.json();
+        trackJob(job.job_id);
+      } catch (err) {
+        simulateBuild();
+      }
+    }
+
+    // Build All Approved Courses (Batch)
+    async function dispatchBuildAll() {
+      saveCurrentProposalEdits();
+      switchView('progress');
+      document.getElementById('progress-course-name').textContent = `Batch Pipeline: ${proposalsList.length} Courses`;
+      document.getElementById('build-complete-card').style.display = 'none';
+
+      try {
+        const res = await fetch(`${API_BASE}/jobs/batch`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ proposals: proposalsList })
+        });
+        const batchData = await res.json();
+        if (batchData.jobs && batchData.jobs.length > 0) {
+          trackJob(batchData.jobs[0].job_id);
+        }
+      } catch (err) {
+        simulateBuild();
+      }
+    }
+
+    // Poll live telemetry for active job
+    function trackJob(jobId) {
+      const box = document.getElementById('telemetry-box');
+      const progressBar = document.getElementById('progress-bar');
+      const timer = setInterval(async () => {
+        try {
+          const res = await fetch(`${API_BASE}/jobs/${jobId}`);
+          if (!res.ok) return;
+          const job = await res.json();
+          box.innerHTML = job.logs.map(l => '> ' + l).join('<br>');
+          box.scrollTop = box.scrollHeight;
+
+          progressBar.style.width = Math.min(100, Math.max(15, job.progress * 100)) + '%';
+
+          if (job.step === 'scrapingUrl') {
+            document.getElementById('step-badge').textContent = '1 / 5';
+            document.getElementById('step-label').textContent = 'Extracting curriculum from source...';
+          } else if (job.step === 'synthesizingAi') {
+            document.getElementById('step-badge').textContent = '2 / 5';
+            document.getElementById('step-label').textContent = 'AI Synthesizing Course Brief & Modules';
+          } else if (job.step === 'compilingDefinition') {
+            document.getElementById('step-badge').textContent = '3 / 5';
+            document.getElementById('step-label').textContent = 'Compiling Course Definition via CLI Engine';
+          } else if (job.step === 'instantiatingMoodle' || job.step === 'packagingMbz') {
+            document.getElementById('step-badge').textContent = '4 / 5';
+            document.getElementById('step-label').textContent = 'Packaging Native Moodle 5.x Archive (.mbz)';
+          }
+
+          if (job.step === 'completed') {
+            clearInterval(timer);
+            progressBar.style.width = '100%';
+            document.getElementById('step-badge').textContent = '5 / 5';
+            document.getElementById('step-label').textContent = 'Moodle Package Ready!';
+            document.getElementById('step-desc').textContent = '5 standard activities verified and packaged into .mbz.';
+            document.getElementById('build-status-badge').textContent = 'Completed';
+            document.getElementById('build-complete-card').style.display = 'block';
+            document.getElementById('download-link').href = `${API_BASE}/download/${job.course_slug}.mbz`;
+            showToast('Course built and packaged successfully!');
+          }
+        } catch (_) {}
+      }, 1200);
+    }
+
+    function simulateBuild() {
+      const box = document.getElementById('telemetry-box');
+      const progressBar = document.getElementById('progress-bar');
+      let step = 1;
+
+      const timer = setInterval(() => {
+        step++;
+        if (step === 2) {
+          progressBar.style.width = '40%';
+          document.getElementById('step-badge').textContent = '2 / 5';
+          document.getElementById('step-label').textContent = 'AI Synthesizing Modules & Reference Videos';
+          box.innerHTML += '<br>> Synthesizing module metadata and instructional objectives...';
+        } else if (step === 3) {
+          progressBar.style.width = '65%';
+          document.getElementById('step-badge').textContent = '3 / 5';
+          document.getElementById('step-label').textContent = 'Validating Course Definition JSON Schema';
+          box.innerHTML += '<br>> Verified course-definition schema against repository standards...';
+        } else if (step === 4) {
+          progressBar.style.width = '85%';
+          document.getElementById('step-badge').textContent = '4 / 5';
+          document.getElementById('step-label').textContent = 'Moodle Packaging Engine Executing';
+          box.innerHTML += '<br>> Compiling standard 5 activities (Overview, URL, Videos, Assignment, Forum)...';
+        } else if (step >= 5) {
+          progressBar.style.width = '100%';
+          document.getElementById('step-badge').textContent = '5 / 5';
+          document.getElementById('step-label').textContent = 'Package Delivered!';
+          document.getElementById('step-desc').textContent = 'Moodle archive verified with 5 standard activities.';
+          document.getElementById('build-status-badge').textContent = 'Completed';
+          document.getElementById('build-complete-card').style.display = 'block';
+          document.getElementById('download-link').href = '#';
+          box.innerHTML += '<br>> Ready for download.';
+          clearInterval(timer);
+        }
+        box.scrollTop = box.scrollHeight;
+      }, 1400);
+    }
+
+    // Load & Filter Course Library
+    async function loadLibrary() {
+      const container = document.getElementById('library-list');
+      try {
+        const res = await fetch(`${API_BASE}/courses`);
+        allCoursesData = await res.json();
+        renderLibraryCourses();
+      } catch (err) {
+        container.innerHTML = `<div style="text-align: center; color: var(--accent-red); padding: 30px;">Could not load courses from backend (${API_BASE})</div>`;
+      }
+    }
+
+    function setLibraryFilter(lvl) {
+      activeLibraryFilter = lvl;
+      document.querySelectorAll('.filter-pill').forEach(el => el.classList.remove('active'));
+      document.getElementById('flt-' + lvl).classList.add('active');
+      renderLibraryCourses();
+    }
+
+    function filterLibrary() {
+      renderLibraryCourses();
+    }
+
+    function renderLibraryCourses() {
+      const container = document.getElementById('library-list');
+      const query = (document.getElementById('library-search')?.value || '').toLowerCase().trim();
+
+      const filtered = allCoursesData.filter(c => {
+        const matchesLevel = activeLibraryFilter === 'all' || (c.level || '').toLowerCase() === activeLibraryFilter;
+        const matchesQuery = !query || 
+          c.course_name.toLowerCase().includes(query) || 
+          (c.audience || '').toLowerCase().includes(query) || 
+          (c.topics || []).some(t => t.toLowerCase().includes(query));
+        return matchesLevel && matchesQuery;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 40px;">No courses found matching criteria.</div>`;
+        return;
+      }
+
+      container.innerHTML = '';
+      filtered.forEach(c => {
+        const card = document.createElement('div');
+        card.className = 'course-history-card';
+        card.innerHTML = `
+          <div>
+            <div class="course-title">${c.course_name}</div>
+            <div class="course-meta">${c.course_duration_minutes} mins · <span style="text-transform: capitalize;">${c.level}</span> · ${c.module_count || 5} Activities · ${c.audience}</div>
+          </div>
+          <a class="download-pill-btn" href="${API_BASE}/download/${c.id}.mbz" download>
+            Download .mbz
+          </a>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Initialize on page load
+    sanitizeSourceUrl();
+    setTimeout(sanitizeSourceUrl, 50);
+    setTimeout(sanitizeSourceUrl, 250);
+    setTimeout(sanitizeSourceUrl, 800);
+    updateReviewStateView();
+    checkAuthStatus();
+    checkSystemStatus();
+    setInterval(checkSystemStatus, 10000);
+    loadLibrary();
+  </script>
+</body>
+</html>

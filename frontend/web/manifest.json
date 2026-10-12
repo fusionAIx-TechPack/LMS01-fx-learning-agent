@@ -1,0 +1,11 @@
+{
+  "name": "FX Learning Course Studio",
+  "short_name": "FX Learning",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0b0f19",
+  "theme_color": "#3b82f6",
+  "description": "AI-Powered Moodle Course Package Generator",
+  "orientation": "portrait-primary",
+  "prefer_related_applications": false
+}

@@ -1,0 +1,30 @@
+# Version control & agent metadata
+.git/
+.agents/
+.vs/
+.idea/
+.vscode/
+
+# Python cache & virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+
+# Runtime and generated data
+logs/
+artifacts/
+output/*
+!output/.gitkeep
+
+# Testing and legacy Docker Moodle test suite
+tests/
+docker/mariadb-seed/
+docker/moodle/
+compose.yaml
+
+# OS temporary files
+.DS_Store
+Thumbs.db
