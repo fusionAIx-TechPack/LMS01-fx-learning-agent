@@ -1650,26 +1650,29 @@
     .modal-card {
       background: #111;
       border: 1px solid var(--border);
-      border-radius: 20px;
-      width: 90%;
-      max-width: 560px;
-      padding: 32px;
+      border-radius: 18px;
+      width: 92%;
+      max-width: 520px;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 22px 24px;
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
+      position: relative;
     }
 
     .modal-title {
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 800;
-      letter-spacing: -0.6px;
+      letter-spacing: -0.5px;
       color: #fff;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
 
     .modal-subtitle {
-      font-size: 13px;
+      font-size: 12px;
       color: var(--text-muted);
-      margin-bottom: 24px;
-      line-height: 1.4;
+      margin-bottom: 14px;
+      line-height: 1.35;
     }
 
     .modal-tabs {
@@ -1677,8 +1680,8 @@
       background: #000;
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
-      padding: 4px;
-      margin-bottom: 20px;
+      padding: 3px;
+      margin-bottom: 14px;
     }
 
     .modal-tab-btn {
@@ -1823,6 +1826,129 @@
     .provider-btn.btn-disconnect:hover {
       background: rgba(225, 29, 72, 0.15);
       color: #fff;
+    }
+
+    /* Ultra-Compact SSE Model Diagnostic Strip */
+    .modal-test-livebox {
+      background: #0d0d0d;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      margin-top: 10px;
+      margin-bottom: 12px;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .test-livebox-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .test-pills-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .test-pill {
+      font-size: 10px;
+      font-weight: 700;
+      color: #888;
+      background: #161616;
+      border: 1px solid #282828;
+      padding: 2px 7px;
+      border-radius: var(--radius-full);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+
+    .test-pill.running {
+      border-color: rgba(96, 165, 250, 0.4);
+      background: rgba(96, 165, 250, 0.1);
+      color: #60a5fa;
+    }
+
+    .test-pill.success {
+      border-color: rgba(5, 163, 87, 0.4);
+      background: rgba(5, 163, 87, 0.1);
+      color: var(--accent-green);
+    }
+
+    .test-pill.error {
+      border-color: rgba(225, 29, 72, 0.5);
+      background: rgba(225, 29, 72, 0.1);
+      color: #ff6b6b;
+    }
+
+    .test-clock-pill {
+      font-size: 10px;
+      font-weight: 700;
+      font-family: monospace;
+      color: var(--accent-green);
+      background: rgba(5, 163, 87, 0.1);
+      padding: 1px 6px;
+      border-radius: 4px;
+      border: 1px solid rgba(5, 163, 87, 0.3);
+      white-space: nowrap;
+    }
+
+    .test-compact-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      line-height: 1.35;
+      padding: 6px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: all 0.2s;
+    }
+
+    .test-compact-status.status-waiting {
+      background: rgba(234, 163, 0, 0.08);
+      border-color: rgba(234, 163, 0, 0.25);
+      color: #fbbf24;
+    }
+
+    .test-compact-status.status-success {
+      background: rgba(5, 163, 87, 0.08);
+      border-color: rgba(5, 163, 87, 0.35);
+      color: #34d399;
+    }
+
+    .test-compact-status.status-error {
+      background: rgba(225, 29, 72, 0.08);
+      border-color: rgba(225, 29, 72, 0.35);
+      color: #fca5a5;
+    }
+
+    .modal-close-btn {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #aaa;
+      font-size: 18px;
+      line-height: 1;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+
+    .modal-close-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      border-color: #666;
     }
 
     /* Toast notification */
@@ -2374,10 +2500,13 @@
   </main>
 
   <!-- ================= MODEL SWITCHER & IdP MODAL ================= -->
-  <div class="modal-backdrop" id="model-modal">
+  <div class="modal-backdrop" id="model-modal" onclick="if(event.target === this) closeModelModal()">
     <div class="modal-card">
-      <div class="modal-title">AI Model & Provider Settings</div>
-      <div class="modal-subtitle">Use local open-source models first (free, offline, private), or connect your personal Claude, ChatGPT, Gemini, or Grok subscription.</div>
+      <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 2px;">
+        <div class="modal-title">AI Model & Provider Settings</div>
+        <button class="modal-close-btn" onclick="closeModelModal()" title="Close / Go Back">&times;</button>
+      </div>
+      <div class="modal-subtitle">Use local models (offline, free) or connect your cloud API accounts.</div>
 
       <!-- Mode Selector (Local vs Cloud) -->
       <div class="modal-tabs">
@@ -2511,15 +2640,32 @@
         </div>
       </div>
 
-      <!-- Modal Actions -->
-      <div style="display: flex; gap: 10px; margin-top: 24px;">
-        <button class="primary-btn primary-btn-outline" style="width: 32%; padding: 12px;" onclick="closeModelModal()">
-          Cancel
+      <!-- Ultra-Compact SSE Live Diagnostic Strip (Space-Saving) -->
+      <div id="modal-test-livebox" class="modal-test-livebox" style="display: none;">
+        <div class="test-livebox-top">
+          <div class="test-pills-row">
+            <span class="test-pill" id="test-pill-1">1. Host: <b id="pill-text-1">...</b></span>
+            <span class="test-pill" id="test-pill-2">2. Model: <b id="pill-text-2">...</b></span>
+            <span class="test-pill" id="test-pill-3">3. PONG: <b id="pill-text-3">...</b></span>
+          </div>
+          <div class="test-clock-pill" id="test-livebox-clock">⏱️ 0.0s</div>
+        </div>
+
+        <div class="test-compact-status status-waiting" id="test-compact-status">
+          <span id="test-status-icon">⏳</span>
+          <span id="test-status-msg" style="flex: 1;">Handshake in progress... Waiting for PONG</span>
+        </div>
+      </div>
+
+      <!-- Modal Actions (always fully visible) -->
+      <div style="display: flex; gap: 8px; margin-top: 14px;">
+        <button class="primary-btn primary-btn-outline" style="width: 32%; padding: 10px; font-size: 13px;" onclick="closeModelModal()">
+          ← Cancel / Back
         </button>
-        <button class="primary-btn primary-btn-outline" style="width: 32%; padding: 12px;" id="btn-test-model" onclick="testActiveModel()">
+        <button class="primary-btn primary-btn-outline" style="width: 32%; padding: 10px; font-size: 13px;" id="btn-test-model" onclick="testActiveModel()">
           Test Ping
         </button>
-        <button class="primary-btn primary-btn-green" style="flex: 1; padding: 12px;" onclick="saveModelConfig()">
+        <button class="primary-btn primary-btn-green" style="flex: 1; padding: 10px; font-size: 13px;" onclick="saveModelConfig()">
           Apply & Switch
         </button>
       </div>
@@ -3024,7 +3170,54 @@
     }
 
     // Modal Operations (Model Switcher)
+    let modelTestEventSource = null;
+    let modelTestTimer = null;
+    let modelTestStartTime = 0;
+
+    function resetTestStep(num, label) {
+      const pill = document.getElementById(`test-pill-${num}`);
+      const txt = document.getElementById(`pill-text-${num}`);
+      if (pill) pill.className = 'test-pill';
+      if (txt) txt.textContent = label || '...';
+    }
+
+    function setTestStepStatus(num, status, message, elapsed) {
+      const pill = document.getElementById(`test-pill-${num}`);
+      const txt = document.getElementById(`pill-text-${num}`);
+      if (!pill || !txt) return;
+
+      if (status === 'running') {
+        pill.className = 'test-pill running';
+        txt.textContent = '⟳ wait';
+        setCompactStatus('waiting', '⏳', message || `Checking Step ${num}...`);
+      } else if (status === 'success') {
+        pill.className = 'test-pill success';
+        txt.textContent = elapsed ? `✓ ${elapsed}s` : '✓ OK';
+      } else if (status === 'error') {
+        pill.className = 'test-pill error';
+        txt.textContent = '✗ Fail';
+        setCompactStatus('error', '❌', message || `Step ${num} failed`);
+      }
+    }
+
+    function setCompactStatus(state, icon, msg) {
+      const box = document.getElementById('test-compact-status');
+      const iconEl = document.getElementById('test-status-icon');
+      const msgEl = document.getElementById('test-status-msg');
+      if (box) box.className = `test-compact-status status-${state}`;
+      if (iconEl) iconEl.textContent = icon;
+      if (msgEl) msgEl.textContent = msg;
+    }
+
     async function openModelModal() {
+      const liveBox = document.getElementById('modal-test-livebox');
+      if (liveBox) liveBox.style.display = 'none';
+      const btn = document.getElementById('btn-test-model');
+      if (btn) {
+        btn.textContent = 'Test Ping';
+        btn.disabled = false;
+      }
+
       document.getElementById('model-modal').style.display = 'flex';
       await fetchProvidersStatus();
       try {
@@ -3049,6 +3242,21 @@
     }
 
     function closeModelModal() {
+      if (modelTestEventSource) {
+        modelTestEventSource.close();
+        modelTestEventSource = null;
+      }
+      if (modelTestTimer) {
+        clearInterval(modelTestTimer);
+        modelTestTimer = null;
+      }
+      const liveBox = document.getElementById('modal-test-livebox');
+      if (liveBox) liveBox.style.display = 'none';
+      const btn = document.getElementById('btn-test-model');
+      if (btn) {
+        btn.textContent = 'Test Ping';
+        btn.disabled = false;
+      }
       document.getElementById('model-modal').style.display = 'none';
     }
 
@@ -3059,27 +3267,6 @@
 
       document.getElementById('modal-form-local').style.display = prov === 'local' ? 'block' : 'none';
       document.getElementById('modal-form-cloud').style.display = prov === 'cloud' ? 'block' : 'none';
-    }
-
-    async function testActiveModel() {
-      const btn = document.getElementById('btn-test-model');
-      btn.textContent = 'Testing...';
-      btn.disabled = true;
-
-      try {
-        const res = await fetch(`${API_BASE}/llm/test`, { method: 'POST' });
-        const data = await res.json();
-        if (data.success) {
-          showToast('✅ ' + data.message);
-        } else {
-          showToast('⚠️ ' + data.message);
-        }
-      } catch (err) {
-        showToast('❌ Test failed: Could not connect to API.');
-      } finally {
-        btn.textContent = 'Test Ping';
-        btn.disabled = false;
-      }
     }
 
     async function saveModelConfig() {
@@ -3114,6 +3301,142 @@
         showToast('Network error updating model settings');
       }
     }
+
+    async function testActiveModel() {
+      const btn = document.getElementById('btn-test-model');
+      if (btn) {
+        btn.textContent = 'Inspecting...';
+        btn.disabled = true;
+      }
+
+      if (modelTestEventSource) {
+        modelTestEventSource.close();
+        modelTestEventSource = null;
+      }
+      if (modelTestTimer) {
+        clearInterval(modelTestTimer);
+        modelTestTimer = null;
+      }
+
+      const isCloud = activeModalProvider === 'cloud';
+      const selectedModel = isCloud 
+        ? (document.getElementById('modal-cloud-model').value || 'claude-3-5-sonnet')
+        : (document.getElementById('modal-local-model').value || 'llama3.1:latest');
+      const endpoint = isCloud 
+        ? 'https://api.openai.com/v1' 
+        : (document.getElementById('modal-local-endpoint').value || 'http://localhost:11434');
+
+      // Reveal live compact strip
+      const liveBox = document.getElementById('modal-test-livebox');
+      if (liveBox) liveBox.style.display = 'block';
+
+      // Reset step pills
+      resetTestStep(1, '...');
+      resetTestStep(2, '...');
+      resetTestStep(3, '...');
+
+      setCompactStatus('waiting', '⏳', `Connecting to ${selectedModel}... Model is NOT active until PONG is verified.`);
+
+      // Start elapsed timer ticking every 100ms
+      modelTestStartTime = Date.now();
+      const clockEl = document.getElementById('test-livebox-clock');
+      modelTestTimer = setInterval(() => {
+        const elapsedSec = ((Date.now() - modelTestStartTime) / 1000).toFixed(1);
+        if (clockEl) clockEl.textContent = `⏱️ ${elapsedSec}s`;
+
+        const curMsg = document.getElementById('test-status-msg');
+        if (curMsg && !curMsg.dataset.customError) {
+          if (elapsedSec >= 15 && elapsedSec < 40) {
+            curMsg.textContent = `⏳ Still attempting to connect (${elapsedSec}s). Model neural weights loading into RAM memory...`;
+          } else if (elapsedSec >= 40 && elapsedSec < 60) {
+            curMsg.textContent = `⏳ Heavy model loading (${elapsedSec}s)... CPU memory allocation in progress. Still waiting for PONG...`;
+          } else if (elapsedSec >= 60) {
+            curMsg.textContent = `⚠️ Handshake taking >1 min (${elapsedSec}s). Click 'Cancel / Back' to choose a lighter model or restart Ollama.`;
+          }
+        }
+      }, 100);
+
+      // Establish SSE event connection
+      const sseUrl = `${API_BASE}/llm/test-stream?provider=${encodeURIComponent(activeModalProvider)}&model=${encodeURIComponent(selectedModel)}&base_url=${encodeURIComponent(endpoint)}`;
+      modelTestEventSource = new EventSource(sseUrl);
+
+      modelTestEventSource.onmessage = (e) => {
+        try {
+          const data = JSON.parse(e.data);
+
+          if (data.step) {
+            setTestStepStatus(data.step, data.status, data.message, data.elapsed);
+          }
+
+          if (data.done) {
+            if (modelTestTimer) clearInterval(modelTestTimer);
+            if (modelTestEventSource) {
+              modelTestEventSource.close();
+              modelTestEventSource = null;
+            }
+
+            if (data.success) {
+              setTestStepStatus(3, 'success', '', data.latency);
+              setCompactStatus(
+                'success',
+                '💥',
+                `PONG 200 OK (${data.latency || '1.1'}s) — ${selectedModel} is connected & ready! Click 'Apply & Switch' or 'Cancel / Back'.`
+              );
+              showToast(`✅ Connected to ${selectedModel}! (Pong 200 OK)`);
+              checkSystemStatus();
+            } else {
+              const curMsg = document.getElementById('test-status-msg');
+              if (curMsg) curMsg.dataset.customError = 'true';
+              setCompactStatus(
+                'error',
+                '❌',
+                data.message || 'Model did not respond with PONG. The model is NOT ready.'
+              );
+              showToast(`❌ Connection failed: ${data.message || 'Model offline'}`);
+            }
+
+            if (btn) {
+              btn.textContent = 'Retest Ping';
+              btn.disabled = false;
+            }
+          }
+        } catch (err) {
+          console.error('SSE JSON error', err);
+        }
+      };
+
+      modelTestEventSource.onerror = (err) => {
+        if (modelTestTimer) clearInterval(modelTestTimer);
+        if (modelTestEventSource) {
+          modelTestEventSource.close();
+          modelTestEventSource = null;
+        }
+
+        const elapsedSec = ((Date.now() - modelTestStartTime) / 1000).toFixed(1);
+        const curMsg = document.getElementById('test-status-msg');
+        if (curMsg) curMsg.dataset.customError = 'true';
+        setCompactStatus(
+          'error',
+          '❌',
+          `Connection interrupted after ${elapsedSec}s. Check if Ollama is running at ${endpoint}.`
+        );
+
+        if (btn) {
+          btn.textContent = 'Retest Ping';
+          btn.disabled = false;
+        }
+      };
+    }
+
+    // Escape key listener to close modal and go back anytime
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const modal = document.getElementById('model-modal');
+        if (modal && modal.style.display !== 'none') {
+          closeModelModal();
+        }
+      }
+    });
 
     // Global State for Background Analysis Monitor
     let isAnalysisRunning = false;
@@ -3297,7 +3620,7 @@
           btn.innerHTML = 'Analyze & Generate Course Proposal';
           btn.disabled = false;
         }
-      }, 700);
+      }, isSuccess ? 1300 : 700);
     }
 
     // Main Analysis Trigger

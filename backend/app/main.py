@@ -274,10 +274,37 @@ async def update_llm_config(update: LLMConfigUpdateSchema):
     return await llm.get_config(is_connected=is_connected)
 
 @app.post("/api/llm/test", response_model=LLMTestResponse)
-async def test_llm_connection():
-    """Test connectivity to current active LLM model."""
-    result = await llm.test_connection()
+async def test_llm_connection(config: Optional[LLMConfigUpdateSchema] = None):
+    """Test connectivity to current active or specified LLM model."""
+    if config:
+        result = await llm.test_connection(
+            provider=config.provider,
+            model=config.model,
+            base_url=config.base_url,
+            api_key=config.api_key,
+        )
+    else:
+        result = await llm.test_connection()
     return result
+
+@app.get("/api/llm/test-stream")
+async def stream_test_llm_connection(
+    provider: Optional[str] = None,
+    model: Optional[str] = None,
+    base_url: Optional[str] = None,
+    api_key: Optional[str] = None,
+):
+    """Stream real-time SSE diagnostic events for connection verification."""
+    from fastapi.responses import StreamingResponse
+    return StreamingResponse(
+        llm.stream_test_connection(
+            provider=provider or llm.provider,
+            model=model or llm.model,
+            base_url=base_url,
+            api_key=api_key,
+        ),
+        media_type="text/event-stream",
+    )
 
 
 # 7. Workflow Endpoints
