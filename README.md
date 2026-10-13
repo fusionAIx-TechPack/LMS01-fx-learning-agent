@@ -1,22 +1,94 @@
-# Modified fx-learning-agent as below:
-1. Necessary changes are made to script files that creates needed output of mbz file with 5 Moodle activities - Course summary and instruction, url to course, relevant videos, assignment for proof of completion and forum for discussion.
-2. on $create-course - the prompt will ask user only to enter url/list of urls/excel sheet containing the urls(Source ur as header column)
-3. The Agent will read urls and provides the required course name in below format as an example
-Course Name:     AI Concepts for Developers and Technology Professionals
-  Course Overview: Explain core AI concepts and terminology across generative AI
-                   and agents, natural language processing, speech, computer
-                   vision, information extraction, and retrieval-augmented
-                   generation, and use them to reason about AI workloads and plan
-                   AI solutions.
-  Course Duration: 231 minutes  (Microsoft Learn's stated path duration; sum of
-                   the 7 module times)
-  Level:           beginner
-  Language:        en-US
-  Audience:        Developers and technology professionals starting with AI
-4. User can confirm and the Agent start building the required mbz file. If there are list of urls supplied as in step-1. The agent creates separate folders under output and the relevant output files(jsons,.mbz) respectively.
-5. The course genration time has been reduced. Now for single course it takes 2 mins in local as necessary changes were made to the folder script files to remove dependencies like review, backup, restoration and learner verification. Just because this is not made for production. And for 3 courses generation from excel it took approx 4 to 5mins. _Tested in local_
+# LMS01 FX Learning Agent & Web Studio
 
------------------------Below contains more details on the **original** folder of fx-learning-agent----------
+An enterprise orchestration platform that turns any public tutorial, technical article, or documentation URL into a native, validated Moodle course package (`.mbz`) with 5 standard learning activities.
+
+---
+
+## 🚀 Deployment & Production Architecture
+
+The application is architected as a **monolithic container** serving both the interactive **Web Studio UI** and the **FastAPI REST API** from a single port (`8080` in production container, `8088` locally).
+
+```
+                      ┌────────────────────────────────────────┐
+                      │    Monolithic Container (Port 8080)   │
+                      │                                        │
+  Client / Browser ──>│  '/'          Web Studio UI (Static)   │
+                      │  '/api/*'     FastAPI REST Endpoints   │
+                      │  '/health'    Liveness/Readiness Probe │
+                      └────────────────────────────────────────┘
+```
+
+### 1. Local Quick Start (Windows / Mac / Linux)
+Double-click `start.bat` on Windows or execute:
+```bash
+python -m pip install -r backend/requirements.txt
+python -m uvicorn backend.app.main:app --host 0.0.0.0 --port 8088
+```
+Open **`http://localhost:8088/`** in your browser.
+
+---
+
+### 2. Docker Container Production Build
+Build and run the production image locally or in CI/CD:
+```bash
+# Build production image
+docker build -t lms01-fx-learning-studio:latest -f Dockerfile .
+
+# Run container (port 8080)
+docker run -d --name fx-learning-studio -p 8080:8080 lms01-fx-learning-studio:latest
+```
+Access the application at `http://localhost:8080/`.
+
+---
+
+### 3. Azure Production Deployment (Container Apps / App Service)
+
+#### Option A: Azure Container Apps
+```bash
+az containerapp create \
+  --name fx-learning-studio \
+  --resource-group rg-fx-learning \
+  --environment cae-fx-learning \
+  --image <acr-login-server>/lms01-fx-learning-studio:latest \
+  --target-port 8080 \
+  --ingress external \
+  --cpu 1.0 --memory 2.0Gi \
+  --env-vars LLM_PROVIDER=local LLM_LOCAL_BASE_URL=http://<ollama-service>:11434
+```
+
+#### Option B: Azure App Service (Linux Web App)
+Set the application setting `WEBSITES_PORT=8080` in the Azure Portal or via CLI:
+```bash
+az webapp config appsettings set \
+  --resource-group rg-fx-learning \
+  --name app-fx-learning-studio \
+  --settings WEBSITES_PORT=8080 LOG_LEVEL=INFO
+```
+
+---
+
+### 4. Health & Production Probes
+* **Basic Health:** `GET /health` (`{"status": "ok"}`)
+* **K8s / Azure Liveness:** `GET /health/liveness`
+* **K8s / Azure Readiness:** `GET /health/readiness`
+* **System Status:** `GET /api/system-status`
+* **API Documentation (Swagger):** `GET /docs`
+
+---
+
+### 5. Environment Variables Matrix
+Refer to `.env.example` for all configurable variables:
+| Variable | Default | Description |
+| :--- | :--- | :--- |
+| `PORT` | `8080` | Port listened on by Uvicorn |
+| `LOG_LEVEL` | `INFO` | Application log verbosity (`DEBUG`, `INFO`, `WARNING`, `ERROR`) |
+| `LLM_PROVIDER` | `local` | Active LLM backend (`local` or `cloud`) |
+| `LLM_LOCAL_BASE_URL`| `http://localhost:11434`| Ollama or vLLM host |
+| `LLM_MODEL` | `llama3.1:latest` | Default model identifier |
+| `LLM_CLOUD_BASE_URL`| `https://api.openai.com/v1`| Cloud API base URL |
+| `LLM_API_KEY` | `""` | Optional cloud API key |
+
+---
 
 # FX Learning Course Generation
 

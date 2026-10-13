@@ -30,5 +30,5 @@ ENV PORT=8080
 
 EXPOSE 8080
 
-# Single entrypoint: FastAPI serves UI at '/' and API at '/api/*'
-CMD ["uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+# Single entrypoint: FastAPI serves UI at '/' and API at '/api/*' (supports dynamic cloud PORT)
+CMD ["sh", "-c", "uvicorn backend.app.main:app --host 0.0.0.0 --port ${PORT:-8080}"]
