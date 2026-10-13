@@ -882,25 +882,10 @@
       justify-content: space-between;
     }
 
-    .window-controls-group {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .win-dot {
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-    }
-    .win-dot-red { background: #ef4444; opacity: 0.85; }
-    .win-dot-amber { background: #f59e0b; opacity: 0.85; }
-    .win-dot-green { background: #10b981; opacity: 0.85; }
-
     .moodle-breadcrumbs {
-      font-size: 11px;
+      font-size: 11.5px;
       font-weight: 700;
-      color: #7b829e;
+      color: #94a3b8;
       display: flex;
       align-items: center;
       gap: 6px;
@@ -911,18 +896,17 @@
     }
 
     .live-sync-pill {
-      background: rgba(16, 185, 129, 0.12);
-      border: 1px solid rgba(16, 185, 129, 0.35);
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
       color: #34d399;
-      font-size: 9px;
-      font-weight: 800;
-      padding: 2px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 10px;
       border-radius: var(--radius-full);
       display: flex;
       align-items: center;
-      gap: 5px;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
+      gap: 6px;
+      letter-spacing: 0.2px;
     }
 
     .live-sync-dot {
@@ -930,23 +914,22 @@
       height: 6px;
       border-radius: 50%;
       background: #10b981;
-      animation: pulseText 1.5s infinite;
     }
 
     .moodle-preview-body {
-      padding: 16px;
+      padding: 18px;
       display: flex;
       flex-direction: column;
       gap: 12px;
       max-height: 485px;
       overflow-y: auto;
-      background: radial-gradient(circle at top right, rgba(39, 110, 241, 0.05) 0%, transparent 60%);
+      background: #090c15;
     }
 
-    /* Course Hero Banner with Moodle LMS Header Card style */
+    /* Course Hero Banner with Clean Moodle 5.x LMS Header style */
     .moodle-hero-box {
-      background: linear-gradient(135deg, rgba(30, 41, 69, 0.75) 0%, rgba(18, 22, 38, 0.95) 100%);
-      border: 1px solid #2b3352;
+      background: #0f1523;
+      border: 1px solid #1e293b;
       border-radius: 10px;
       padding: 14px 16px;
       position: relative;
@@ -963,12 +946,12 @@
       width: 38px;
       height: 38px;
       border-radius: 8px;
-      background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+      background: #1e293b;
+      border: 1px solid #334155;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 18px;
-      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
       flex-shrink: 0;
     }
 
@@ -1055,11 +1038,11 @@
     }
 
     .moodle-section-header {
-      font-size: 10.5px;
-      font-weight: 800;
-      color: #a5b4fc;
+      font-size: 11px;
+      font-weight: 700;
+      color: #94a3b8;
       text-transform: uppercase;
-      letter-spacing: 0.6px;
+      letter-spacing: 0.5px;
       margin-bottom: 8px;
       display: flex;
       align-items: center;
@@ -1275,40 +1258,21 @@
       line-height: 1.6;
     }
 
-    /* AI Analysis Live Stage Monitor & Gamified Pipeline */
+    /* Course Ingestion Pipeline Live Stage Monitor */
     .analysis-monitor-card {
-      background: linear-gradient(180deg, #13131a 0%, #0a0a0f 100%);
-      border: 1px solid #2b2b3d;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
       border-radius: var(--radius-md);
-      padding: 22px;
-      margin-top: 18px;
-      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7);
+      padding: 24px;
+      margin-top: 14px;
       position: relative;
-      overflow: hidden;
-      display: none;
-    }
-
-    .analysis-monitor-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, #276EF1, #05A357, transparent);
-      animation: scanBeam 2.4s infinite linear;
-    }
-
-    @keyframes scanBeam {
-      0% { left: -100%; }
-      100% { left: 100%; }
     }
 
     .analysis-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
     }
 
     .analysis-title-group {
@@ -1317,32 +1281,17 @@
       gap: 12px;
     }
 
-    .radar-pulse-icon {
+    .pipeline-step-badge-icon {
       width: 36px;
       height: 36px;
-      border-radius: 50%;
-      background: rgba(39, 110, 241, 0.12);
-      border: 1px solid #276EF1;
+      border-radius: 8px;
+      background: #181818;
+      border: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 17px;
-      position: relative;
+      font-size: 16px;
       flex-shrink: 0;
-    }
-
-    .radar-pulse-icon::after {
-      content: '';
-      position: absolute;
-      inset: -4px;
-      border-radius: 50%;
-      border: 1px solid rgba(39, 110, 241, 0.35);
-      animation: radarRings 1.8s infinite ease-out;
-    }
-
-    @keyframes radarRings {
-      0% { transform: scale(0.85); opacity: 1; }
-      100% { transform: scale(1.6); opacity: 0; }
     }
 
     .analysis-main-title {
@@ -1361,44 +1310,37 @@
     }
 
     .analysis-elapsed-pill {
-      background: #161622;
-      border: 1px solid #333348;
+      background: #141414;
+      border: 1px solid var(--border);
       padding: 6px 14px;
       border-radius: var(--radius-full);
       font-family: 'JetBrains Mono', monospace;
       font-size: 12px;
       font-weight: 700;
-      color: #05A357;
+      color: var(--accent-green);
       display: flex;
       align-items: center;
       gap: 6px;
       white-space: nowrap;
     }
 
-    /* Progress bar with animated stripes */
+    /* Clean progress bar */
     .analysis-progress-shell {
-      background: #171722;
-      height: 8px;
+      background: #181818;
+      height: 6px;
       border-radius: 9999px;
       overflow: hidden;
-      margin: 12px 0 8px;
-      border: 1px solid #28283a;
+      margin: 14px 0 10px;
+      border: 1px solid var(--border);
       position: relative;
     }
 
     .analysis-progress-fill {
       height: 100%;
-      width: 8%;
-      background: linear-gradient(90deg, #276EF1, #05A357, #EAA300);
-      background-size: 200% 100%;
+      width: 0%;
+      background: var(--accent-blue);
       border-radius: 9999px;
-      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      animation: gradientShift 2s linear infinite;
-    }
-
-    @keyframes gradientShift {
-      0% { background-position: 100% 0; }
-      100% { background-position: 0 0; }
+      transition: width 0.4s ease;
     }
 
     .analysis-progress-stats {
@@ -1415,23 +1357,22 @@
     .analysis-stages-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      margin-bottom: 14px;
+      gap: 10px;
+      margin-bottom: 16px;
     }
 
     .stage-card {
-      background: #0e0e14;
-      border: 1px solid #20202e;
+      background: #141414;
+      border: 1px solid var(--border);
       border-radius: var(--radius-sm);
-      padding: 10px 12px;
-      transition: all 0.25s ease;
+      padding: 12px 14px;
+      transition: all 0.2s ease;
       position: relative;
     }
 
     .stage-card.active {
-      border-color: #276EF1;
-      background: rgba(39, 110, 241, 0.09);
-      box-shadow: 0 0 14px rgba(39, 110, 241, 0.25);
+      border-color: var(--accent-blue);
+      background: rgba(39, 110, 241, 0.08);
     }
 
     .stage-card.completed {
@@ -1443,7 +1384,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
 
     .stage-icon-num {
@@ -1472,29 +1413,34 @@
     }
 
     .badge-pending {
-      background: #1a1a24;
-      color: #666;
+      background: #1c1c1c;
+      color: #777;
     }
 
     .badge-running {
-      background: rgba(39, 110, 241, 0.22);
+      background: rgba(39, 110, 241, 0.2);
       color: #60a5fa;
-      border: 1px solid rgba(39, 110, 241, 0.45);
-      animation: pulseText 1.2s infinite;
-    }
-
-    @keyframes pulseText {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
+      border: 1px solid rgba(39, 110, 241, 0.4);
     }
 
     .badge-done {
-      background: rgba(5, 163, 87, 0.25);
+      background: rgba(5, 163, 87, 0.2);
       color: var(--accent-green);
-      border: 1px solid rgba(5, 163, 87, 0.45);
+      border: 1px solid rgba(5, 163, 87, 0.4);
     }
 
     .stage-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #eee;
+      margin-bottom: 3px;
+    }
+
+    .stage-desc {
+      font-size: 11px;
+      color: var(--text-subtle);
+      line-height: 1.35;
+    }
       font-size: 12px;
       font-weight: 700;
       color: #eee;
@@ -1988,9 +1934,9 @@
     </div>
 
     <div class="nav-tabs">
-      <button class="nav-tab-btn active" id="nav-input" onclick="switchView('input')">Create Course</button>
-      <button class="nav-tab-btn" id="nav-review" onclick="switchView('review')">Review Gate</button>
-      <button class="nav-tab-btn" id="nav-progress" onclick="switchView('progress')">Build Tracker</button>
+      <button class="nav-tab-btn active" id="nav-input" onclick="switchView('input')">1. Create Course</button>
+      <button class="nav-tab-btn" id="nav-pipeline" onclick="switchView('pipeline')">2. Pipeline Tracker</button>
+      <button class="nav-tab-btn" id="nav-review" onclick="switchView('review')">3. Review Gate</button>
       <button class="nav-tab-btn" id="nav-library" onclick="switchView('library')">Course Library</button>
     </div>
 
@@ -2109,18 +2055,46 @@
           </div>
         </div>
 
-        <!-- Live AI Analysis Stage Monitor & Gamified Neural Pipeline -->
-        <div id="analysis-live-monitor" class="analysis-monitor-card">
+        <!-- Primary Action Button (Clean and unencumbered) -->
+        <button class="primary-btn" id="btn-analyze" onclick="requestAnalysis()">
+          Analyze & Ingest Course →
+        </button>
+      </section>
+
+      <!-- ================= 2. PIPELINE TRACKER (DEDICATED GENERATION VIEW) ================= -->
+      <section id="view-pipeline" class="app-card" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h1 class="card-title" style="font-size: 26px;">Course Ingestion Pipeline</h1>
+          <span class="status-badge" id="pipeline-status-badge">Idle</span>
+        </div>
+        <p class="card-subtitle" id="pipeline-subtitle" style="margin-bottom: 20px;">
+          Real-time content extraction, syllabus analysis, and course curriculum taxonomy synthesis.
+        </p>
+
+        <!-- Pipeline Empty State (When no course is being generated) -->
+        <div id="pipeline-empty-state" style="display: block; text-align: center; padding: 48px 24px; background: #0c0c0e; border: 1px dashed #2a2a30; border-radius: var(--radius-md); margin-top: 8px;">
+          <div style="font-size: 36px; margin-bottom: 12px;">⚡</div>
+          <div style="font-size: 17px; font-weight: 800; color: #FFFFFF; margin-bottom: 6px;">No Active Pipeline Running</div>
+          <div style="font-size: 13px; color: var(--text-muted); max-width: 480px; margin: 0 auto 20px; line-height: 1.5;">
+            The Pipeline Tracker monitors live content scraping, syllabus parsing, and 5-activity Moodle schema synthesis. Enter a course link on the <strong>Create Course</strong> tab to begin.
+          </div>
+          <button type="button" class="primary-btn" style="width: auto; padding: 10px 24px; font-size: 13px; margin: 0 auto; display: inline-flex;" onclick="switchView('input')">
+            ← Go to Create Course Tab
+          </button>
+        </div>
+
+        <!-- Active Pipeline Live Monitor -->
+        <div id="analysis-live-monitor" class="analysis-monitor-card" style="display: none;">
           <div class="analysis-header">
             <div class="analysis-title-group">
-              <div class="radar-pulse-icon">🧠</div>
+              <div class="pipeline-step-badge-icon">⚡</div>
               <div>
                 <div class="analysis-main-title">
-                  <span>AI Curriculum Synthesis Engine</span>
-                  <span class="status-badge" style="background: rgba(39, 110, 241, 0.2); color: #60a5fa;">In Progress</span>
+                  <span>Curriculum Structuring Engine</span>
+                  <span class="status-badge" id="monitor-status-pill" style="background: rgba(39, 110, 241, 0.2); color: #60a5fa;">In Progress</span>
                 </div>
                 <div class="analysis-sub-meta" id="monitor-model-tag">
-                  Running on Local Open-Source LLM (gemma4:latest)
+                  Running on Local Open-Source LLM (llama3.1:latest)
                 </div>
               </div>
             </div>
@@ -2129,23 +2103,23 @@
             </div>
           </div>
 
-          <!-- Animated Progress Shell -->
+          <!-- Clean Progress Bar -->
           <div class="analysis-progress-shell">
-            <div class="analysis-progress-fill" id="monitor-progress-bar" style="width: 12%;"></div>
+            <div class="analysis-progress-fill" id="monitor-progress-bar" style="width: 0%;"></div>
           </div>
           <div class="analysis-progress-stats">
-            <span id="monitor-status-text">Step 1/4: Connecting to source domain & downloading HTML...</span>
-            <span id="monitor-token-rate">⚡ ~18 tokens/sec · 380 tokens</span>
+            <span id="monitor-status-text">Step 1/4: Connecting to source domain & downloading content...</span>
+            <span id="monitor-token-rate">Processing rate: ~1.2s / module</span>
           </div>
 
-          <!-- 4 Gamified Pipeline Stage Cards -->
+          <!-- 4 Structured Sequential Stage Cards -->
           <div class="analysis-stages-grid">
             <div class="stage-card active" id="stage-card-1">
               <div class="stage-card-top">
                 <span class="stage-icon-num">🌐 Step 1</span>
                 <span class="stage-badge badge-running" id="stage-badge-1">Active</span>
               </div>
-              <div class="stage-title">Web Scraper</div>
+              <div class="stage-title">Source Retrieval</div>
               <div class="stage-desc" id="stage-desc-1">Fetching raw HTTP payload</div>
             </div>
 
@@ -2154,46 +2128,48 @@
                 <span class="stage-icon-num">📑 Step 2</span>
                 <span class="stage-badge badge-pending" id="stage-badge-2">Pending</span>
               </div>
-              <div class="stage-title">DOM Parser</div>
-              <div class="stage-desc" id="stage-desc-2">Extracting learning content</div>
+              <div class="stage-title">Content Extraction</div>
+              <div class="stage-desc" id="stage-desc-2">Isolating article body & syllabus</div>
             </div>
 
             <div class="stage-card" id="stage-card-3">
               <div class="stage-card-top">
-                <span class="stage-icon-num">🧠 Step 3</span>
+                <span class="stage-icon-num">📘 Step 3</span>
                 <span class="stage-badge badge-pending" id="stage-badge-3">Pending</span>
               </div>
-              <div class="stage-title">Neural Reasoning</div>
-              <div class="stage-desc" id="stage-desc-3">LLM curriculum taxonomy</div>
+              <div class="stage-title">Curriculum Structuring</div>
+              <div class="stage-desc" id="stage-desc-3">Synthesizing modules & outcomes</div>
             </div>
 
             <div class="stage-card" id="stage-card-4">
               <div class="stage-card-top">
-                <span class="stage-icon-num">🎓 Step 4</span>
+                <span class="stage-icon-num">📦 Step 4</span>
                 <span class="stage-badge badge-pending" id="stage-badge-4">Pending</span>
               </div>
-              <div class="stage-title">Moodle Spec</div>
-              <div class="stage-desc" id="stage-desc-4">5-activity packaging</div>
+              <div class="stage-title">Package Assembly</div>
+              <div class="stage-desc" id="stage-desc-4">Validating Moodle 5-activity schema</div>
             </div>
           </div>
 
-          <!-- Live Terminal Output -->
+          <!-- Live Telemetry Console -->
           <div class="analysis-live-console" id="monitor-console">
             <div class="console-log-line">
               <span class="log-timestamp">[00:00]</span>
-              <span class="log-tag-scraper">[Scraper]</span>
-              <span>Dispatched HTTP GET request to source learning URL...</span>
+              <span class="log-tag-scraper">[Source]</span>
+              <span>Dispatched HTTP GET request to learning URL...</span>
             </div>
           </div>
-        </div>
 
-        <!-- Primary Action Button -->
-        <button class="primary-btn" id="btn-analyze" onclick="requestAnalysis()">
-          Analyze & Generate Course Proposal
-        </button>
+          <!-- Pipeline Completion Footer Action -->
+          <div id="pipeline-complete-actions" style="display: none; margin-top: 18px; justify-content: flex-end; gap: 10px;">
+            <button class="primary-btn" style="width: auto; padding: 10px 24px; font-size: 13px;" onclick="switchView('review')">
+              Open Curriculum Blueprint in Review Gate →
+            </button>
+          </div>
+        </div>
       </section>
 
-      <!-- ================= 2. HUMAN REVIEW GATE ================= -->
+      <!-- ================= 3. HUMAN REVIEW GATE ================= -->
       <section id="view-review" class="app-card" style="display: none;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <h1 class="card-title" style="font-size: 26px;">Course Research Proposal</h1>
@@ -2302,21 +2278,18 @@
             <!-- RIGHT PANE: Realistic LMS Moodle 5.x Course Canvas Preview -->
             <div class="review-preview-pane">
               <div class="moodle-preview-card">
-                <!-- Browser / LMS Window Chrome -->
+                <!-- Authentic Moodle LMS Canvas Topbar -->
                 <div class="moodle-preview-topbar">
-                  <div class="window-controls-group">
-                    <span class="win-dot win-dot-red"></span>
-                    <span class="win-dot win-dot-amber"></span>
-                    <span class="win-dot win-dot-green"></span>
-                  </div>
                   <div class="moodle-breadcrumbs">
-                    <span>Moodle LMS</span>
+                    <span>🏠 Home</span>
                     <span>/</span>
-                    <span class="crumb-active">Course Preview</span>
+                    <span>Courses</span>
+                    <span>/</span>
+                    <span class="crumb-active">Course Blueprint</span>
                   </div>
                   <div class="live-sync-pill">
                     <span class="live-sync-dot"></span>
-                    <span>Live Sync</span>
+                    <span>Moodle 5.x Spec</span>
                   </div>
                 </div>
 
@@ -2460,10 +2433,14 @@
               <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">Fully validated with 5 standard activities. Ready for Moodle restoration.</div>
             </div>
             <div style="font-size: 28px;">🏁</div>
+          <div style="display: flex; gap: 10px; margin-top: 14px;">
+            <a id="download-link" href="#" class="primary-btn" style="flex: 1; background: #fff; color: #000; text-decoration: none;">
+              Download .mbz Package
+            </a>
+            <button type="button" class="primary-btn" style="width: auto; padding: 12px 20px; background: transparent; border: 1px solid var(--border); color: #fff;" onclick="switchView('library')">
+              View in Course Library →
+            </button>
           </div>
-          <a id="download-link" href="#" class="primary-btn" style="background: #fff; color: #000; text-decoration: none; margin-top: 14px;">
-            Download .mbz Package
-          </a>
         </div>
       </section>
 
@@ -2769,7 +2746,12 @@
       if (target) target.style.display = 'block';
 
       const navBtn = document.getElementById('nav-' + viewName);
-      if (navBtn) navBtn.classList.add('active');
+      if (navBtn) {
+        navBtn.classList.add('active');
+      } else if (viewName === 'progress') {
+        const pNav = document.getElementById('nav-pipeline');
+        if (pNav) pNav.classList.add('active');
+      }
 
       const floatBar = document.getElementById('floating-async-bar');
       if (floatBar) {
@@ -2780,11 +2762,29 @@
         sanitizeSourceUrl();
       }
 
+      if (viewName === 'pipeline') {
+        updatePipelineStateView();
+      }
+
       if (viewName === 'review') {
         updateReviewStateView();
       }
 
       if (viewName === 'library') loadLibrary();
+    }
+
+    function updatePipelineStateView() {
+      const emptyBox = document.getElementById('pipeline-empty-state');
+      const liveCard = document.getElementById('analysis-live-monitor');
+      if (!emptyBox || !liveCard) return;
+
+      if (isAnalysisRunning || (proposalsList && proposalsList.length > 0)) {
+        emptyBox.style.display = 'none';
+        liveCard.style.display = 'block';
+      } else {
+        emptyBox.style.display = 'block';
+        liveCard.style.display = 'none';
+      }
     }
 
     function sanitizeSourceUrl() {
@@ -3447,18 +3447,28 @@
       isAnalysisRunning = true;
       analysisStartTime = Date.now();
 
-      const monitor = document.getElementById('analysis-live-monitor');
-      const btn = document.getElementById('btn-analyze');
-      const navReview = document.getElementById('nav-review');
+      // Immediately switch view to dedicated Pipeline Tracker tab
+      switchView('pipeline');
 
+      const statusBadge = document.getElementById('pipeline-status-badge');
+      if (statusBadge) {
+        statusBadge.textContent = 'Processing';
+        statusBadge.className = 'status-badge';
+        statusBadge.style.color = '#60a5fa';
+      }
+
+      const emptyBox = document.getElementById('pipeline-empty-state');
+      const monitor = document.getElementById('analysis-live-monitor');
+      const completeActions = document.getElementById('pipeline-complete-actions');
+
+      if (emptyBox) emptyBox.style.display = 'none';
       if (monitor) monitor.style.display = 'block';
-      if (btn) btn.style.display = 'none';
-      if (navReview) navReview.innerHTML = `Review Gate <span style="font-size: 10px; color: #60a5fa; animation: pulseText 1.2s infinite;">(AI In Progress)</span>`;
+      if (completeActions) completeActions.style.display = 'none';
 
       // Set model title
       const modelTag = document.getElementById('monitor-model-tag');
       if (modelTag) {
-        modelTag.textContent = `Running on ${modelName || 'Local Open-Source LLM (gemma4:latest)'}`;
+        modelTag.textContent = `Running on ${modelName || 'Local Open-Source LLM (llama3.1:latest)'}`;
       }
 
       // Reset stages
@@ -3477,7 +3487,7 @@
         consoleBox.innerHTML = `
           <div class="console-log-line">
             <span class="log-timestamp">[00:00]</span>
-            <span class="log-tag-scraper">[Scraper]</span>
+            <span class="log-tag-scraper">[Source]</span>
             <span>Dispatched HTTP GET request to source learning URL...</span>
           </div>
         `;
@@ -3496,53 +3506,50 @@
         if (clockEl) clockEl.textContent = `⏱️ ${timeStr}`;
 
         const floatEl = document.getElementById('floating-async-text');
-        if (floatEl) floatEl.textContent = `⚡ AI Analyzing URL (${timeStr})...`;
+        if (floatEl) floatEl.textContent = `⚡ Processing URL (${timeStr})...`;
 
-        // Stage 1: Web Scraper (0 to 3s)
+        // Stage 1: Source Retrieval (0 to 3s)
         if (totalSec < 3) {
           setStageActive(1);
-          document.getElementById('monitor-progress-bar').style.width = '18%';
-          document.getElementById('monitor-status-text').textContent = 'Step 1/4: Connecting to source domain & downloading HTML...';
-          document.getElementById('monitor-token-rate').textContent = '📡 Web payload: Initializing...';
+          document.getElementById('monitor-progress-bar').style.width = '20%';
+          document.getElementById('monitor-status-text').textContent = 'Step 1/4: Connecting to source domain & downloading payload...';
+          document.getElementById('monitor-token-rate').textContent = 'Source retrieval in progress...';
         } 
-        // Stage 2: DOM Parser (3 to 6s)
+        // Stage 2: Content Extraction (3 to 6s)
         else if (totalSec < 7) {
           setStageCompleted(1);
           setStageActive(2);
-          document.getElementById('monitor-progress-bar').style.width = '36%';
-          document.getElementById('monitor-status-text').textContent = 'Step 2/4: Stripping HTML noise & extracting core syllabus...';
-          document.getElementById('monitor-token-rate').textContent = '📑 DOM Parsed: ~43 KB document extracted';
+          document.getElementById('monitor-progress-bar').style.width = '42%';
+          document.getElementById('monitor-status-text').textContent = 'Step 2/4: Isolating syllabus & extracting core learning content...';
+          document.getElementById('monitor-token-rate').textContent = 'Content extracted: Isolating article body';
           if (lastSecLogged < 3) {
-            appendConsoleLog('[Parser]', 'HTML received (200 OK). Isolated article body & headings', 'log-tag-parser', timeStr);
+            appendConsoleLog('[Extractor]', 'HTTP 200 OK. Isolated article text & hierarchical headings', 'log-tag-parser', timeStr);
             lastSecLogged = 3;
           }
         } 
-        // Stage 3: Neural LLM Reasoning (7s until response returns)
+        // Stage 3: Curriculum Structuring (7s onwards)
         else {
           setStageCompleted(1);
           setStageCompleted(2);
           setStageActive(3);
 
-          const pct = Math.min(92, 40 + (totalSec - 7) * 0.7);
+          const pct = Math.min(92, 45 + (totalSec - 7) * 0.8);
           document.getElementById('monitor-progress-bar').style.width = `${pct.toFixed(0)}%`;
-          document.getElementById('monitor-status-text').textContent = 'Step 3/4: Neural LLM synthesizing taxonomy & learning modules...';
-          
-          const simulatedTok = 18 + Math.round(Math.sin(totalSec) * 3);
-          const totalTok = Math.min(2800, 480 + (totalSec - 7) * 20);
-          document.getElementById('monitor-token-rate').textContent = `⚡ ~${simulatedTok} tok/s · ${totalTok} tokens digested`;
+          document.getElementById('monitor-status-text').textContent = 'Step 3/4: Synthesizing curriculum taxonomy & learning modules...';
+          document.getElementById('monitor-token-rate').textContent = 'Processing rate: ~1.2s / module';
 
-          if (totalSec >= 12 && lastSecLogged < 12) {
-            appendConsoleLog('[Neural LLM]', 'Prompt payload loaded into model context window', 'log-tag-ai', timeStr);
-            lastSecLogged = 12;
-          } else if (totalSec >= 28 && lastSecLogged < 28) {
-            appendConsoleLog('[Neural LLM]', 'Synthesizing syllabus outline & Bloom\'s objectives...', 'log-tag-ai', timeStr);
-            lastSecLogged = 28;
-          } else if (totalSec >= 52 && lastSecLogged < 52) {
-            appendConsoleLog('[Neural LLM]', 'Estimating completion duration, difficulty & learner persona...', 'log-tag-ai', timeStr);
-            lastSecLogged = 52;
-          } else if (totalSec >= 75 && lastSecLogged < 75) {
-            appendConsoleLog('[Neural LLM]', 'Compiling 5 standard Moodle learning activities...', 'log-tag-ai', timeStr);
-            lastSecLogged = 75;
+          if (totalSec >= 10 && lastSecLogged < 10) {
+            appendConsoleLog('[Curriculum]', 'Extracted text loaded into model context window', 'log-tag-ai', timeStr);
+            lastSecLogged = 10;
+          } else if (totalSec >= 24 && lastSecLogged < 24) {
+            appendConsoleLog('[Curriculum]', 'Structuring syllabus outline & Bloom\'s taxonomy objectives...', 'log-tag-ai', timeStr);
+            lastSecLogged = 24;
+          } else if (totalSec >= 45 && lastSecLogged < 45) {
+            appendConsoleLog('[Curriculum]', 'Estimating duration, difficulty, and target audience persona...', 'log-tag-ai', timeStr);
+            lastSecLogged = 45;
+          } else if (totalSec >= 65 && lastSecLogged < 65) {
+            appendConsoleLog('[Curriculum]', 'Assembling 5 standard Moodle learning activity specifications...', 'log-tag-ai', timeStr);
+            lastSecLogged = 65;
           }
         }
       }, 100);
@@ -3588,39 +3595,52 @@
       if (analysisTimer) clearInterval(analysisTimer);
       isAnalysisRunning = false;
 
-      const navReview = document.getElementById('nav-review');
-      if (navReview) navReview.innerHTML = 'Review Gate';
-
+      const statusBadge = document.getElementById('pipeline-status-badge');
       const floatBar = document.getElementById('floating-async-bar');
       if (floatBar) floatBar.style.display = 'none';
 
       if (isSuccess) {
+        if (statusBadge) {
+          statusBadge.textContent = 'Completed';
+          statusBadge.style.color = '#34d399';
+        }
+
         setStageCompleted(1);
         setStageCompleted(2);
         setStageCompleted(3);
-        const card4 = document.getElementById('stage-card-4');
-        const badge4 = document.getElementById('stage-badge-4');
+        const card4 = document.getElementById(`stage-card-4`);
+        const badge4 = document.getElementById(`stage-badge-4`);
         if (card4) card4.className = 'stage-card completed';
         if (badge4) {
           badge4.className = 'stage-badge badge-done';
           badge4.textContent = 'Ready ✓';
         }
 
+        const pillStatus = document.getElementById('monitor-status-pill');
+        if (pillStatus) {
+          pillStatus.textContent = 'Ready';
+          pillStatus.style.background = 'rgba(5, 163, 87, 0.2)';
+          pillStatus.style.color = '#34d399';
+        }
+
         document.getElementById('monitor-progress-bar').style.width = '100%';
-        document.getElementById('monitor-status-text').textContent = 'Step 4/4: Curriculum Proposal Ready! Transferring to Review Gate...';
-        appendConsoleLog('[Moodle Spec]', 'Curriculum blueprint finalized successfully.', 'log-tag-moodle', 'Done');
+        document.getElementById('monitor-status-text').textContent = 'Step 4/4: Curriculum Proposal Ready! Opening Review Gate...';
+        appendConsoleLog('[Package]', 'Course blueprint validated with 5 standard activities.', 'log-tag-moodle', 'Done');
+
+        const completeActions = document.getElementById('pipeline-complete-actions');
+        if (completeActions) completeActions.style.display = 'flex';
+      } else {
+        if (statusBadge) {
+          statusBadge.textContent = 'Failed';
+          statusBadge.style.color = '#f87171';
+        }
       }
 
-      setTimeout(() => {
-        const monitor = document.getElementById('analysis-live-monitor');
-        const btn = document.getElementById('btn-analyze');
-        if (monitor) monitor.style.display = 'none';
-        if (btn) {
-          btn.style.display = 'block';
-          btn.innerHTML = 'Analyze & Generate Course Proposal';
-          btn.disabled = false;
-        }
-      }, isSuccess ? 1300 : 700);
+      const btn = document.getElementById('btn-analyze');
+      if (btn) {
+        btn.innerHTML = 'Analyze & Ingest Course →';
+        btn.disabled = false;
+      }
     }
 
     // Main Analysis Trigger
@@ -3702,7 +3722,7 @@
         setTimeout(() => {
           switchView('review');
           showToast(`🎉 Extracted ${proposalsList.length} course proposal(s) successfully!`);
-        }, 600);
+        }, 1400);
 
       } catch (err) {
         finishAnalysisAnimation(false);
