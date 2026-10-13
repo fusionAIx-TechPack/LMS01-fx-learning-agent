@@ -1,0 +1,57 @@
+name: Deploy to Azure Container Apps
+
+on:
+  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+  push:
+    branches:
+      - main
+      - master
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
+      - '.gitignore'
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Log in to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Build and Deploy to Azure Container Apps
+        uses: azure/container-apps-deploy-action@v2
+        with:
+          appSourcePath: ${{ github.workspace }}
+          dockerfilePath: Dockerfile
+          acrName: ${{ secrets.ACR_NAME }}
+          acrUsername: ${{ secrets.ACR_USERNAME }}
+          acrPassword: ${{ secrets.ACR_PASSWORD }}
+          containerAppName: ${{ secrets.CONTAINER_APP_NAME }}
+          resourceGroup: ${{ secrets.RESOURCE_GROUP }}
+          imageToBuild: ${{ secrets.ACR_NAME }}.azurecr.io/fx-learning-studio:${{ github.sha }}
+          targetPort: 8080
+          ingress: external
+
+      - name: Show Public Application URL
+        run: |
+          echo "=========================================================="
+          echo "Deployment Succeeded!"
+          FQDN=$(az containerapp show \
+            --name "${{ secrets.CONTAINER_APP_NAME }}" \
+            --resource-group "${{ secrets.RESOURCE_GROUP }}" \
+            --query properties.configuration.ingress.fqdn -o tsv)
+          echo "Public Endpoint URL: https://${FQDN}"
+          echo "Web Studio UI:       https://${FQDN}/"
+          echo "FastAPI Swagger:     https://${FQDN}/docs"
+          echo "Health Probe:        https://${FQDN}/health"
+          echo "=========================================================="

@@ -54,23 +54,68 @@ You only need **two free programs** installed on Windows:
 
 ---
 
-### Step 3: Download a Free AI Model (Just Once)
+### Step 3: Download a Free AI Model (Tailored for 16 GB RAM Laptops)
+
 Open your laptop's **Command Prompt** or **PowerShell** (press `Windows Key`, type `cmd`, and press Enter).
 
-Choose the model that fits your friend's laptop:
+> [!NOTE]
+> **Standard Hardware Profile: 16 GB RAM Laptops**  
+> On a 16 GB Windows laptop, the operating system and web browser typically use ~5 GB to 6 GB of RAM, leaving **~10 GB of free memory**.  
+> The models below are specifically curated in the **3B to 8B parameter range** (using **~2.0 GB to 4.7 GB of RAM**). They run completely in memory with plenty of headroom, meaning your laptop will remain fast, responsive, and cool without freezing or disk swapping.
 
-- **For everyday laptops (8 GB to 16 GB RAM)** — *Fast & Lightweight*:
-  ```powershell
-  ollama run llama3.2
-  ```
-  *(Downloads in 2 minutes, takes only ~2 GB of space).*
+#### 🏆 Top Models for 16 GB Laptops (Ranked)
 
-- **For powerful laptops (16 GB to 32 GB RAM)** — *Highest Quality*:
-  ```powershell
-  ollama run llama3.1
-  ```
+| Model | RAM Used | Speed | Best For | 1-Click Install Command |
+| :--- | :--- | :--- | :--- | :--- |
+| **🥇 Llama 3.1 (8B)** | **~4.7 GB** | ⚡ Fast (10-15s) | **Team Default (Recommended)** · Best overall curriculum taxonomy, syllabus depth & quiz generation | `ollama run llama3.1` |
+| **🥈 Qwen 2.5 (7B)** | **~4.5 GB** | ⚡ Fast (8-12s) | **Best for Structured & Tech Courses** · Ranked #1 open model for JSON schema & module outlines | `ollama run qwen2.5:7b` |
+| **🥉 Llama 3.2 (3B)** | **~2.0 GB** | ⚡⚡ Instant (3-5s) | **Battery-Saver & Speed** · Uses minimal memory, ideal when running on battery or multitasking heavily | `ollama run llama3.2` |
+| **Phi 3.5 (3.8B)** | **~2.2 GB** | ⚡⚡ Instant (4-6s) | **Tutorials & Summaries** · Microsoft's compact reasoning model for clear lesson descriptions | `ollama run phi3.5` |
+| **Mistral (7B)** | **~4.1 GB** | ⚡ Fast (10-14s) | **Concise Outlines** · Compact European open model, excellent at concise summaries | `ollama run mistral` |
 
-Once you see the prompt say `>>> Send a message`, type `/bye` and press Enter. **That's it! The model is saved on your computer forever.**
+---
+
+#### 📊 Memory Breakdown on a 16 GB Laptop
+
+Here is why 7B/8B models run safely on your 16 GB laptop:
+
+```text
+Total Laptop Memory: 16.0 GB
+├── Windows 10/11 & Background Tasks: ~4.5 GB
+├── Browser (Edge/Chrome) & FX Studio:  ~1.5 GB
+├── AI Model (e.g. Llama 3.1 8B):       ~4.7 GB
+└── FREE SAFETY BUFFER REMAINING:      ~5.3 GB  <-- Laptop stays smooth and responsive!
+```
+
+---
+
+#### ⚠️ Models to AVOID on 16 GB Laptops
+- ❌ **Do NOT run 14B, 32B, or 70B models** (e.g., `qwen2.5:14b`, `llama3.1:70b`, `command-r`).
+- These models require 10 GB to 45 GB of RAM. On a 16 GB machine, Windows will run out of physical memory and freeze or heavily page to your SSD.
+- **Stick to the 3B to 8B models listed above** for optimal speed and reliability.
+
+---
+
+#### 🚀 Recommended Action for the Team (Run This Once):
+Run the default model for the team:
+```powershell
+ollama run llama3.1
+```
+*(Once Ollama downloads and prints `>>> Send a message`, type `/bye` and hit Enter. The model is now permanently saved on your computer).*
+
+*(Optional)* If you also want the lightweight speed model for quick testing:
+```powershell
+ollama run llama3.2
+```
+
+#### 💡 How to Switch Models in FX Learning Studio:
+1. Open the Web Studio in your browser at `http://localhost:8088/`.
+2. Click the **"Settings"** icon or active model name in the top navigation bar.
+3. In the **Local Model** dropdown, all models you have downloaded with `ollama run` will appear automatically. Select whichever you want to use!
+4. To see which models are currently downloaded on your laptop:
+   ```powershell
+   ollama list
+   ```
 
 ---
 

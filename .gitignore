@@ -1,14 +1,37 @@
-/artifacts/*
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Python cache & build artifacts
 __pycache__/
 *.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# Runtime logs & generated artifacts
 logs/
-
-# Generated course artifacts (briefs, definitions, .mbz) - not source.
+*.log
+/artifacts/*
 /output/
+!/output/.gitkeep
 
-# Batch input spreadsheets - keep the folder and its README, ignore the sheets.
+# Environment variables & secrets
+.env
+!.env.example
+
+# Batch input spreadsheets - keep folder & README, ignore uploaded sheets
 /input/*
 !/input/README.md
 
-# Visual Studio local state.
+# IDE & Editor local state
 .vs/
+.vscode/
+.idea/
+
+# OS metadata
+.DS_Store
+Thumbs.db

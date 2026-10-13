@@ -213,7 +213,8 @@ class UnifiedLLMClient:
             return
 
         # Step 2: Model Installation Verification
-        yield f"data: {json.dumps({'step': 2, 'phase': 'MODEL_CHECK', 'status': 'running', 'message': f'Verifying installed weights for \"{model}\"...', 'elapsed': round(time.time() - start_time, 2)})}\n\n"
+        msg_check = f"Verifying installed weights for '{model}'..."
+        yield f"data: {json.dumps({'step': 2, 'phase': 'MODEL_CHECK', 'status': 'running', 'message': msg_check, 'elapsed': round(time.time() - start_time, 2)})}\n\n"
         await asyncio.sleep(0.05)
 
         if provider == "local":
@@ -221,14 +222,16 @@ class UnifiedLLMClient:
             model_base = model.split(":")[0]
             matched = any(m == model or m.startswith(model_base + ":") or m == model_base for m in models_list)
             if matched:
-                yield f"data: {json.dumps({'step': 2, 'phase': 'MODEL_CHECK', 'status': 'success', 'message': f'Model \"{model}\" verified in local library', 'elapsed': round(time.time() - start_time, 2)})}\n\n"
+                msg_verified = f"Model '{model}' verified in local library"
+                yield f"data: {json.dumps({'step': 2, 'phase': 'MODEL_CHECK', 'status': 'success', 'message': msg_verified, 'elapsed': round(time.time() - start_time, 2)})}\n\n"
             else:
                 avail_str = ", ".join(models_list[:4]) if models_list else "None"
-                err_msg = f"Model \"{model}\" is not installed in Ollama. (Available models: {avail_str}). Run 'ollama pull {model}' in terminal or choose an installed model from the dropdown."
+                err_msg = f"Model '{model}' is not installed in Ollama. (Available models: {avail_str}). Run 'ollama pull {model}' in terminal or choose an installed model from the dropdown."
                 yield f"data: {json.dumps({'step': 2, 'phase': 'MODEL_CHECK', 'status': 'error', 'message': err_msg, 'elapsed': round(time.time() - start_time, 2), 'done': True, 'success': False})}\n\n"
                 return
         else:
-            yield f"data: {json.dumps({'step': 2, 'phase': 'MODEL_CHECK', 'status': 'success', 'message': f'Cloud model route verified for \"{model}\"', 'elapsed': round(time.time() - start_time, 2)})}\n\n"
+            msg_cloud = f"Cloud model route verified for '{model}'"
+            yield f"data: {json.dumps({'step': 2, 'phase': 'MODEL_CHECK', 'status': 'success', 'message': msg_cloud, 'elapsed': round(time.time() - start_time, 2)})}\n\n"
 
         # Step 3: Fast Neural Handshake (num_ctx: 2048)
         yield f"data: {json.dumps({'step': 3, 'phase': 'NEURAL_PING', 'status': 'running', 'message': f'Sending test PING to {model} (fast 2k context)...', 'elapsed': round(time.time() - start_time, 2)})}\n\n"
