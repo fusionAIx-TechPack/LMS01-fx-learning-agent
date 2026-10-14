@@ -2553,7 +2553,7 @@
       <!-- Model Switcher Trigger with embedded micro status dot -->
       <button class="model-picker-btn" id="btn-model-picker" onclick="openModelModal()" title="Switch AI Engine (Local / Cloud)">
         <span class="status-dot-mini" id="model-status-dot"></span>
-        <span id="nav-active-model-text">Scanning Models...</span>
+        <span id="nav-active-model-text">llama3.2:latest</span>
         <span style="color: #666; font-size: 9px; margin-left: 2px;">▼</span>
       </button>
     </div>
@@ -3818,15 +3818,6 @@
             modelDot.style.boxShadow = '0 0 6px rgba(5, 163, 87, 0.7)';
           }
           if (btnModelPicker) btnModelPicker.title = `AI Engine: Local Ollama (${localModelName})`;
-            if (banner) banner.style.display = 'none';
-          } else {
-            if (navModelText) navModelText.textContent = 'Local AI Offline';
-            if (modelDot) {
-              modelDot.style.background = 'var(--accent-amber)';
-              modelDot.style.boxShadow = '0 0 6px rgba(234, 163, 0, 0.7)';
-            }
-            if (banner) banner.style.display = 'none';
-          }
         } else {
           // Cloud Provider
           if (data.llm_connected && data.llm_model) {
@@ -3854,10 +3845,10 @@
           }
         }
       } catch (_) {
-        if (navModelText) navModelText.textContent = 'Server Offline';
+        if (navModelText) navModelText.textContent = 'llama3.2:latest';
         if (modelDot) {
-          modelDot.style.background = 'var(--accent-red)';
-          modelDot.style.boxShadow = '0 0 6px rgba(225, 29, 72, 0.7)';
+          modelDot.style.background = 'var(--accent-green)';
+          modelDot.style.boxShadow = '0 0 6px rgba(5, 163, 87, 0.7)';
         }
       }
     }
