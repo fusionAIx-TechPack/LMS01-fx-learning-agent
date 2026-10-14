@@ -3986,19 +3986,29 @@
             `;
           }
         } else if (data.status === 'not_installed' || !data.ollama_installed) {
-          // Tier 1: Ollama is NOT installed on this computer (detects Mac, Windows, Linux)
-          const targetOS = (data.host_os || (navigator.platform && /Win/i.test(navigator.platform) ? 'windows' : (navigator.platform && /Linux/i.test(navigator.platform) ? 'linux' : 'mac'))).toLowerCase();
+          // Detect client browser OS (Ollama runs on the user's laptop/PC, not in the cloud container)
+          const ua = (navigator.userAgent || '').toLowerCase();
+          const plat = (navigator.platform || '').toLowerCase();
+          const isWin = plat.includes('win') || ua.includes('windows');
+          const isMac = plat.includes('mac') || ua.includes('macintosh') || ua.includes('mac os');
+          const isLin = plat.includes('linux') || ua.includes('linux') || plat.includes('x11');
+          const targetOS = isWin ? 'windows' : (isMac ? 'mac' : (isLin ? 'linux' : 'windows'));
           
-          let osName = 'Mac';
-          let downloadLink = 'https://ollama.com/download/mac';
-          let cliLabel = 'Or install via Mac Terminal (Homebrew):';
-          let cliCommand = 'brew install ollama';
+          let osName = 'Windows';
+          let downloadLink = 'https://ollama.com/download/windows';
+          let cliLabel = 'Or install via Windows PowerShell (winget):';
+          let cliCommand = 'winget install Ollama.Ollama';
 
           if (targetOS === 'windows') {
             osName = 'Windows';
             downloadLink = 'https://ollama.com/download/windows';
             cliLabel = 'Or install via Windows PowerShell (winget):';
             cliCommand = 'winget install Ollama.Ollama';
+          } else if (targetOS === 'mac') {
+            osName = 'Mac';
+            downloadLink = 'https://ollama.com/download/mac';
+            cliLabel = 'Or install via Mac Terminal (Homebrew):';
+            cliCommand = 'brew install ollama';
           } else if (targetOS === 'linux') {
             osName = 'Linux';
             downloadLink = 'https://ollama.com/download/linux';
@@ -4048,7 +4058,6 @@
           }
         } else if (data.status === 'not_running') {
           // Tier 2A: Ollama is installed, but service is not running
-          const targetOS = (data.host_os || (navigator.platform && /Win/i.test(navigator.platform) ? 'windows' : 'mac')).toLowerCase();
           const startGuide = targetOS === 'windows' 
             ? 'Start Ollama from the Windows Start menu or run in PowerShell:' 
             : 'Start the Ollama app from Applications or run in your Terminal:';
