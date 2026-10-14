@@ -52,6 +52,10 @@ class SystemStatusResponse(BaseModel):
     llm_connected: bool
     llm_model: str
     llm_provider: str = "local"
+    ollama_installed: bool = False
+    ollama_state: str = "not_installed"  # "not_installed" | "not_running" | "no_models" | "ready"
+    ollama_message: str = ""
+    host_os: str = "mac"  # "mac" | "windows" | "linux"
     output_courses_count: int
     docker_available: bool
 
@@ -62,6 +66,7 @@ class LLMConfigSchema(BaseModel):
     has_api_key: bool
     available_local_models: List[str] = Field(default_factory=list)
     available_cloud_models: List[str] = Field(default_factory=list)
+    recommended_local_models: List[str] = Field(default_factory=list)
     is_connected: bool
 
 class LLMConfigUpdateSchema(BaseModel):
@@ -111,4 +116,6 @@ class AuthStatusResponse(BaseModel):
     providers: List[ConnectedAccountSchema] = Field(default_factory=list)
 
 
-
+class PullModelRequest(BaseModel):
+    model: str = "llama3.1"
+    endpoint: Optional[str] = None

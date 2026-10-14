@@ -28,10 +28,14 @@ REM Navigate to backend and install requirements if needed
 echo [1/3] Checking dependencies...
 python -m pip install -q -r backend\requirements.txt >nul 2>&1
 
-echo [2/3] Starting Local Studio Server on port 8088...
-start "" http://localhost:8088/
+REM Resolve free port (fallback if default 8088 is busy)
+set PORT=8088
+for /f "delims=" %%p in ('python -c "import socket; [print(i) or exit() for i in range(8088, 8100) if socket.socket().connect_ex(('127.0.0.1', i)) != 0]"') do set PORT=%%p
 
-echo [3/3] Server is live! Press Ctrl+C in this window to stop.
+echo [2/3] Starting Local Studio Server on port %PORT%...
+start "" http://localhost:%PORT%/
+
+echo [3/3] Server is live on http://localhost:%PORT%/! Press Ctrl+C in this window to stop.
 echo.
-python -m uvicorn backend.app.main:app --host 0.0.0.0 --port 8088
+python -m uvicorn backend.app.main:app --host 0.0.0.0 --port %PORT% --reload
 pause

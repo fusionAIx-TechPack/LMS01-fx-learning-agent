@@ -2265,6 +2265,223 @@
       color: #fca5a5;
     }
 
+    /* Ollama Diagnostics and Status Cards */
+    .ollama-status-card {
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      margin-top: 10px;
+      font-size: 12px;
+      line-height: 1.5;
+      animation: fadeIn 0.25s ease-out;
+      border: 1px solid transparent;
+    }
+    .ollama-status-card.card-not-installed {
+      background: rgba(225, 29, 72, 0.08);
+      border-color: rgba(225, 29, 72, 0.3);
+      color: #fecdd3;
+    }
+    .ollama-status-card.card-not-running {
+      background: rgba(234, 163, 0, 0.08);
+      border-color: rgba(234, 163, 0, 0.3);
+      color: #fef08a;
+    }
+    .ollama-status-card.card-no-models {
+      background: rgba(96, 165, 250, 0.08);
+      border-color: rgba(96, 165, 250, 0.3);
+      color: #bfdbfe;
+    }
+    .ollama-status-card.card-ready {
+      background: rgba(5, 163, 87, 0.08);
+      border-color: rgba(5, 163, 87, 0.3);
+      color: #a7f3d0;
+    }
+    .ollama-status-card .status-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .ollama-status-card .status-title {
+      font-weight: 700;
+      font-size: 13px;
+      color: #fff;
+    }
+    .ollama-status-card .status-subtitle {
+      font-size: 11px;
+      opacity: 0.8;
+      margin-top: 2px;
+    }
+    .ollama-term-box {
+      background: #000;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-family: monospace;
+      font-size: 12px;
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 8px 0;
+      user-select: all;
+    }
+    .ollama-copy-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #fff;
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .ollama-copy-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+    .ollama-install-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #e11d48;
+      color: #fff !important;
+      font-weight: 600;
+      font-size: 11px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      text-decoration: none;
+      margin-top: 6px;
+      margin-right: 8px;
+      transition: background 0.15s;
+    }
+    .ollama-install-btn:hover {
+      background: #be123c;
+    }
+    .ollama-switch-cloud-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      font-weight: 600;
+      font-size: 11px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 6px;
+      transition: all 0.15s;
+    }
+    .ollama-switch-cloud-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+    .engine-diagnostic-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      margin-bottom: 16px;
+      font-size: 12px;
+      animation: fadeIn 0.25s ease-out;
+    }
+    .engine-diagnostic-banner.banner-danger {
+      background: rgba(225, 29, 72, 0.1);
+      border: 1px solid rgba(225, 29, 72, 0.35);
+      color: #fecdd3;
+    }
+    .engine-diagnostic-banner.banner-warning {
+      background: rgba(234, 163, 0, 0.1);
+      border: 1px solid rgba(234, 163, 0, 0.35);
+      color: #fef08a;
+    }
+    .engine-banner-btn {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      padding: 5px 12px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .engine-banner-pill {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .banner-danger .engine-banner-pill {
+      background: rgba(225, 29, 72, 0.2);
+      border: 1px solid rgba(225, 29, 72, 0.4);
+      color: #fda4af;
+    }
+    .banner-warning .engine-banner-pill {
+      background: rgba(234, 163, 0, 0.2);
+      border: 1px solid rgba(234, 163, 0, 0.4);
+      color: #fde047;
+    }
+
+    /* 1-Click In-Browser Model Pull Styles */
+    .ollama-pull-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent-blue, #2563eb);
+      color: #fff !important;
+      font-weight: 600;
+      font-size: 11px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      margin-top: 6px;
+      margin-right: 8px;
+      transition: all 0.15s;
+    }
+    .ollama-pull-btn:hover {
+      background: #1d4ed8;
+    }
+    .ollama-pull-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .ollama-pull-btn.btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff !important;
+    }
+    .ollama-pull-btn.btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+    .pull-progress-shell {
+      background: #000;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin-top: 10px;
+    }
+    .pull-progress-bar-wrap {
+      background: rgba(255, 255, 255, 0.08);
+      height: 6px;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .pull-progress-bar-fill {
+      background: var(--accent-blue, #60a5fa);
+      height: 100%;
+      width: 0%;
+      transition: width 0.2s ease-out;
+    }
+
     .modal-close-btn {
       background: transparent;
       border: 1px solid rgba(255, 255, 255, 0.12);
@@ -2317,7 +2534,7 @@
       <!-- Model Switcher Trigger with embedded micro status dot -->
       <button class="model-picker-btn" id="btn-model-picker" onclick="openModelModal()" title="Switch AI Engine (Local / Cloud)">
         <span class="status-dot-mini" id="model-status-dot"></span>
-        <span id="nav-active-model-text">llama3.1:latest</span>
+        <span id="nav-active-model-text">Scanning Models...</span>
         <span style="color: #666; font-size: 9px; margin-left: 2px;">▼</span>
       </button>
     </div>
@@ -2332,6 +2549,20 @@
         <h1 class="card-title">Where to learn next?</h1>
         <p class="card-subtitle">Generate internal Moodle courses from any source URL or spreadsheet. Uses local open-source models first, or sign in with Microsoft to access Claude, GPT-4o, and Gemini.</p>
 
+        <!-- Live Engine Diagnostic Alert Banner (Appears when AI engine is not ready) -->
+        <div id="engine-diagnostic-banner" class="engine-diagnostic-banner banner-danger" style="display: none;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span id="engine-banner-pill" class="engine-banner-pill">Action Required</span>
+            <div>
+              <span id="engine-banner-text" style="font-weight: 600;">Ollama is not installed on this machine.</span>
+              <span id="engine-banner-sub" style="font-size: 11px; opacity: 0.85; margin-left: 6px;">Install Ollama for free local AI or switch to Cloud API.</span>
+            </div>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <button type="button" class="engine-banner-btn" onclick="openModelModal()">Configure AI Engine</button>
+          </div>
+        </div>
+
         <!-- Route Connector (Source URL -> Moodle .mbz) -->
         <div class="pipeline-box">
           <div class="pipeline-indicators">
@@ -2344,14 +2575,14 @@
             <div class="field-group" id="single-field-group">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                 <div class="field-label" style="display: flex; align-items: center; gap: 6px;">
-                  <span>🔗 Source Learning URL</span>
+                  <span>Source Learning URL</span>
                   <span class="gate-card-badge badge-required">Required</span>
                 </div>
                 <span style="font-size: 10px; color: var(--accent-green); font-weight: 800;">● Active Input</span>
               </div>
               <div class="source-input-container">
                 <input type="url" id="source-url" name="public_learning_curriculum_url_target" class="source-input-field" placeholder="Paste or enter public course or documentation URL (e.g. https://learn.microsoft.com/...)" value="" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other">
-                <button type="button" class="paste-quick-btn" title="Paste from clipboard" onclick="navigator.clipboard.readText().then(t=>{if(t)document.getElementById('source-url').value=t.trim();}).catch(()=>{})">📋 Paste</button>
+                <button type="button" class="paste-quick-btn" title="Paste from clipboard" onclick="navigator.clipboard.readText().then(t=>{if(t)document.getElementById('source-url').value=t.trim();}).catch(()=>{})">Paste</button>
               </div>
               <div class="gate-card-hint" style="margin-top: 4px;">Paste any public learning URL, documentation page, or curriculum link to extract modules.</div>
             </div>
@@ -2360,15 +2591,14 @@
             <div class="field-group">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                 <div class="field-label" style="display: flex; align-items: center; gap: 6px;">
-                  <span>📦 Target Package Format</span>
+                  <span>Target Package Format</span>
                 </div>
                 <span class="locked-tag-pill" title="This output specification is standardized by the LMS engine and cannot be modified.">
-                  🔒 Fixed · Cannot Modify
+                  Fixed · Standardized
                 </span>
               </div>
               <div class="locked-target-box" title="Standardized engine output: Native Moodle 5.x backup archive (.mbz) containing 5 core learning activities.">
                 <div class="locked-target-left">
-                  <span>📦</span>
                   <span>Moodle 5.x Native Backup (.mbz) · 5 Standard Activities</span>
                 </div>
                 <span style="font-size: 10px; color: #555555; font-weight: 700; text-transform: uppercase;">Standard Engine Spec</span>
@@ -2421,7 +2651,9 @@
         <!-- Spreadsheet Upload Mode -->
         <div id="excel-container" style="display: none; margin-bottom: 24px;">
           <div style="border: 2px dashed var(--border); border-radius: var(--radius-md); padding: 32px; text-align: center; cursor: pointer; transition: border 0.15s;" onclick="document.getElementById('excel-file').click()" ondragover="event.preventDefault(); this.style.borderColor='#fff'" ondragleave="this.style.borderColor='var(--border)'" ondrop="handleDrop(event)">
-            <div style="font-size: 28px; margin-bottom: 8px;">📊</div>
+            <div style="margin-bottom: 8px;">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            </div>
             <div style="font-weight: 700; color: #fff;" id="excel-file-name">Upload .xlsx or .csv Spreadsheet</div>
             <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;" id="excel-file-desc">Extracts URL columns automatically in row order</div>
             <input type="file" id="excel-file" style="display: none;" accept=".xlsx,.csv" onchange="handleExcelPick(event)">
@@ -2446,7 +2678,9 @@
 
         <!-- Pipeline Empty State (When no course is being generated) -->
         <div id="pipeline-empty-state" style="display: block; text-align: center; padding: 48px 24px; background: #0c0c0e; border: 1px dashed #2a2a30; border-radius: var(--radius-md); margin-top: 8px;">
-          <div style="font-size: 36px; margin-bottom: 12px;">⚡</div>
+          <div style="margin-bottom: 12px;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          </div>
           <div style="font-size: 17px; font-weight: 800; color: #FFFFFF; margin-bottom: 6px;">No Active Pipeline Running</div>
           <div style="font-size: 13px; color: var(--text-muted); max-width: 480px; margin: 0 auto 20px; line-height: 1.5;">
             The Pipeline Tracker monitors live content scraping, syllabus parsing, and 5-activity Moodle schema synthesis. Enter a course link on the <strong>Create Course</strong> tab to begin.
@@ -2460,19 +2694,21 @@
         <div id="analysis-live-monitor" class="analysis-monitor-card" style="display: none;">
           <div class="analysis-header">
             <div class="analysis-title-group">
-              <div class="pipeline-step-badge-icon">⚡</div>
+              <div class="pipeline-step-badge-icon">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polyline></svg>
+              </div>
               <div>
                 <div class="analysis-main-title">
                   <span>Curriculum Structuring Engine</span>
                   <span class="status-badge" id="monitor-status-pill" style="background: rgba(39, 110, 241, 0.2); color: #60a5fa;">In Progress</span>
                 </div>
                 <div class="analysis-sub-meta" id="monitor-model-tag">
-                  Running on Local Open-Source LLM (llama3.1:latest)
+                  Running on AI Engine
                 </div>
               </div>
             </div>
             <div class="analysis-elapsed-pill" id="monitor-elapsed-clock">
-              ⏱️ 00:00s
+              00:00s
             </div>
           </div>
 
@@ -2489,7 +2725,7 @@
           <div class="analysis-stages-grid">
             <div class="stage-card active" id="stage-card-1">
               <div class="stage-card-top">
-                <span class="stage-icon-num">🌐 Step 1</span>
+                <span class="stage-icon-num">Step 1</span>
                 <span class="stage-badge badge-running" id="stage-badge-1">Active</span>
               </div>
               <div class="stage-title">Source Retrieval</div>
@@ -2498,7 +2734,7 @@
 
             <div class="stage-card" id="stage-card-2">
               <div class="stage-card-top">
-                <span class="stage-icon-num">📑 Step 2</span>
+                <span class="stage-icon-num">Step 2</span>
                 <span class="stage-badge badge-pending" id="stage-badge-2">Pending</span>
               </div>
               <div class="stage-title">Content Extraction</div>
@@ -2507,7 +2743,7 @@
 
             <div class="stage-card" id="stage-card-3">
               <div class="stage-card-top">
-                <span class="stage-icon-num">📘 Step 3</span>
+                <span class="stage-icon-num">Step 3</span>
                 <span class="stage-badge badge-pending" id="stage-badge-3">Pending</span>
               </div>
               <div class="stage-title">Curriculum Structuring</div>
@@ -2516,7 +2752,7 @@
 
             <div class="stage-card" id="stage-card-4">
               <div class="stage-card-top">
-                <span class="stage-icon-num">📦 Step 4</span>
+                <span class="stage-icon-num">Step 4</span>
                 <span class="stage-badge badge-pending" id="stage-badge-4">Pending</span>
               </div>
               <div class="stage-title">Package Assembly</div>
@@ -2767,7 +3003,9 @@
 
         <!-- Milestone Status Card -->
         <div class="engine-info-card" style="margin-bottom: 20px;">
-          <div class="engine-icon">⚡</div>
+          <div class="engine-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polyline></svg>
+          </div>
           <div class="engine-details">
             <div class="engine-name" id="step-label">Extracting curriculum from source URL...</div>
             <div class="engine-meta" id="step-desc">Connecting to web scraper and active LLM</div>
@@ -2789,7 +3027,10 @@
               <div style="font-size: 18px; font-weight: 800; color: #fff;">Course Package Ready (.mbz)</div>
               <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">Fully validated with 5 standard activities. Ready for Moodle restoration.</div>
             </div>
-            <div style="font-size: 28px;">🏁</div>
+            <div style="color: var(--accent-green);">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </div>
+          </div>
           <div style="display: flex; gap: 10px; margin-top: 14px;">
             <a id="download-link" href="#" class="primary-btn" style="flex: 1; background: #fff; color: #000; text-decoration: none;">
               Download .mbz Package
@@ -2818,7 +3059,7 @@
 
         <!-- Explanatory Banner: Deployment & Direct Browser Download Workflow -->
         <div style="background: rgba(59, 130, 246, 0.06); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: var(--radius-sm); padding: 12px 16px; margin-bottom: 18px; display: flex; align-items: flex-start; gap: 12px;">
-          <div style="font-size: 18px; line-height: 1.2;">📦</div>
+          <div class="engine-banner-pill" style="margin-top: 1px; background: rgba(59, 130, 246, 0.2); color: #93c5fd;">Output</div>
           <div style="flex: 1; font-size: 12px; color: #cbd5e1; line-height: 1.5;">
             <strong style="color: #60a5fa;">How downloads work after deployment:</strong>
             When courses are packaged, native Moodle archives (<code style="color: #93c5fd; background: rgba(59, 130, 246, 0.15); padding: 1px 5px; border-radius: 3px;">.mbz</code>) are saved automatically in the server's <code style="color: #93c5fd; background: rgba(59, 130, 246, 0.15); padding: 1px 5px; border-radius: 3px;">output/</code> directory. You do <strong>not</strong> need to open server folders or File Explorer. Click <strong>Download .mbz</strong> on any course below to save it straight to your computer, then import into Moodle via <em>Site administration → Courses → Restore course</em>.
@@ -2828,7 +3069,9 @@
         <!-- Search and Filter Toolbar -->
         <div class="library-toolbar">
           <div class="search-input-wrapper">
-            <span class="search-icon-prefix">🔍</span>
+            <span class="search-icon-prefix">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </span>
             <input type="text" class="search-input" id="library-search" placeholder="Search courses by title, topic, curriculum keywords, or audience..." oninput="filterLibrary()">
             <button class="search-clear-btn" id="library-search-clear" onclick="clearLibrarySearch()" style="display: none;" title="Clear search">&times;</button>
           </div>
@@ -2873,19 +3116,23 @@
         </div>
 
         <div class="field-group" style="margin-bottom: 14px;">
-          <div class="field-label">Installed Local Model</div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <div class="field-label" style="margin-bottom: 0;">Installed Local Model (Ollama)</div>
+            <button type="button" id="btn-scan-local-models" onclick="scanLocalModels(true)" style="background: rgba(255, 255, 255, 0.06); border: 1px solid var(--border); border-radius: 4px; padding: 4px 10px; color: var(--accent-blue, #60a5fa); font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s;">
+              <span id="scan-spinner" style="display: none;">Scanning...</span>
+              <span id="scan-icon">Scan Installed Models</span>
+            </button>
+          </div>
           <select class="input-box" id="modal-local-model" style="appearance: none; background-color: #000; cursor: pointer;">
-            <option value="llama3.1:latest">llama3.1:latest</option>
-            <option value="llama3.2:latest">llama3.2:latest</option>
-            <option value="qwen2.5-coder:14b">qwen2.5-coder:14b</option>
-            <option value="gemma4:latest">gemma4:latest</option>
-            <option value="qwen3:4b">qwen3:4b</option>
+            <option value="" disabled selected>Click Scan to detect installed models...</option>
           </select>
+          <div id="local-model-status-message" style="font-size: 12px; margin-top: 8px;"></div>
         </div>
 
         <div class="field-group" style="margin-bottom: 20px;">
           <div class="field-label">Local Host Endpoint</div>
-          <input type="text" class="input-box" id="modal-local-endpoint" value="http://localhost:11434">
+          <input type="text" class="input-box" id="modal-local-endpoint" value="http://localhost:11434" onchange="scanLocalModels(true)" placeholder="http://localhost:11434 or tunnel URL">
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Default is <code>http://localhost:11434</code>. If accessing a cloud deployment, provide an HTTPS tunnel URL (ngrok/localtunnel).</div>
         </div>
       </div>
 
@@ -2902,7 +3149,7 @@
           <div class="provider-card" id="card-claude">
             <div class="provider-header">
               <div class="provider-info">
-                <div class="provider-icon-badge" style="color: #D97706;">🟣</div>
+                <div class="provider-icon-badge" style="background: rgba(217, 119, 6, 0.15); color: #d97706; font-weight: 800; font-size: 13px;">C</div>
                 <div>
                   <div class="provider-name">Claude</div>
                   <div class="provider-sub">Anthropic · 3.5 Sonnet</div>
@@ -2920,7 +3167,7 @@
           <div class="provider-card" id="card-chatgpt">
             <div class="provider-header">
               <div class="provider-info">
-                <div class="provider-icon-badge" style="color: #10A37F;">🟢</div>
+                <div class="provider-icon-badge" style="background: rgba(16, 163, 127, 0.15); color: #10a37f; font-weight: 800; font-size: 13px;">O</div>
                 <div>
                   <div class="provider-name">ChatGPT</div>
                   <div class="provider-sub">OpenAI · GPT-4o / o1</div>
@@ -2938,7 +3185,7 @@
           <div class="provider-card" id="card-gemini">
             <div class="provider-header">
               <div class="provider-info">
-                <div class="provider-icon-badge" style="color: #3B82F6;">🔵</div>
+                <div class="provider-icon-badge" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6; font-weight: 800; font-size: 13px;">G</div>
                 <div>
                   <div class="provider-name">Gemini</div>
                   <div class="provider-sub">Google · 1.5 Pro / Flash</div>
@@ -2956,7 +3203,7 @@
           <div class="provider-card" id="card-grok">
             <div class="provider-header">
               <div class="provider-info">
-                <div class="provider-icon-badge" style="color: #fff;">⚫</div>
+                <div class="provider-icon-badge" style="background: rgba(255, 255, 255, 0.12); color: #ffffff; font-weight: 800; font-size: 13px;">X</div>
                 <div>
                   <div class="provider-name">Grok</div>
                   <div class="provider-sub">xAI · Grok 2</div>
@@ -2987,7 +3234,7 @@
         </div>
 
         <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">
-          💡 When you click "Connect", your personal account is authenticated and unlocked for course generation.
+          When you click "Connect", your personal account is authenticated and unlocked for course generation.
         </div>
       </div>
 
@@ -2999,11 +3246,11 @@
             <span class="test-pill" id="test-pill-2">2. Model: <b id="pill-text-2">...</b></span>
             <span class="test-pill" id="test-pill-3">3. PONG: <b id="pill-text-3">...</b></span>
           </div>
-          <div class="test-clock-pill" id="test-livebox-clock">⏱️ 0.0s</div>
+          <div class="test-clock-pill" id="test-livebox-clock">0.0s</div>
         </div>
 
         <div class="test-compact-status status-waiting" id="test-compact-status">
-          <span id="test-status-icon">⏳</span>
+          <span id="test-status-icon">●</span>
           <span id="test-status-msg" style="flex: 1;">Handshake in progress... Waiting for PONG</span>
         </div>
       </div>
@@ -3026,7 +3273,7 @@
   <div class="modal-backdrop" id="provider-auth-modal" style="z-index: 120;">
     <div class="modal-card" style="max-width: 480px;">
       <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-        <div id="auth-modal-icon" style="font-size: 24px;">🔵</div>
+        <div id="auth-modal-icon" class="provider-icon-badge" style="font-size: 14px; font-weight: 800;">AI</div>
         <div class="modal-title" id="auth-modal-title" style="margin-bottom: 0;">Sign in to Google Gemini</div>
       </div>
       <div class="modal-subtitle" id="auth-modal-desc">
@@ -3060,7 +3307,7 @@
           Cancel
         </button>
         <button class="primary-btn primary-btn-green" style="flex: 1; padding: 10px;" id="btn-submit-provider-auth" onclick="submitProviderAuth()">
-          🔐 Verify & Connect
+          Verify & Connect
         </button>
       </div>
     </div>
@@ -3091,7 +3338,7 @@
 
     let currentLlmConfig = {
       provider: 'local',
-      model: 'llama3.1:latest',
+      model: '',
       base_url: 'http://localhost:11434',
       available_local_models: [],
       available_cloud_models: []
@@ -3363,7 +3610,7 @@
         (p.available_models || []).forEach(m => {
           const opt = document.createElement('option');
           opt.value = m;
-          opt.textContent = `${m} (${p.is_connected ? '🟢 Ready' : '⚪ Connect ' + p.provider_name.split(' ')[0]})`;
+          opt.textContent = `${m} (${p.is_connected ? 'Ready' : 'Connect ' + p.provider_name.split(' ')[0]})`;
           if (m === currentSelected) opt.selected = true;
           cloudSelect.appendChild(opt);
         });
@@ -3375,7 +3622,7 @@
     const PROVIDER_METAS = {
       gemini: {
         name: 'Google Gemini',
-        icon: '🔵',
+        icon: 'G',
         desc: 'Sign in to Google AI Studio to generate or copy your personal Gemini API key.',
         authUrl: 'https://aistudio.google.com/app/apikey',
         authText: 'Open Google AI Studio in New Window ↗',
@@ -3383,7 +3630,7 @@
       },
       claude: {
         name: 'Anthropic Claude',
-        icon: '🟣',
+        icon: 'C',
         desc: 'Sign in to Anthropic Console to copy your personal Claude API key.',
         authUrl: 'https://console.anthropic.com/settings/keys',
         authText: 'Open Anthropic Console in New Window ↗',
@@ -3391,7 +3638,7 @@
       },
       chatgpt: {
         name: 'OpenAI ChatGPT',
-        icon: '🟢',
+        icon: 'O',
         desc: 'Sign in to OpenAI Platform to copy your personal ChatGPT / GPT-4o API key.',
         authUrl: 'https://platform.openai.com/api-keys',
         authText: 'Open OpenAI Platform in New Window ↗',
@@ -3399,7 +3646,7 @@
       },
       grok: {
         name: 'xAI Grok',
-        icon: '⚫',
+        icon: 'X',
         desc: 'Sign in to xAI Console to copy your personal Grok 2 API key.',
         authUrl: 'https://console.x.ai/',
         authText: 'Open xAI Console in New Window ↗',
@@ -3431,7 +3678,7 @@
       activeAuthenticatingPid = pid;
       const meta = PROVIDER_METAS[pid] || {
         name: pid.toUpperCase(),
-        icon: '🔐',
+        icon: 'AI',
         desc: 'Sign in with your provider account to authenticate.',
         authUrl: '#',
         authText: 'Open Provider Portal ↗',
@@ -3455,7 +3702,7 @@
       errBox.textContent = '';
 
       const btn = document.getElementById('btn-submit-provider-auth');
-      btn.textContent = '🔐 Verify & Connect';
+      btn.textContent = 'Verify & Connect';
       btn.disabled = false;
 
       document.getElementById('provider-auth-modal').style.display = 'flex';
@@ -3495,7 +3742,7 @@
         const data = await res.json();
         if (res.ok) {
           closeProviderAuthModal();
-          showToast(`✅ ${data.provider_name} authenticated & connected live!`);
+          showToast(`${data.provider_name} authenticated & connected live.`);
           await fetchProvidersStatus();
 
           // Auto-select provider flagship model
@@ -3510,15 +3757,15 @@
             cloudSelect.value = targetModels[activeAuthenticatingPid];
           }
         } else {
-          errBox.textContent = `❌ ${data.detail || data.message || 'Authentication failed. Please verify your API Key.'}`;
+          errBox.textContent = data.detail || data.message || 'Authentication failed. Please verify your API Key.';
           errBox.style.display = 'block';
-          btn.textContent = '🔐 Verify & Connect';
+          btn.textContent = 'Verify & Connect';
           btn.disabled = false;
         }
       } catch (err) {
         errBox.textContent = 'Network error connecting to backend.';
         errBox.style.display = 'block';
-        btn.textContent = '🔐 Verify & Connect';
+        btn.textContent = 'Verify & Connect';
         btn.disabled = false;
       }
     }
@@ -3527,25 +3774,107 @@
     async function checkSystemStatus() {
       const modelDot = document.getElementById('model-status-dot');
       const navModelText = document.getElementById('nav-active-model-text');
+      const btnModelPicker = document.getElementById('btn-model-picker');
+      const banner = document.getElementById('engine-diagnostic-banner');
+      const bannerPill = document.getElementById('engine-banner-pill');
+      const bannerText = document.getElementById('engine-banner-text');
+      const bannerSub = document.getElementById('engine-banner-sub');
+
       try {
         const res = await fetch(`${API_BASE}/system-status`);
         if (!res.ok) throw new Error('API error');
         const data = await res.json();
         
-        if (navModelText) {
-          navModelText.textContent = data.llm_model || 'llama3.1';
-        }
+        if (data.llm_provider === 'local') {
+          if (data.ollama_state === 'not_installed') {
+            if (navModelText) navModelText.textContent = 'Ollama Not Installed';
+            if (modelDot) {
+              modelDot.style.background = 'var(--accent-red)';
+              modelDot.style.boxShadow = '0 0 6px rgba(225, 29, 72, 0.7)';
+            }
+            if (btnModelPicker) btnModelPicker.title = 'Ollama is not installed on this machine. Click to view installation options or switch to Cloud AI.';
+            
+            if (banner) {
+              banner.className = 'engine-diagnostic-banner banner-danger';
+              banner.style.display = 'flex';
+              if (bannerPill) bannerPill.textContent = 'Required';
+              if (bannerText) bannerText.textContent = 'Ollama is not installed on this machine.';
+              if (bannerSub) bannerSub.textContent = 'Install Ollama to run local open-source models, or switch to Cloud AI.';
+            }
+          } else if (data.ollama_state === 'not_running') {
+            if (navModelText) navModelText.textContent = 'Ollama Offline';
+            if (modelDot) {
+              modelDot.style.background = 'var(--accent-amber)';
+              modelDot.style.boxShadow = '0 0 6px rgba(234, 163, 0, 0.7)';
+            }
+            if (btnModelPicker) btnModelPicker.title = 'Ollama is installed, but the background service is not running. Run: ollama serve';
 
-        if (modelDot) {
-          if (data.llm_connected) {
-            modelDot.style.background = 'var(--accent-green)';
-            modelDot.style.boxShadow = '0 0 6px rgba(5, 163, 87, 0.7)';
+            if (banner) {
+              banner.className = 'engine-diagnostic-banner banner-warning';
+              banner.style.display = 'flex';
+              if (bannerPill) bannerPill.textContent = 'Offline';
+              if (bannerText) bannerText.textContent = 'Ollama service is not running.';
+              if (bannerSub) bannerSub.textContent = 'Start Ollama from Applications or run "ollama serve" in terminal.';
+            }
+          } else if (data.ollama_state === 'no_models') {
+            if (navModelText) navModelText.textContent = 'No Models Downloaded';
+            if (modelDot) {
+              modelDot.style.background = 'var(--accent-amber)';
+              modelDot.style.boxShadow = '0 0 6px rgba(234, 163, 0, 0.7)';
+            }
+            if (btnModelPicker) btnModelPicker.title = 'Ollama is running, but no models are downloaded yet. Run: ollama run llama3.1';
+
+            if (banner) {
+              banner.className = 'engine-diagnostic-banner banner-warning';
+              banner.style.display = 'flex';
+              if (bannerPill) bannerPill.textContent = 'Action Needed';
+              if (bannerText) bannerText.textContent = 'No AI models downloaded in Ollama yet.';
+              if (bannerSub) bannerSub.textContent = 'Download a model below or run "ollama run llama3.1" in terminal.';
+            }
+          } else if (data.llm_connected && data.llm_model) {
+            if (navModelText) navModelText.textContent = data.llm_model;
+            if (modelDot) {
+              modelDot.style.background = 'var(--accent-green)';
+              modelDot.style.boxShadow = '0 0 6px rgba(5, 163, 87, 0.7)';
+            }
+            if (btnModelPicker) btnModelPicker.title = `AI Engine: ${data.llm_model} (Online)`;
+            if (banner) banner.style.display = 'none';
           } else {
-            modelDot.style.background = 'var(--accent-amber)';
-            modelDot.style.boxShadow = '0 0 6px rgba(234, 163, 0, 0.7)';
+            if (navModelText) navModelText.textContent = 'Local AI Offline';
+            if (modelDot) {
+              modelDot.style.background = 'var(--accent-amber)';
+              modelDot.style.boxShadow = '0 0 6px rgba(234, 163, 0, 0.7)';
+            }
+            if (banner) banner.style.display = 'none';
+          }
+        } else {
+          // Cloud Provider
+          if (data.llm_connected && data.llm_model) {
+            if (navModelText) navModelText.textContent = data.llm_model;
+            if (modelDot) {
+              modelDot.style.background = 'var(--accent-green)';
+              modelDot.style.boxShadow = '0 0 6px rgba(5, 163, 87, 0.7)';
+            }
+            if (btnModelPicker) btnModelPicker.title = `AI Engine: ${data.llm_model} (Cloud Connected)`;
+            if (banner) banner.style.display = 'none';
+          } else {
+            if (navModelText) navModelText.textContent = 'Cloud AI Disconnected';
+            if (modelDot) {
+              modelDot.style.background = 'var(--accent-red)';
+              modelDot.style.boxShadow = '0 0 6px rgba(225, 29, 72, 0.7)';
+            }
+            if (btnModelPicker) btnModelPicker.title = 'Cloud AI account is not connected. Click to add API key.';
+            if (banner) {
+              banner.className = 'engine-diagnostic-banner banner-danger';
+              banner.style.display = 'flex';
+              if (bannerPill) bannerPill.textContent = 'Required';
+              if (bannerText) bannerText.textContent = 'Cloud AI provider is not connected.';
+              if (bannerSub) bannerSub.textContent = 'Click to connect your API key or switch to Local Runner.';
+            }
           }
         }
       } catch (_) {
+        if (navModelText) navModelText.textContent = 'Server Offline';
         if (modelDot) {
           modelDot.style.background = 'var(--accent-red)';
           modelDot.style.boxShadow = '0 0 6px rgba(225, 29, 72, 0.7)';
@@ -3572,15 +3901,15 @@
 
       if (status === 'running') {
         pill.className = 'test-pill running';
-        txt.textContent = '⟳ wait';
-        setCompactStatus('waiting', '⏳', message || `Checking Step ${num}...`);
+        txt.textContent = 'wait';
+        setCompactStatus('waiting', '●', message || `Checking Step ${num}...`);
       } else if (status === 'success') {
         pill.className = 'test-pill success';
         txt.textContent = elapsed ? `✓ ${elapsed}s` : '✓ OK';
       } else if (status === 'error') {
         pill.className = 'test-pill error';
-        txt.textContent = '✗ Fail';
-        setCompactStatus('error', '❌', message || `Step ${num} failed`);
+        txt.textContent = 'Fail';
+        setCompactStatus('error', '!', message || `Step ${num} failed`);
       }
     }
 
@@ -3591,6 +3920,337 @@
       if (box) box.className = `test-compact-status status-${state}`;
       if (iconEl) iconEl.textContent = icon;
       if (msgEl) msgEl.textContent = msg;
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    async function scanLocalModels(forceRefresh = false) {
+      const localSelect = document.getElementById('modal-local-model');
+      const statusMsg = document.getElementById('local-model-status-message');
+      const endpoint = (document.getElementById('modal-local-endpoint').value || 'http://localhost:11434').trim();
+      const scanIcon = document.getElementById('scan-icon');
+      const scanSpinner = document.getElementById('scan-spinner');
+
+      if (scanIcon && scanSpinner) {
+        scanIcon.style.display = 'none';
+        scanSpinner.style.display = 'inline';
+      }
+      if (statusMsg) {
+        statusMsg.innerHTML = '<span style="color: var(--text-muted); font-size: 11px;">Scanning for installed models on this machine...</span>';
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/llm/models?endpoint=${encodeURIComponent(endpoint)}`);
+        const data = await res.json();
+
+        localSelect.innerHTML = '';
+
+        if (data.status === 'ready' && data.models && data.models.length > 0) {
+          // Tier 3: Ollama is running and models ARE installed
+          const groupInstalled = document.createElement('optgroup');
+          groupInstalled.label = `Downloaded on this machine (${data.models.length})`;
+          
+          let hasMatch = false;
+          data.models.forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = m;
+            opt.textContent = m;
+            if (currentLlmConfig && currentLlmConfig.model === m) {
+              opt.selected = true;
+              hasMatch = true;
+            }
+            groupInstalled.appendChild(opt);
+          });
+          localSelect.appendChild(groupInstalled);
+
+          if (!hasMatch) {
+            localSelect.value = data.models[0];
+            if (currentLlmConfig) currentLlmConfig.model = data.models[0];
+          }
+
+          if (statusMsg) {
+            statusMsg.innerHTML = `
+              <div class="ollama-status-card card-ready">
+                <div class="status-header">
+                  <div>
+                    <div class="status-title">Ollama Online — ${data.models.length} Model(s) Available</div>
+                    <div class="status-subtitle">Connected to <code>${escapeHtml(endpoint)}</code></div>
+                  </div>
+                </div>
+                <div style="font-size: 11px; margin-top: 4px;">
+                  Active model is ready for course generation. You can switch between any installed model in the dropdown above.
+                </div>
+              </div>
+            `;
+          }
+        } else if (data.status === 'not_installed' || !data.ollama_installed) {
+          // Tier 1: Ollama is NOT installed on this computer (detects Mac, Windows, Linux)
+          const targetOS = (data.host_os || (navigator.platform && /Win/i.test(navigator.platform) ? 'windows' : (navigator.platform && /Linux/i.test(navigator.platform) ? 'linux' : 'mac'))).toLowerCase();
+          
+          let osName = 'Mac';
+          let downloadLink = 'https://ollama.com/download/mac';
+          let cliLabel = 'Or install via Mac Terminal (Homebrew):';
+          let cliCommand = 'brew install ollama';
+
+          if (targetOS === 'windows') {
+            osName = 'Windows';
+            downloadLink = 'https://ollama.com/download/windows';
+            cliLabel = 'Or install via Windows PowerShell (winget):';
+            cliCommand = 'winget install Ollama.Ollama';
+          } else if (targetOS === 'linux') {
+            osName = 'Linux';
+            downloadLink = 'https://ollama.com/download/linux';
+            cliLabel = 'Or install via Linux Terminal:';
+            cliCommand = 'curl -fsSL https://ollama.com/install.sh | sh';
+          }
+
+          const placeholder = document.createElement('option');
+          placeholder.value = '';
+          placeholder.disabled = true;
+          placeholder.selected = true;
+          placeholder.textContent = `[Not Installed] Ollama is not installed on this system (${osName})`;
+          localSelect.appendChild(placeholder);
+
+          if (statusMsg) {
+            statusMsg.innerHTML = `
+              <div class="ollama-status-card card-not-installed">
+                <div class="status-header">
+                  <div>
+                    <div class="status-title">Ollama is Not Installed on this Machine (${osName})</div>
+                    <div class="status-subtitle">Local open-source runner requires the Ollama runtime.</div>
+                  </div>
+                </div>
+                <p style="font-size: 11px; margin: 4px 0 8px 0; line-height: 1.4;">
+                  To use local open-source AI models privately and for free on ${osName}, install Ollama:
+                </p>
+                <div style="margin-bottom: 8px;">
+                  <a href="${downloadLink}" target="_blank" class="ollama-install-btn">
+                    Download Ollama for ${osName}
+                  </a>
+                  <button type="button" class="ollama-switch-cloud-btn" onclick="switchModalProvider('cloud')">
+                    Use Cloud Accounts (No Install)
+                  </button>
+                </div>
+                <div style="font-size: 11px; opacity: 0.85; margin-top: 6px;">
+                  ${cliLabel}
+                </div>
+                <div class="ollama-term-box">
+                  <code>${cliCommand}</code>
+                  <button type="button" class="ollama-copy-btn" onclick="navigator.clipboard.writeText('${cliCommand}'); showToast('Copied command to clipboard');">Copy</button>
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">
+                  Once installed, click <strong>Scan Installed Models</strong> above to detect it automatically.
+                </div>
+              </div>
+            `;
+          }
+        } else if (data.status === 'not_running') {
+          // Tier 2A: Ollama is installed, but service is not running
+          const targetOS = (data.host_os || (navigator.platform && /Win/i.test(navigator.platform) ? 'windows' : 'mac')).toLowerCase();
+          const startGuide = targetOS === 'windows' 
+            ? 'Start Ollama from the Windows Start menu or run in PowerShell:' 
+            : 'Start the Ollama app from Applications or run in your Terminal:';
+
+          const placeholder = document.createElement('option');
+          placeholder.value = '';
+          placeholder.disabled = true;
+          placeholder.selected = true;
+          placeholder.textContent = '[Offline] Ollama is installed, but not running';
+          localSelect.appendChild(placeholder);
+
+          if (statusMsg) {
+            statusMsg.innerHTML = `
+              <div class="ollama-status-card card-not-running">
+                <div class="status-header">
+                  <div>
+                    <div class="status-title">Ollama is Installed, but Not Running</div>
+                    <div class="status-subtitle">The background server is stopped at <code>${escapeHtml(endpoint)}</code></div>
+                  </div>
+                </div>
+                <div style="font-size: 11px; margin: 4px 0 6px 0;">
+                  ${startGuide}
+                </div>
+                <div class="ollama-term-box">
+                  <code>ollama serve</code>
+                  <button type="button" class="ollama-copy-btn" onclick="navigator.clipboard.writeText('ollama serve'); showToast('Copied to clipboard');">Copy</button>
+                </div>
+                <button type="button" class="ollama-switch-cloud-btn" onclick="scanLocalModels(true)" style="margin-top: 4px;">
+                  Re-scan Service
+                </button>
+              </div>
+            `;
+          }
+        } else if (data.status === 'no_models') {
+          // Tier 2B: Ollama is running, but 0 models are downloaded
+          const placeholder = document.createElement('option');
+          placeholder.value = '';
+          placeholder.disabled = true;
+          placeholder.selected = true;
+          placeholder.textContent = '[No Models] Ollama is online, but no models downloaded yet';
+          localSelect.appendChild(placeholder);
+
+          if (statusMsg) {
+            statusMsg.innerHTML = `
+              <div class="ollama-status-card card-no-models">
+                <div class="status-header">
+                  <div>
+                    <div class="status-title">Ollama Running — No Models Downloaded Yet</div>
+                    <div class="status-subtitle">The local runtime is active, but your model library is empty.</div>
+                  </div>
+                </div>
+                <div style="font-size: 11px; margin: 4px 0 8px 0;">
+                  1-Click Download directly in browser:
+                </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px;">
+                  <button type="button" class="ollama-pull-btn" onclick="downloadOllamaModel('llama3.1')">
+                    Download Llama 3.1 (Recommended · 4.7 GB)
+                  </button>
+                  <button type="button" class="ollama-pull-btn btn-secondary" onclick="downloadOllamaModel('llama3.2')">
+                    Download Llama 3.2 (Ultralight · 2.0 GB)
+                  </button>
+                </div>
+
+                <!-- Live In-Browser Download Progress -->
+                <div id="pull-progress-container" class="pull-progress-shell" style="display: none;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
+                    <span id="pull-progress-status" style="color: var(--accent-blue, #60a5fa); font-weight: 600;">Downloading model...</span>
+                    <span id="pull-progress-percent" style="font-family: monospace; color: #fff;">0%</span>
+                  </div>
+                  <div class="pull-progress-bar-wrap">
+                    <div id="pull-progress-bar" class="pull-progress-bar-fill"></div>
+                  </div>
+                  <div id="pull-progress-sub" style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">
+                    Starting transfer from Ollama library...
+                  </div>
+                </div>
+
+                <div style="font-size: 11px; margin-top: 10px; opacity: 0.85;">
+                  Or download via Terminal:
+                </div>
+                <div class="ollama-term-box">
+                  <code>ollama run llama3.1</code>
+                  <button type="button" class="ollama-copy-btn" onclick="navigator.clipboard.writeText('ollama run llama3.1'); showToast('Copied to clipboard');">Copy</button>
+                </div>
+                <button type="button" class="ollama-switch-cloud-btn" onclick="scanLocalModels(true)" style="margin-top: 4px;">
+                  Re-scan Models
+                </button>
+              </div>
+            `;
+          }
+        } else {
+          // Endpoint Unreachable / Network Error
+          const placeholder = document.createElement('option');
+          placeholder.value = '';
+          placeholder.disabled = true;
+          placeholder.selected = true;
+          placeholder.textContent = '[Unreachable] Cannot reach endpoint';
+          localSelect.appendChild(placeholder);
+
+          if (statusMsg) {
+            statusMsg.innerHTML = `
+              <div class="ollama-status-card card-not-installed">
+                <div class="status-header">
+                  <div>
+                    <div class="status-title">Cannot Reach Endpoint: <code>${escapeHtml(endpoint)}</code></div>
+                    <div class="status-subtitle">${escapeHtml(data.message || data.error || 'Connection refused')}</div>
+                  </div>
+                </div>
+                <div style="font-size: 11px; margin-top: 6px;">
+                  Verify that your Ollama server or tunnel URL is running and accessible.
+                </div>
+                <button type="button" class="ollama-switch-cloud-btn" onclick="scanLocalModels(true)" style="margin-top: 6px;">
+                  Retry Scan
+                </button>
+              </div>
+            `;
+          }
+        }
+      } catch (err) {
+        localSelect.innerHTML = '<option value="" disabled selected>Unable to scan models (Network error)</option>';
+        if (statusMsg) {
+          statusMsg.innerHTML = `<span style="color: var(--accent-red, #f43f5e); font-size: 11px;">Error scanning models: ${escapeHtml(err.message)}</span>`;
+        }
+      } finally {
+        if (scanIcon && scanSpinner) {
+          scanIcon.style.display = 'inline';
+          scanSpinner.style.display = 'none';
+        }
+      }
+    }
+
+    async function downloadOllamaModel(modelName) {
+      const endpoint = (document.getElementById('modal-local-endpoint').value || 'http://localhost:11434').trim();
+      const container = document.getElementById('pull-progress-container');
+      const statusTxt = document.getElementById('pull-progress-status');
+      const percentTxt = document.getElementById('pull-progress-percent');
+      const bar = document.getElementById('pull-progress-bar');
+      const subTxt = document.getElementById('pull-progress-sub');
+      const pullBtns = document.querySelectorAll('.ollama-pull-btn');
+
+      if (container) container.style.display = 'block';
+      pullBtns.forEach(b => b.disabled = true);
+      if (statusTxt) statusTxt.textContent = `Connecting to download ${modelName}...`;
+      if (bar) bar.style.width = '0%';
+      if (percentTxt) percentTxt.textContent = '0%';
+
+      try {
+        const res = await fetch(`${API_BASE}/llm/pull`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model: modelName, endpoint: endpoint })
+        });
+
+        if (!res.ok) {
+          throw new Error(`Download service returned HTTP ${res.status}`);
+        }
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n\n');
+          buffer = lines.pop();
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                const data = JSON.parse(line.slice(6));
+                if (data.status) {
+                  if (statusTxt) statusTxt.textContent = `Downloading ${modelName}: ${data.status}`;
+                }
+                if (data.percent !== undefined && data.percent > 0) {
+                  if (percentTxt) percentTxt.textContent = `${data.percent}%`;
+                  if (bar) bar.style.width = `${data.percent}%`;
+                }
+                if (data.total && data.completed) {
+                  const mbDone = (data.completed / (1024 * 1024 * 1024)).toFixed(2);
+                  const mbTot = (data.total / (1024 * 1024 * 1024)).toFixed(2);
+                  if (subTxt) subTxt.textContent = `${mbDone} GB / ${mbTot} GB transferred`;
+                }
+                if (data.done) {
+                  if (data.status === 'success') {
+                    showToast(`Model ${modelName} downloaded successfully.`);
+                    await scanLocalModels(true);
+                  } else {
+                    showToast(`Download failed: ${data.message || 'Error'}`);
+                  }
+                  pullBtns.forEach(b => b.disabled = false);
+                  return;
+                }
+              } catch (_) {}
+            }
+          }
+        }
+      } catch (err) {
+        showToast(`Download error: ${err.message}`);
+        pullBtns.forEach(b => b.disabled = false);
+      }
     }
 
     async function openModelModal() {
@@ -3610,19 +4270,12 @@
           currentLlmConfig = await res.json();
           activeModalProvider = currentLlmConfig.provider || 'local';
           switchModalProvider(activeModalProvider);
-
-          // Populate local dropdown
-          const localSelect = document.getElementById('modal-local-model');
-          localSelect.innerHTML = '';
-          (currentLlmConfig.available_local_models || []).forEach(m => {
-            const opt = document.createElement('option');
-            opt.value = m;
-            opt.textContent = m;
-            if (m === currentLlmConfig.model) opt.selected = true;
-            localSelect.appendChild(opt);
-          });
+          if (currentLlmConfig.base_url && activeModalProvider === 'local') {
+            document.getElementById('modal-local-endpoint').value = currentLlmConfig.base_url;
+          }
         }
       } catch (_) {}
+      await scanLocalModels(false);
     }
 
     function closeModelModal() {
@@ -3661,6 +4314,11 @@
       const endpoint = isCloud 
         ? 'https://api.openai.com/v1' 
         : document.getElementById('modal-local-endpoint').value;
+
+      if (!isCloud && !selectedModel) {
+        showToast('Please select or install a local model first, or switch to Cloud Accounts.');
+        return;
+      }
 
       try {
         const res = await fetch(`${API_BASE}/llm/config`, {
@@ -3705,10 +4363,19 @@
       const isCloud = activeModalProvider === 'cloud';
       const selectedModel = isCloud 
         ? (document.getElementById('modal-cloud-model').value || 'claude-3-5-sonnet')
-        : (document.getElementById('modal-local-model').value || 'llama3.1:latest');
+        : document.getElementById('modal-local-model').value;
       const endpoint = isCloud 
         ? 'https://api.openai.com/v1' 
         : (document.getElementById('modal-local-endpoint').value || 'http://localhost:11434');
+
+      if (!isCloud && !selectedModel) {
+        showToast('No installed model selected. Scan installed models or run ollama run <model>.');
+        if (btn) {
+          btn.textContent = 'Test Ping';
+          btn.disabled = false;
+        }
+        return;
+      }
 
       // Reveal live compact strip
       const liveBox = document.getElementById('modal-test-livebox');
@@ -3719,23 +4386,23 @@
       resetTestStep(2, '...');
       resetTestStep(3, '...');
 
-      setCompactStatus('waiting', '⏳', `Connecting to ${selectedModel}... Model is NOT active until PONG is verified.`);
+      setCompactStatus('waiting', '●', `Connecting to ${selectedModel}... Model is NOT active until PONG is verified.`);
 
       // Start elapsed timer ticking every 100ms
       modelTestStartTime = Date.now();
       const clockEl = document.getElementById('test-livebox-clock');
       modelTestTimer = setInterval(() => {
         const elapsedSec = ((Date.now() - modelTestStartTime) / 1000).toFixed(1);
-        if (clockEl) clockEl.textContent = `⏱️ ${elapsedSec}s`;
+        if (clockEl) clockEl.textContent = `${elapsedSec}s`;
 
         const curMsg = document.getElementById('test-status-msg');
         if (curMsg && !curMsg.dataset.customError) {
           if (elapsedSec >= 15 && elapsedSec < 40) {
-            curMsg.textContent = `⏳ Still attempting to connect (${elapsedSec}s). Model neural weights loading into RAM memory...`;
+            curMsg.textContent = `Still attempting to connect (${elapsedSec}s). Model neural weights loading into RAM memory...`;
           } else if (elapsedSec >= 40 && elapsedSec < 60) {
-            curMsg.textContent = `⏳ Heavy model loading (${elapsedSec}s)... CPU memory allocation in progress. Still waiting for PONG...`;
+            curMsg.textContent = `Heavy model loading (${elapsedSec}s)... CPU memory allocation in progress. Still waiting for PONG...`;
           } else if (elapsedSec >= 60) {
-            curMsg.textContent = `⚠️ Handshake taking >1 min (${elapsedSec}s). Click 'Cancel / Back' to choose a lighter model or restart Ollama.`;
+            curMsg.textContent = `Handshake taking >1 min (${elapsedSec}s). Click 'Cancel / Back' to choose a lighter model or restart Ollama.`;
           }
         }
       }, 100);
@@ -3763,20 +4430,20 @@
               setTestStepStatus(3, 'success', '', data.latency);
               setCompactStatus(
                 'success',
-                '💥',
+                '✓',
                 `PONG 200 OK (${data.latency || '1.1'}s) — ${selectedModel} is connected & ready! Click 'Apply & Switch' or 'Cancel / Back'.`
               );
-              showToast(`✅ Connected to ${selectedModel}! (Pong 200 OK)`);
+              showToast(`Connected to ${selectedModel} (Pong 200 OK)`);
               checkSystemStatus();
             } else {
               const curMsg = document.getElementById('test-status-msg');
               if (curMsg) curMsg.dataset.customError = 'true';
               setCompactStatus(
                 'error',
-                '❌',
+                '!',
                 data.message || 'Model did not respond with PONG. The model is NOT ready.'
               );
-              showToast(`❌ Connection failed: ${data.message || 'Model offline'}`);
+              showToast(`Connection failed: ${data.message || 'Model offline'}`);
             }
 
             if (btn) {
@@ -3801,7 +4468,7 @@
         if (curMsg) curMsg.dataset.customError = 'true';
         setCompactStatus(
           'error',
-          '❌',
+          '!',
           `Connection interrupted after ${elapsedSec}s. Check if Ollama is running at ${endpoint}.`
         );
 
@@ -3887,10 +4554,10 @@
         const timeStr = `${mins}:${secs}s`;
 
         const clockEl = document.getElementById('monitor-elapsed-clock');
-        if (clockEl) clockEl.textContent = `⏱️ ${timeStr}`;
+        if (clockEl) clockEl.textContent = `${timeStr}`;
 
         const floatEl = document.getElementById('floating-async-text');
-        if (floatEl) floatEl.textContent = `⚡ Processing URL (${timeStr})...`;
+        if (floatEl) floatEl.textContent = `Processing URL (${timeStr})...`;
 
         // Stage 1: Source Retrieval (0 to 3s)
         if (totalSec < 3) {
@@ -4036,27 +4703,54 @@
         const urlInput = document.getElementById('source-url');
         const url = urlInput ? urlInput.value.trim() : '';
         if (!url || url.includes('@') || (!url.startsWith('http://') && !url.startsWith('https://'))) {
-          showToast('⚠️ Please enter a valid course URL starting with http:// or https://');
+          showToast('Please enter a valid course URL starting with http:// or https://');
           return;
         }
       } else if (selectedMode === 'batch') {
         const text = document.getElementById('batch-urls').value;
         const urls = text.split('\n').map(l => l.trim()).filter(l => l.startsWith('http'));
         if (urls.length === 0) {
-          showToast('⚠️ Please enter at least one valid HTTP URL in the batch box.');
+          showToast('Please enter at least one valid HTTP URL in the batch box.');
           return;
         }
       } else if (selectedMode === 'excel') {
         if (!pickedExcelFile) {
-          showToast('⚠️ Please select or drop a .xlsx or .csv spreadsheet first.');
+          showToast('Please select or drop a .xlsx or .csv spreadsheet first.');
           return;
         }
       }
 
+      // Pre-flight check: ensure AI engine is ready before starting pipeline
+      try {
+        const sysRes = await fetch(`${API_BASE}/system-status`);
+        if (sysRes.ok) {
+          const sys = await sysRes.json();
+          if (sys.llm_provider === 'local') {
+            if (sys.ollama_state === 'not_installed') {
+              showToast('Ollama is not installed on this machine. Please install Ollama or switch to Cloud AI.');
+              openModelModal();
+              return;
+            } else if (sys.ollama_state === 'not_running') {
+              showToast('Ollama service is not running. Run "ollama serve" in your Terminal or switch to Cloud AI.');
+              openModelModal();
+              return;
+            } else if (sys.ollama_state === 'no_models') {
+              showToast('No models downloaded in Ollama yet. Download a model in Model Settings.');
+              openModelModal();
+              return;
+            }
+          } else if (!sys.llm_connected) {
+            showToast('Cloud AI provider is disconnected. Please connect your API key in Model Settings.');
+            openModelModal();
+            return;
+          }
+        }
+      } catch (_) {}
+
       // Start the live gamified animation monitor
       const activeModelLabel = currentLlmConfig.provider === 'cloud'
-        ? `Cloud AI (${currentLlmConfig.model})`
-        : `Local Runner (${currentLlmConfig.model || 'gemma4:latest'})`;
+        ? `Cloud AI (${currentLlmConfig.model || 'Connected'})`
+        : `Local Runner (${currentLlmConfig.model || 'Ollama'})`;
       startAnalysisAnimation(activeModelLabel);
 
       try {
@@ -4105,12 +4799,12 @@
 
         setTimeout(() => {
           switchView('review');
-          showToast(`🎉 Extracted ${proposalsList.length} course proposal(s) successfully!`);
+          showToast(`Extracted ${proposalsList.length} course proposal(s) successfully.`);
         }, 1400);
 
       } catch (err) {
         finishAnalysisAnimation(false);
-        showToast(`❌ ${err.message || 'Scrape failed. Check the URL and backend connection.'}`);
+        showToast(err.message || 'Scrape failed. Check the URL and backend connection.');
       }
     }
 
@@ -4437,7 +5131,7 @@
       if (btn) {
         btn.innerHTML = isHidden 
           ? '▲ Hide Details' 
-          : '🔍 Inspect Modules';
+          : 'Inspect Modules';
       }
     }
 
@@ -4501,7 +5195,9 @@
       if (filtered.length === 0) {
         container.innerHTML = `
           <div style="text-align: center; background: #080a0f; border: 1px dashed #1e2638; border-radius: var(--radius-md); padding: 48px 24px; animation: itemPopIn 0.25s ease;">
-            <div style="font-size: 32px; margin-bottom: 8px;">🔍</div>
+            <div style="margin-bottom: 8px;">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.8"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </div>
             <div style="font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 4px;">No courses matching criteria</div>
             <div style="font-size: 12px; color: var(--text-muted); max-width: 420px; margin: 0 auto 16px; line-height: 1.4;">
               ${query ? `No courses found matching "${escapeHtml(query)}". Try another keyword or create a new course.` : 'No courses found in this category. Generate a new course now.'}
@@ -4548,13 +5244,10 @@
                   ${escapeHtml(c.level || 'Beginner')}
                 </span>
                 <span class="badge-card-info">
-                  ⏱ ${c.course_duration_minutes || 60} mins
+                  ${c.course_duration_minutes || 60} mins
                 </span>
                 <span class="badge-card-info">
-                  📚 ${c.module_count || (topics.length || 5)} Activities
-                </span>
-                <span class="badge-card-info">
-                  👥 ${escapeHtml(c.audience || 'General Audience')}
+                  ${escapeHtml(c.audience || 'General Audience')}
                 </span>
               </div>
             </div>
@@ -4574,7 +5267,7 @@
             <div>
               ${c.source_url ? `
                 <a href="${escapeHtml(c.source_url)}" target="_blank" rel="noopener noreferrer" class="course-source-link" title="Open original learning resource">
-                  🔗 ${escapeHtml(c.source_url)} ↗
+                  ${escapeHtml(c.source_url)} ↗
                 </a>
               ` : `
                 <span style="font-size: 11px; color: var(--text-muted);">Package ID: <code>${escapeHtml(c.id)}</code></span>
@@ -4582,10 +5275,10 @@
             </div>
             <div class="course-card-actions">
               <button type="button" class="btn-inspect-details" id="btn-details-${c.id}" onclick="toggleCourseDetails('${c.id}')" title="Inspect verified Moodle activities and module outline">
-                🔍 Inspect Modules
+                Inspect Modules
               </button>
               <a class="btn-download-mbz" href="${API_BASE}/download/${c.id}.mbz" download="${c.id}.mbz" title="Download native Moodle backup archive directly to your computer">
-                ⬇ Download .mbz
+                Download .mbz
               </a>
             </div>
           </div>
@@ -4601,19 +5294,19 @@
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; margin-bottom: 12px;">
               <div style="background: #0d121c; border: 1px solid #1a2336; border-radius: 6px; padding: 8px 10px; font-size: 11.5px; color: #cbd5e1;">
-                📄 <strong>Overview & Objectives:</strong> Complete course brief, audience profile, and outcomes.
+                <strong>Overview & Objectives:</strong> Complete course brief, audience profile, and outcomes.
               </div>
               <div style="background: #0d121c; border: 1px solid #1a2336; border-radius: 6px; padding: 8px 10px; font-size: 11.5px; color: #cbd5e1;">
-                🔗 <strong>Primary Documentation:</strong> Direct official reference URL embedded.
+                <strong>Primary Documentation:</strong> Direct official reference URL embedded.
               </div>
               <div style="background: #0d121c; border: 1px solid #1a2336; border-radius: 6px; padding: 8px 10px; font-size: 11.5px; color: #cbd5e1;">
-                🎥 <strong>Video Lectures:</strong> Curated video resources linked into the course section.
+                <strong>Video Lectures:</strong> Curated video resources linked into the course section.
               </div>
               <div style="background: #0d121c; border: 1px solid #1a2336; border-radius: 6px; padding: 8px 10px; font-size: 11.5px; color: #cbd5e1;">
-                📝 <strong>Quiz Assessment:</strong> Automated knowledge checks and evaluation questions.
+                <strong>Quiz Assessment:</strong> Automated knowledge checks and evaluation questions.
               </div>
               <div style="background: #0d121c; border: 1px solid #1a2336; border-radius: 6px; padding: 8px 10px; font-size: 11.5px; color: #cbd5e1;">
-                💬 <strong>Discussion Forum:</strong> Collaborative learning channel configured.
+                <strong>Discussion Forum:</strong> Collaborative learning channel configured.
               </div>
             </div>
 

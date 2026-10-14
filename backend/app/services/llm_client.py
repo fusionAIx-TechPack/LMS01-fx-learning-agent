@@ -9,12 +9,12 @@ from ..logger import get_logger
 
 logger = get_logger("llm_client")
 
-DEFAULT_LOCAL_MODELS = [
+RECOMMENDED_LOCAL_MODELS = [
     "llama3.1:latest",
+    "qwen2.5:7b",
     "llama3.2:latest",
-    "qwen2.5-coder:14b",
-    "qwen3:4b",
-    "gemma4:latest",
+    "phi3.5:latest",
+    "mistral:latest",
 ]
 
 DEFAULT_CLOUD_MODELS = [
@@ -25,6 +25,24 @@ DEFAULT_CLOUD_MODELS = [
     "deepseek-chat",
 ]
 
+def is_ollama_installed_on_system() -> bool:
+    """Check if Ollama CLI or application bundle exists on the host OS."""
+    import shutil
+    if shutil.which("ollama"):
+        return True
+    common_paths = [
+        "/Applications/Ollama.app",
+        os.path.expanduser("~/Applications/Ollama.app"),
+        "/usr/local/bin/ollama",
+        "/usr/bin/ollama",
+        "/opt/homebrew/bin/ollama",
+        os.path.expanduser("~/.local/bin/ollama"),
+        os.path.expanduser("~/AppData/Local/Programs/Ollama/ollama.exe"),
+        "C:\\Program Files\\Ollama\\ollama.exe",
+    ]
+    return any(os.path.exists(p) for p in common_paths)
+
+
 class UnifiedLLMClient:
     """Hybrid LLM Client supporting both local open-source models (Ollama/vLLM)
     and Cloud AI providers (Azure OpenAI, OpenAI, Groq, OpenRouter, Gemini)."""
@@ -33,7 +51,7 @@ class UnifiedLLMClient:
         self.provider = os.getenv("LLM_PROVIDER", "local")  # "local" or "cloud"
         self.local_base_url = os.getenv("LLM_LOCAL_BASE_URL", "http://localhost:11434").rstrip("/")
         self.cloud_base_url = os.getenv("LLM_CLOUD_BASE_URL", "https://api.openai.com/v1").rstrip("/")
-        self.model = os.getenv("LLM_MODEL", "llama3.1:latest")
+        self.model = os.getenv("LLM_MODEL", "")
         self.api_key = os.getenv("LLM_API_KEY", "")
         self.timeout = float(os.getenv("LLM_TIMEOUT", "45.0"))
         logger.info(
@@ -48,26 +66,41 @@ class UnifiedLLMClient:
         return self.cloud_base_url if self.provider == "cloud" else self.local_base_url
 
     async def get_config(self, is_connected: bool = True) -> dict[str, Any]:
-        local_models = list(DEFAULT_LOCAL_MODELS)
+        local_models: list[str] = []
+        is_ollama_reachable = False
         try:
-            async with httpx.AsyncClient(timeout=1.5) as client:
+            async with httpx.AsyncClient(timeout=2.0) as client:
                 res = await client.get(f"{self.local_base_url}/api/tags")
                 if res.status_code == 200:
+                    is_ollama_reachable = True
                     data = res.json()
                     names = [m["name"] for m in data.get("models", []) if "name" in m]
                     if names:
                         local_models = names
         except Exception as e:
-            logger.debug("Could not fetch Ollama local tags (%s), using defaults", e)
+            logger.debug("Could not fetch Ollama local tags (%s)", e)
+
+        # In local mode, determine model from actually installed models
+        active_model = self.model
+        if self.provider == "local":
+            if local_models:
+                if not active_model or active_model not in local_models:
+                    active_model = local_models[0]
+                    self.model = active_model
+            else:
+                active_model = ""
+
+        connected = is_connected if self.provider == "cloud" else (is_ollama_reachable and len(local_models) > 0)
 
         return {
             "provider": self.provider,
-            "model": self.model,
+            "model": active_model,
             "base_url": self.current_base_url,
             "has_api_key": bool(self.api_key),
             "available_local_models": local_models,
             "available_cloud_models": DEFAULT_CLOUD_MODELS,
-            "is_connected": is_connected,
+            "recommended_local_models": RECOMMENDED_LOCAL_MODELS,
+            "is_connected": connected,
         }
 
     def update_config(self, provider: str, model: str, base_url: str | None = None, api_key: str | None = None) -> None:
@@ -93,7 +126,7 @@ class UnifiedLLMClient:
         )
 
     async def check_health(self) -> bool:
-        """Check if active LLM endpoint (local or cloud) is reachable."""
+        """Check if active LLM endpoint (local or cloud) is reachable and has models."""
         try:
             headers = {}
             if self.provider == "cloud" and self.api_key:
@@ -102,11 +135,18 @@ class UnifiedLLMClient:
             url = f"{self.current_base_url}/models" if self.provider == "cloud" else f"{self.local_base_url}/api/tags"
             async with httpx.AsyncClient(timeout=3.0, headers=headers) as client:
                 res = await client.get(url)
-                is_healthy = res.status_code in (200, 401)
-                logger.debug("Health check to %s: HTTP %d (healthy=%s)", url, res.status_code, is_healthy)
-                return is_healthy
+                if self.provider == "local":
+                    if res.status_code == 200:
+                        data = res.json()
+                        models = [m["name"] for m in data.get("models", []) if "name" in m]
+                        if models:
+                            if not self.model or self.model not in models:
+                                self.model = models[0]
+                            return True
+                    return False
+                return res.status_code in (200, 401)
         except Exception as e:
-            logger.warning("Health check failed for %s (%s)", self.current_base_url, e)
+            logger.debug("Health check failed for %s (%s)", self.current_base_url, e)
             return False
 
     async def test_connection(
@@ -156,7 +196,14 @@ class UnifiedLLMClient:
                 return {"success": True, "provider": active_provider, "model": active_model, "message": msg}
         except httpx.ConnectError:
             duration = time.time() - start_time
-            err_msg = f"Cannot reach {active_base_url}. Ollama is not running on your computer. Please start Ollama."
+            is_local = any(h in active_base_url for h in ["localhost", "127.0.0.1", "0.0.0.0"])
+            if active_provider == "local" and is_local:
+                if not is_ollama_installed_on_system():
+                    err_msg = f"Cannot reach {active_base_url}. Ollama is not installed on this computer. Please install Ollama from https://ollama.com/download or switch to Cloud AI."
+                else:
+                    err_msg = f"Cannot reach {active_base_url}. Ollama is installed, but the service is not running. Run 'ollama serve' in your terminal."
+            else:
+                err_msg = f"Cannot reach endpoint at {active_base_url}. Connection refused."
             return {"success": False, "provider": active_provider, "model": active_model, "message": err_msg}
         except httpx.TimeoutException:
             duration = time.time() - start_time
@@ -204,7 +251,14 @@ class UnifiedLLMClient:
                     yield f"data: {json.dumps({'step': 1, 'phase': 'HOST_CHECK', 'status': 'error', 'message': err_msg, 'elapsed': round(time.time() - start_time, 2), 'done': True, 'success': False})}\n\n"
                     return
         except httpx.ConnectError:
-            err_msg = f"Cannot reach {target_base_url}. Ollama is not running on your computer. Please open Ollama."
+            is_local = any(h in target_base_url for h in ["localhost", "127.0.0.1", "0.0.0.0"])
+            if provider == "local" and is_local:
+                if not is_ollama_installed_on_system():
+                    err_msg = f"Cannot reach {target_base_url}. Ollama is not installed on this system. Please install Ollama or switch to Cloud AI."
+                else:
+                    err_msg = f"Cannot reach {target_base_url}. Ollama is installed, but the background service is not running. Run 'ollama serve' in your terminal."
+            else:
+                err_msg = f"Cannot reach endpoint at {target_base_url}. Connection refused."
             yield f"data: {json.dumps({'step': 1, 'phase': 'HOST_CHECK', 'status': 'error', 'message': err_msg, 'elapsed': round(time.time() - start_time, 2), 'done': True, 'success': False})}\n\n"
             return
         except Exception as e:

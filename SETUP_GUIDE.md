@@ -33,24 +33,29 @@ With this tool, you just **copy and paste any website link** (such as a tutorial
 
 ## 💻 3. What to Download on Your Friend's Laptop (3 Steps)
 
-You only need **two free programs** installed on Windows:
+You only need **two free programs** (Windows or Mac):
 
 ### Step 1: Install Python (The Engine Runner)
-1. Go to: **[https://www.python.org/downloads/](https://www.python.org/downloads/)**
-2. Click the big yellow button: **"Download Python"**.
-3. Run the installer.
-4. ⚠️ **VERY IMPORTANT**: On the first screen of the installer, check the box at the bottom that says:  
-   👉 **`[x] Add python.exe to PATH`**  
-   *(If you don't check this box, your laptop won't know where Python is).*
-5. Click **"Install Now"** and wait for it to finish.
+* **On Windows**:
+  1. Go to: **[https://www.python.org/downloads/](https://www.python.org/downloads/)**
+  2. Click the big yellow button: **"Download Python"**.
+  3. ⚠️ **VERY IMPORTANT**: On the first installer screen, check: **`[x] Add python.exe to PATH`**.
+  4. Click **"Install Now"**.
+* **On Mac**:
+  * Download from **[https://www.python.org/downloads/](https://www.python.org/downloads/)** or install via Terminal:
+    ```bash
+    brew install python
+    ```
 
 ---
 
 ### Step 2: Install Ollama (The Free AI Engine)
-1. Go to: **[https://ollama.com/download](https://ollama.com/download)**
-2. Click **"Download for Windows"**.
-3. Run the installer. It will install automatically and place a cute 🦙 (Llama icon) in your taskbar near the clock.
-4. **Good news**: Ollama automatically starts in the background every time Windows turns on! You never need to start it manually.
+* **On Windows**:
+  1. Go to: **[https://ollama.com/download/windows](https://ollama.com/download/windows)** (or `winget install Ollama.Ollama`).
+  2. Run the installer. It places a 🦙 icon in your taskbar near the clock.
+* **On Mac**:
+  1. Go to: **[https://ollama.com/download/mac](https://ollama.com/download/mac)** (or `brew install ollama`).
+  2. Drag Ollama to your Applications folder and launch it once.
 
 ---
 
@@ -121,13 +126,15 @@ ollama run llama3.2
 
 ## 🚀 4. How to Run the App (The 1-Click Method)
 
-1. Put the **`LMS01-fx-learning-agent`** folder on your friend's laptop (e.g. on Desktop or `C:\`).
+1. Put the **`LMS01-fx-learning-agent`** folder on the laptop (e.g. on Desktop).
 2. Open the folder.
-3. **Double-click `start.bat`**.
+3. Start the application:
+   - **On Windows**: Double-click **`start.bat`**.
+   - **On Mac / Linux**: Double-click **`start.sh`** (or open Terminal and run `./start.sh`).
 
 That's literally all! 
-- It will automatically install any required packages.
-- It will automatically launch your web browser to: **`http://localhost:8088/`**.
+- It will automatically verify Python and install any required dependencies.
+- It will automatically launch your default web browser to: **`http://localhost:8088/`**.
 
 ---
 

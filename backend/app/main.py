@@ -30,9 +30,10 @@ from .schemas import (
     ConnectedAccountSchema,
     ProviderConnectRequest,
     ProvidersStatusResponse,
+    PullModelRequest,
 )
 from .services.scraper import WebScraper
-from .services.llm_client import UnifiedLLMClient
+from .services.llm_client import UnifiedLLMClient, is_ollama_installed_on_system
 from .services.course_builder import CourseBuilderService, OUTPUT_DIR, slugify
 from .services.auth_service import auth_service, PROVIDER_CATALOG
 
@@ -160,6 +161,7 @@ async def readiness_probe():
         },
     )
 
+
 @app.get("/api/system-status", response_model=SystemStatusResponse)
 async def system_status():
     """Live diagnostic check for UI status bar."""
@@ -176,14 +178,184 @@ async def system_status():
     except Exception:
         pass
 
+    ollama_installed = is_ollama_installed_on_system()
+    ollama_state = "ready"
+    ollama_message = "Ollama is ready"
+
+    if llm.provider == "local":
+        if not ollama_installed:
+            ollama_state = "not_installed"
+            ollama_message = "Ollama is not installed on this system"
+            active_model = "Ollama Not Installed"
+        elif not llm_ok:
+            is_running = False
+            try:
+                import httpx
+                async with httpx.AsyncClient(timeout=1.0) as client:
+                    r = await client.get(f"{llm.local_base_url}/api/tags")
+                    if r.status_code == 200:
+                        is_running = True
+            except Exception:
+                is_running = False
+
+            if is_running:
+                ollama_state = "no_models"
+                ollama_message = "Ollama is running, but no models are downloaded"
+                active_model = "No Models Downloaded"
+            else:
+                ollama_state = "not_running"
+                ollama_message = "Ollama is installed, but not running"
+                active_model = "Ollama Not Running"
+        else:
+            ollama_state = "ready"
+            ollama_message = f"Ollama is ready ({llm.model})"
+            active_model = llm.model
+    else:
+        active_model = llm.model if llm_ok else "Cloud AI Disconnected"
+
+    import platform
+    sys_name = platform.system().lower()
+    host_os = "mac" if "darwin" in sys_name else ("windows" if "windows" in sys_name else "linux")
+
     return SystemStatusResponse(
         api_status="ok",
         llm_connected=llm_ok,
-        llm_model=llm.model,
+        llm_model=active_model or ("No Model Connected" if not llm_ok else "Active"),
         llm_provider=llm.provider,
+        ollama_installed=ollama_installed,
+        ollama_state=ollama_state,
+        ollama_message=ollama_message,
+        host_os=host_os,
         output_courses_count=course_count,
         docker_available=docker_ok,
     )
+
+@app.get("/api/llm/models")
+async def get_models_from_endpoint(endpoint: Optional[str] = None):
+    """Dynamically query installed models from an Ollama endpoint (local or remote tunnel)
+    with detailed diagnostics for installation, service status, and model availability."""
+    target = (endpoint or llm.local_base_url).rstrip("/")
+    is_local_host = any(h in target for h in ["localhost", "127.0.0.1", "0.0.0.0"])
+    ollama_installed = is_ollama_installed_on_system() if is_local_host else True
+
+    import platform
+    sys_name = platform.system().lower()
+    host_os = "mac" if "darwin" in sys_name else ("windows" if "windows" in sys_name else "linux")
+
+    try:
+        import httpx
+        async with httpx.AsyncClient(timeout=3.0) as client:
+            res = await client.get(f"{target}/api/tags")
+            if res.status_code == 200:
+                data = res.json()
+                models = [m["name"] for m in data.get("models", []) if "name" in m]
+                if models:
+                    return {
+                        "status": "ready",
+                        "connected": True,
+                        "ollama_installed": True,
+                        "endpoint": target,
+                        "models": models,
+                        "count": len(models),
+                        "host_os": host_os,
+                        "message": f"Ollama is online with {len(models)} model(s) downloaded.",
+                    }
+                else:
+                    return {
+                        "status": "no_models",
+                        "connected": True,
+                        "ollama_installed": True,
+                        "endpoint": target,
+                        "models": [],
+                        "count": 0,
+                        "host_os": host_os,
+                        "message": "Ollama is running, but no AI models have been downloaded yet.",
+                    }
+            return {
+                "status": "http_error",
+                "connected": False,
+                "ollama_installed": ollama_installed,
+                "endpoint": target,
+                "models": [],
+                "count": 0,
+                "host_os": host_os,
+                "error": f"Endpoint returned HTTP {res.status_code}",
+                "message": f"Endpoint returned HTTP {res.status_code}",
+            }
+    except Exception as e:
+        if is_local_host and not ollama_installed:
+            return {
+                "status": "not_installed",
+                "connected": False,
+                "ollama_installed": False,
+                "endpoint": target,
+                "models": [],
+                "count": 0,
+                "host_os": host_os,
+                "error": "Ollama is not installed on this system.",
+                "message": "Ollama is not installed on this computer.",
+            }
+        elif is_local_host and ollama_installed:
+            return {
+                "status": "not_running",
+                "connected": False,
+                "ollama_installed": True,
+                "endpoint": target,
+                "models": [],
+                "count": 0,
+                "host_os": host_os,
+                "error": "Ollama is installed, but the background service is not running.",
+                "message": "Ollama is installed, but not currently running.",
+            }
+        else:
+            return {
+                "status": "endpoint_unreachable",
+                "connected": False,
+                "ollama_installed": False,
+                "endpoint": target,
+                "models": [],
+                "count": 0,
+                "host_os": host_os,
+                "error": str(e),
+                "message": f"Cannot reach endpoint at {target}.",
+            }
+
+@app.post("/api/llm/pull")
+async def pull_ollama_model(req: PullModelRequest):
+    """Stream 1-click model download from Ollama using SSE events."""
+    from fastapi.responses import StreamingResponse
+    target = (req.endpoint or llm.local_base_url).rstrip("/")
+    pull_url = f"{target}/api/pull"
+
+    async def event_generator():
+        import json
+        import httpx
+        try:
+            async with httpx.AsyncClient(timeout=3600.0) as client:
+                async with client.stream("POST", pull_url, json={"name": req.model, "stream": True}) as response:
+                    if response.status_code != 200:
+                        yield f"data: {json.dumps({'status': 'error', 'message': f'Ollama returned HTTP {response.status_code}', 'done': True})}\n\n"
+                        return
+
+                    async for line in response.aiter_lines():
+                        if not line:
+                            continue
+                        try:
+                            item = json.loads(line)
+                            status_text = item.get("status", "")
+                            total = item.get("total", 0)
+                            completed = item.get("completed", 0)
+                            percent = round((completed / total * 100), 1) if total > 0 else 0
+
+                            yield f"data: {json.dumps({'status': status_text, 'total': total, 'completed': completed, 'percent': percent, 'done': False})}\n\n"
+                        except Exception:
+                            continue
+
+            yield f"data: {json.dumps({'status': 'success', 'done': True, 'message': f'Model {req.model} downloaded successfully.'})}\n\n"
+        except Exception as e:
+            yield f"data: {json.dumps({'status': 'error', 'done': True, 'message': str(e)})}\n\n"
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 # 5. Live Operational Telemetry Logs Endpoint
 @app.get("/api/logs")
