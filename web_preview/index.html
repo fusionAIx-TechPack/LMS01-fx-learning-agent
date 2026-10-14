@@ -816,8 +816,14 @@
     }
 
     select.input-box {
-      appearance: auto;
-      -webkit-appearance: menulist;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2214%22%20height%3D%2214%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%239ca3af%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      background-size: 14px 14px;
+      padding-right: 40px !important;
       cursor: pointer;
     }
 
@@ -825,7 +831,7 @@
     select.input-box optgroup {
       background-color: #161619;
       color: #FFFFFF;
-      padding: 6px 10px;
+      padding: 8px 10px;
     }
 
     .level-pills {
@@ -3136,7 +3142,7 @@
               <span id="scan-icon">Scan Installed Models</span>
             </button>
           </div>
-          <select class="input-box" id="modal-local-model" style="background-color: #161619; color: #fff; cursor: pointer; font-size: 13px; font-weight: 600;">
+          <select class="input-box" id="modal-local-model">
             <option value="llama3.2:latest" selected>Llama 3.2 (3B · Fast · 2.0 GB)</option>
             <option value="llama3.1:latest">Llama 3.1 (8B · Standard · 4.7 GB)</option>
             <option value="qwen2.5:latest">Qwen 2.5 (7B · Fast · 4.7 GB)</option>
@@ -3240,7 +3246,7 @@
         <!-- Active Model Selection -->
         <div class="field-group" style="margin-bottom: 12px;">
           <div class="field-label">Active Cloud AI Model</div>
-          <select class="input-box" id="modal-cloud-model" style="appearance: none; background-color: #000; cursor: pointer;">
+          <select class="input-box" id="modal-cloud-model">
             <option value="claude-3-5-sonnet">Claude 3.5 Sonnet (Anthropic)</option>
             <option value="claude-3-opus">Claude 3 Opus (Anthropic)</option>
             <option value="gpt-4o">GPT-4o (OpenAI)</option>
@@ -3937,7 +3943,8 @@
           detectedModels.forEach(m => {
             const opt = document.createElement('option');
             opt.value = m;
-            opt.textContent = m;
+            const match = standardModels.find(s => s.id === m);
+            opt.textContent = match ? match.name : `${m} (Installed)`;
             if (currentLlmConfig && currentLlmConfig.model === m) opt.selected = true;
             groupDetected.appendChild(opt);
           });
