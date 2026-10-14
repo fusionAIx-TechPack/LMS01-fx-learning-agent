@@ -26,21 +26,38 @@ DEFAULT_CLOUD_MODELS = [
 ]
 
 def is_ollama_installed_on_system() -> bool:
-    """Check if Ollama CLI or application bundle exists on the host OS."""
+    """Check if Ollama CLI or application bundle exists on the host OS (Windows, Mac, Linux)."""
     import shutil
-    if shutil.which("ollama"):
+    if shutil.which("ollama") or shutil.which("ollama.exe"):
         return True
-    common_paths = [
+
+    # Windows environment locations
+    local_app_data = os.environ.get("LOCALAPPDATA", "")
+    program_files = os.environ.get("ProgramFiles", r"C:\Program Files")
+    program_files_x86 = os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)")
+    user_profile = os.environ.get("USERPROFILE", "")
+
+    windows_candidates = [
+        os.path.join(local_app_data, "Programs", "Ollama", "ollama.exe") if local_app_data else "",
+        os.path.join(program_files, "Ollama", "ollama.exe"),
+        os.path.join(program_files_x86, "Ollama", "ollama.exe"),
+        os.path.join(user_profile, "AppData", "Local", "Programs", "Ollama", "ollama.exe") if user_profile else "",
+        os.path.expanduser("~/AppData/Local/Programs/Ollama/ollama.exe"),
+        r"C:\Program Files\Ollama\ollama.exe",
+        r"C:\Users\Default\AppData\Local\Programs\Ollama\ollama.exe",
+    ]
+
+    unix_candidates = [
         "/Applications/Ollama.app",
         os.path.expanduser("~/Applications/Ollama.app"),
         "/usr/local/bin/ollama",
         "/usr/bin/ollama",
         "/opt/homebrew/bin/ollama",
         os.path.expanduser("~/.local/bin/ollama"),
-        os.path.expanduser("~/AppData/Local/Programs/Ollama/ollama.exe"),
-        "C:\\Program Files\\Ollama\\ollama.exe",
     ]
-    return any(os.path.exists(p) for p in common_paths)
+
+    all_candidates = [p for p in windows_candidates + unix_candidates if p]
+    return any(os.path.exists(p) for p in all_candidates)
 
 
 class UnifiedLLMClient:

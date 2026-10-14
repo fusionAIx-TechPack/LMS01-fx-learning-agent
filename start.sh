@@ -30,19 +30,7 @@ python3 -m pip install -q -r backend/requirements.txt 2>/dev/null || true
 
 # 4. Resolve free port (fallback if default is busy)
 DESIRED_PORT="${PORT:-8088}"
-PORT=$(python3 -c "
-import socket
-def get_free_port(start_port):
-    for p in range(start_port, start_port + 20):
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            try:
-                s.bind(('127.0.0.1', p))
-                return p
-            except OSError:
-                continue
-    return start_port
-print(get_free_port(int('$DESIRED_PORT')))
-")
+PORT=$(python3 -m backend.app.find_port "$DESIRED_PORT")
 
 if [ "$PORT" != "$DESIRED_PORT" ]; then
     echo "[INFO] Port $DESIRED_PORT was busy; automatically switched to available port $PORT."
