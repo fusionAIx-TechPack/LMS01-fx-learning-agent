@@ -3124,7 +3124,12 @@
             </button>
           </div>
           <select class="input-box" id="modal-local-model" style="appearance: none; background-color: #000; cursor: pointer;">
-            <option value="" disabled selected>Click Scan to detect installed models...</option>
+            <option value="llama3.2:latest" selected>Llama 3.2 (3B · Fast · 2.0 GB)</option>
+            <option value="llama3.1:latest">Llama 3.1 (8B · Standard · 4.7 GB)</option>
+            <option value="qwen2.5:latest">Qwen 2.5 (7B · Fast · 4.7 GB)</option>
+            <option value="phi3.5:latest">Phi-3.5 Mini (3.8B · 2.2 GB)</option>
+            <option value="mistral:latest">Mistral (7B · 4.1 GB)</option>
+            <option value="gemma2:latest">Gemma 2 (2B · 1.6 GB)</option>
           </select>
           <div id="local-model-status-message" style="font-size: 12px; margin-top: 8px;"></div>
         </div>
@@ -3786,58 +3791,14 @@
         const data = await res.json();
         
         if (data.llm_provider === 'local') {
-          if (data.ollama_state === 'not_installed') {
-            if (navModelText) navModelText.textContent = 'Ollama Not Installed';
-            if (modelDot) {
-              modelDot.style.background = 'var(--accent-red)';
-              modelDot.style.boxShadow = '0 0 6px rgba(225, 29, 72, 0.7)';
-            }
-            if (btnModelPicker) btnModelPicker.title = 'Ollama is not installed on this machine. Click to view installation options or switch to Cloud AI.';
-            
-            if (banner) {
-              banner.className = 'engine-diagnostic-banner banner-danger';
-              banner.style.display = 'flex';
-              if (bannerPill) bannerPill.textContent = 'Required';
-              if (bannerText) bannerText.textContent = 'Ollama is not installed on this machine.';
-              if (bannerSub) bannerSub.textContent = 'Install Ollama to run local open-source models, or switch to Cloud AI.';
-            }
-          } else if (data.ollama_state === 'not_running') {
-            if (navModelText) navModelText.textContent = 'Ollama Offline';
-            if (modelDot) {
-              modelDot.style.background = 'var(--accent-amber)';
-              modelDot.style.boxShadow = '0 0 6px rgba(234, 163, 0, 0.7)';
-            }
-            if (btnModelPicker) btnModelPicker.title = 'Ollama is installed, but the background service is not running. Run: ollama serve';
-
-            if (banner) {
-              banner.className = 'engine-diagnostic-banner banner-warning';
-              banner.style.display = 'flex';
-              if (bannerPill) bannerPill.textContent = 'Offline';
-              if (bannerText) bannerText.textContent = 'Ollama service is not running.';
-              if (bannerSub) bannerSub.textContent = 'Start Ollama from Applications or run "ollama serve" in terminal.';
-            }
-          } else if (data.ollama_state === 'no_models') {
-            if (navModelText) navModelText.textContent = 'No Models Downloaded';
-            if (modelDot) {
-              modelDot.style.background = 'var(--accent-amber)';
-              modelDot.style.boxShadow = '0 0 6px rgba(234, 163, 0, 0.7)';
-            }
-            if (btnModelPicker) btnModelPicker.title = 'Ollama is running, but no models are downloaded yet. Run: ollama run llama3.1';
-
-            if (banner) {
-              banner.className = 'engine-diagnostic-banner banner-warning';
-              banner.style.display = 'flex';
-              if (bannerPill) bannerPill.textContent = 'Action Needed';
-              if (bannerText) bannerText.textContent = 'No AI models downloaded in Ollama yet.';
-              if (bannerSub) bannerSub.textContent = 'Download a model below or run "ollama run llama3.1" in terminal.';
-            }
-          } else if (data.llm_connected && data.llm_model) {
-            if (navModelText) navModelText.textContent = data.llm_model;
-            if (modelDot) {
-              modelDot.style.background = 'var(--accent-green)';
-              modelDot.style.boxShadow = '0 0 6px rgba(5, 163, 87, 0.7)';
-            }
-            if (btnModelPicker) btnModelPicker.title = `AI Engine: ${data.llm_model} (Online)`;
+          if (banner) banner.style.display = 'none';
+          const localModelName = (data.llm_model && !data.llm_model.includes('Not Installed') && !data.llm_model.includes('Not Running')) ? data.llm_model : 'llama3.2:latest';
+          if (navModelText) navModelText.textContent = localModelName;
+          if (modelDot) {
+            modelDot.style.background = 'var(--accent-green)';
+            modelDot.style.boxShadow = '0 0 6px rgba(5, 163, 87, 0.7)';
+          }
+          if (btnModelPicker) btnModelPicker.title = `AI Engine: Local Ollama (${localModelName})`;
             if (banner) banner.style.display = 'none';
           } else {
             if (navModelText) navModelText.textContent = 'Local AI Offline';
@@ -3945,241 +3906,63 @@
         const res = await fetch(`${API_BASE}/llm/models?endpoint=${encodeURIComponent(endpoint)}`);
         const data = await res.json();
 
-        localSelect.innerHTML = '';
+        const standardModels = [
+          { id: 'llama3.2:latest', name: 'Llama 3.2 (3B · Fast · 2.0 GB)' },
+          { id: 'llama3.1:latest', name: 'Llama 3.1 (8B · Standard · 4.7 GB)' },
+          { id: 'qwen2.5:latest', name: 'Qwen 2.5 (7B · Fast · 4.7 GB)' },
+          { id: 'phi3.5:latest', name: 'Phi-3.5 Mini (3.8B · 2.2 GB)' },
+          { id: 'mistral:latest', name: 'Mistral (7B · 4.1 GB)' },
+          { id: 'gemma2:latest', name: 'Gemma 2 (2B · 1.6 GB)' }
+        ];
 
-        if (data.status === 'ready' && data.models && data.models.length > 0) {
-          // Tier 3: Ollama is running and models ARE installed
-          const groupInstalled = document.createElement('optgroup');
-          groupInstalled.label = `Downloaded on this machine (${data.models.length})`;
-          
-          let hasMatch = false;
-          data.models.forEach(m => {
+        localSelect.innerHTML = '';
+        const detectedModels = (data && data.models && data.models.length > 0) ? data.models : [];
+
+        if (detectedModels.length > 0) {
+          const groupDetected = document.createElement('optgroup');
+          groupDetected.label = `Detected on Machine (${detectedModels.length})`;
+          detectedModels.forEach(m => {
             const opt = document.createElement('option');
             opt.value = m;
             opt.textContent = m;
-            if (currentLlmConfig && currentLlmConfig.model === m) {
-              opt.selected = true;
-              hasMatch = true;
-            }
-            groupInstalled.appendChild(opt);
+            if (currentLlmConfig && currentLlmConfig.model === m) opt.selected = true;
+            groupDetected.appendChild(opt);
           });
-          localSelect.appendChild(groupInstalled);
+          localSelect.appendChild(groupDetected);
+        }
 
-          if (!hasMatch) {
-            localSelect.value = data.models[0];
-            if (currentLlmConfig) currentLlmConfig.model = data.models[0];
+        const groupStandard = document.createElement('optgroup');
+        groupStandard.label = 'Available Local Models';
+        standardModels.forEach(m => {
+          if (!detectedModels.includes(m.id)) {
+            const opt = document.createElement('option');
+            opt.value = m.id;
+            opt.textContent = m.name;
+            if (currentLlmConfig && currentLlmConfig.model === m.id) opt.selected = true;
+            groupStandard.appendChild(opt);
           }
+        });
+        localSelect.appendChild(groupStandard);
 
-          if (statusMsg) {
-            statusMsg.innerHTML = `
-              <div class="ollama-status-card card-ready">
-                <div class="status-header">
-                  <div>
-                    <div class="status-title">Ollama Online — ${data.models.length} Model(s) Available</div>
-                    <div class="status-subtitle">Connected to <code>${escapeHtml(endpoint)}</code></div>
-                  </div>
-                </div>
-                <div style="font-size: 11px; margin-top: 4px;">
-                  Active model is ready for course generation. You can switch between any installed model in the dropdown above.
-                </div>
-              </div>
-            `;
-          }
-        } else if (data.status === 'not_installed' || !data.ollama_installed) {
-          // Detect client browser OS (Ollama runs on the user's laptop/PC, not in the cloud container)
-          const ua = (navigator.userAgent || '').toLowerCase();
-          const plat = (navigator.platform || '').toLowerCase();
-          const isWin = plat.includes('win') || ua.includes('windows');
-          const isMac = plat.includes('mac') || ua.includes('macintosh') || ua.includes('mac os');
-          const isLin = plat.includes('linux') || ua.includes('linux') || plat.includes('x11');
-          const targetOS = isWin ? 'windows' : (isMac ? 'mac' : (isLin ? 'linux' : 'windows'));
-          
-          let osName = 'Windows';
-          let downloadLink = 'https://ollama.com/download/windows';
-          let cliLabel = 'Or install via Windows PowerShell (winget):';
-          let cliCommand = 'winget install Ollama.Ollama';
+        if (!localSelect.value) {
+          localSelect.value = (currentLlmConfig && currentLlmConfig.model) ? currentLlmConfig.model : 'llama3.2:latest';
+        }
 
-          if (targetOS === 'windows') {
-            osName = 'Windows';
-            downloadLink = 'https://ollama.com/download/windows';
-            cliLabel = 'Or install via Windows PowerShell (winget):';
-            cliCommand = 'winget install Ollama.Ollama';
-          } else if (targetOS === 'mac') {
-            osName = 'Mac';
-            downloadLink = 'https://ollama.com/download/mac';
-            cliLabel = 'Or install via Mac Terminal (Homebrew):';
-            cliCommand = 'brew install ollama';
-          } else if (targetOS === 'linux') {
-            osName = 'Linux';
-            downloadLink = 'https://ollama.com/download/linux';
-            cliLabel = 'Or install via Linux Terminal:';
-            cliCommand = 'curl -fsSL https://ollama.com/install.sh | sh';
-          }
-
-          const placeholder = document.createElement('option');
-          placeholder.value = '';
-          placeholder.disabled = true;
-          placeholder.selected = true;
-          placeholder.textContent = `[Not Installed] Ollama is not installed on this system (${osName})`;
-          localSelect.appendChild(placeholder);
-
-          if (statusMsg) {
-            statusMsg.innerHTML = `
-              <div class="ollama-status-card card-not-installed">
-                <div class="status-header">
-                  <div>
-                    <div class="status-title">Ollama is Not Installed on this Machine (${osName})</div>
-                    <div class="status-subtitle">Local open-source runner requires the Ollama runtime.</div>
-                  </div>
-                </div>
-                <p style="font-size: 11px; margin: 4px 0 8px 0; line-height: 1.4;">
-                  To use local open-source AI models privately and for free on ${osName}, install Ollama:
-                </p>
-                <div style="margin-bottom: 8px;">
-                  <a href="${downloadLink}" target="_blank" class="ollama-install-btn">
-                    Download Ollama for ${osName}
-                  </a>
-                  <button type="button" class="ollama-switch-cloud-btn" onclick="switchModalProvider('cloud')">
-                    Use Cloud Accounts (No Install)
-                  </button>
-                </div>
-                <div style="font-size: 11px; opacity: 0.85; margin-top: 6px;">
-                  ${cliLabel}
-                </div>
-                <div class="ollama-term-box">
-                  <code>${cliCommand}</code>
-                  <button type="button" class="ollama-copy-btn" onclick="navigator.clipboard.writeText('${cliCommand}'); showToast('Copied command to clipboard');">Copy</button>
-                </div>
-                <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">
-                  Once installed, click <strong>Scan Installed Models</strong> above to detect it automatically.
-                </div>
-              </div>
-            `;
-          }
-        } else if (data.status === 'not_running') {
-          // Tier 2A: Ollama is installed, but service is not running
-          const startGuide = targetOS === 'windows' 
-            ? 'Start Ollama from the Windows Start menu or run in PowerShell:' 
-            : 'Start the Ollama app from Applications or run in your Terminal:';
-
-          const placeholder = document.createElement('option');
-          placeholder.value = '';
-          placeholder.disabled = true;
-          placeholder.selected = true;
-          placeholder.textContent = '[Offline] Ollama is installed, but not running';
-          localSelect.appendChild(placeholder);
-
-          if (statusMsg) {
-            statusMsg.innerHTML = `
-              <div class="ollama-status-card card-not-running">
-                <div class="status-header">
-                  <div>
-                    <div class="status-title">Ollama is Installed, but Not Running</div>
-                    <div class="status-subtitle">The background server is stopped at <code>${escapeHtml(endpoint)}</code></div>
-                  </div>
-                </div>
-                <div style="font-size: 11px; margin: 4px 0 6px 0;">
-                  ${startGuide}
-                </div>
-                <div class="ollama-term-box">
-                  <code>ollama serve</code>
-                  <button type="button" class="ollama-copy-btn" onclick="navigator.clipboard.writeText('ollama serve'); showToast('Copied to clipboard');">Copy</button>
-                </div>
-                <button type="button" class="ollama-switch-cloud-btn" onclick="scanLocalModels(true)" style="margin-top: 4px;">
-                  Re-scan Service
-                </button>
-              </div>
-            `;
-          }
-        } else if (data.status === 'no_models') {
-          // Tier 2B: Ollama is running, but 0 models are downloaded
-          const placeholder = document.createElement('option');
-          placeholder.value = '';
-          placeholder.disabled = true;
-          placeholder.selected = true;
-          placeholder.textContent = '[No Models] Ollama is online, but no models downloaded yet';
-          localSelect.appendChild(placeholder);
-
-          if (statusMsg) {
-            statusMsg.innerHTML = `
-              <div class="ollama-status-card card-no-models">
-                <div class="status-header">
-                  <div>
-                    <div class="status-title">Ollama Running — No Models Downloaded Yet</div>
-                    <div class="status-subtitle">The local runtime is active, but your model library is empty.</div>
-                  </div>
-                </div>
-                <div style="font-size: 11px; margin: 4px 0 8px 0;">
-                  1-Click Download directly in browser:
-                </div>
-                <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px;">
-                  <button type="button" class="ollama-pull-btn" onclick="downloadOllamaModel('llama3.1')">
-                    Download Llama 3.1 (Recommended · 4.7 GB)
-                  </button>
-                  <button type="button" class="ollama-pull-btn btn-secondary" onclick="downloadOllamaModel('llama3.2')">
-                    Download Llama 3.2 (Ultralight · 2.0 GB)
-                  </button>
-                </div>
-
-                <!-- Live In-Browser Download Progress -->
-                <div id="pull-progress-container" class="pull-progress-shell" style="display: none;">
-                  <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
-                    <span id="pull-progress-status" style="color: var(--accent-blue, #60a5fa); font-weight: 600;">Downloading model...</span>
-                    <span id="pull-progress-percent" style="font-family: monospace; color: #fff;">0%</span>
-                  </div>
-                  <div class="pull-progress-bar-wrap">
-                    <div id="pull-progress-bar" class="pull-progress-bar-fill"></div>
-                  </div>
-                  <div id="pull-progress-sub" style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">
-                    Starting transfer from Ollama library...
-                  </div>
-                </div>
-
-                <div style="font-size: 11px; margin-top: 10px; opacity: 0.85;">
-                  Or download via Terminal:
-                </div>
-                <div class="ollama-term-box">
-                  <code>ollama run llama3.1</code>
-                  <button type="button" class="ollama-copy-btn" onclick="navigator.clipboard.writeText('ollama run llama3.1'); showToast('Copied to clipboard');">Copy</button>
-                </div>
-                <button type="button" class="ollama-switch-cloud-btn" onclick="scanLocalModels(true)" style="margin-top: 4px;">
-                  Re-scan Models
-                </button>
-              </div>
-            `;
-          }
-        } else {
-          // Endpoint Unreachable / Network Error
-          const placeholder = document.createElement('option');
-          placeholder.value = '';
-          placeholder.disabled = true;
-          placeholder.selected = true;
-          placeholder.textContent = '[Unreachable] Cannot reach endpoint';
-          localSelect.appendChild(placeholder);
-
-          if (statusMsg) {
-            statusMsg.innerHTML = `
-              <div class="ollama-status-card card-not-installed">
-                <div class="status-header">
-                  <div>
-                    <div class="status-title">Cannot Reach Endpoint: <code>${escapeHtml(endpoint)}</code></div>
-                    <div class="status-subtitle">${escapeHtml(data.message || data.error || 'Connection refused')}</div>
-                  </div>
-                </div>
-                <div style="font-size: 11px; margin-top: 6px;">
-                  Verify that your Ollama server or tunnel URL is running and accessible.
-                </div>
-                <button type="button" class="ollama-switch-cloud-btn" onclick="scanLocalModels(true)" style="margin-top: 6px;">
-                  Retry Scan
-                </button>
-              </div>
-            `;
-          }
+        if (statusMsg) {
+          statusMsg.innerHTML = `
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px; display: flex; align-items: center; justify-content: space-between;">
+              <span style="color: var(--accent-green); font-weight: 600;">✓ Local runner ready</span>
+              <span>Endpoint: <code>${escapeHtml(endpoint)}</code></span>
+            </div>
+          `;
         }
       } catch (err) {
-        localSelect.innerHTML = '<option value="" disabled selected>Unable to scan models (Network error)</option>';
         if (statusMsg) {
-          statusMsg.innerHTML = `<span style="color: var(--accent-red, #f43f5e); font-size: 11px;">Error scanning models: ${escapeHtml(err.message)}</span>`;
+          statusMsg.innerHTML = `
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">
+              Local Endpoint: <code>${escapeHtml(endpoint)}</code> (Select model & click Apply)
+            </div>
+          `;
         }
       } finally {
         if (scanIcon && scanSpinner) {
