@@ -2552,8 +2552,8 @@
     <div class="nav-right-actions">
       <!-- Model Switcher Trigger with embedded micro status dot -->
       <button class="model-picker-btn" id="btn-model-picker" onclick="openModelModal()" title="Switch AI Engine (Local / Cloud)">
-        <span class="status-dot-mini" id="model-status-dot"></span>
-        <span id="nav-active-model-text">llama3.2:latest</span>
+        <span class="status-dot-mini" id="model-status-dot" style="background: var(--accent-amber);"></span>
+        <span id="nav-active-model-text">No Models Installed</span>
         <span style="color: #666; font-size: 9px; margin-left: 2px;">▼</span>
       </button>
     </div>
@@ -3143,12 +3143,7 @@
             </button>
           </div>
           <select class="input-box" id="modal-local-model">
-            <option value="llama3.2:latest" selected>Llama 3.2 (3B · Fast · 2.0 GB)</option>
-            <option value="llama3.1:latest">Llama 3.1 (8B · Standard · 4.7 GB)</option>
-            <option value="qwen2.5:latest">Qwen 2.5 (7B · Fast · 4.7 GB)</option>
-            <option value="phi3.5:latest">Phi-3.5 Mini (3.8B · 2.2 GB)</option>
-            <option value="mistral:latest">Mistral (7B · 4.1 GB)</option>
-            <option value="gemma2:latest">Gemma 2 (2B · 1.6 GB)</option>
+            <option value="" disabled selected>No local models detected on this system</option>
           </select>
           <div id="local-model-status-message" style="font-size: 12px; margin-top: 8px;"></div>
         </div>
@@ -3811,13 +3806,22 @@
         
         if (data.llm_provider === 'local') {
           if (banner) banner.style.display = 'none';
-          const localModelName = (data.llm_model && !data.llm_model.includes('Not Installed') && !data.llm_model.includes('Not Running')) ? data.llm_model : 'llama3.2:latest';
-          if (navModelText) navModelText.textContent = localModelName;
-          if (modelDot) {
-            modelDot.style.background = 'var(--accent-green)';
-            modelDot.style.boxShadow = '0 0 6px rgba(5, 163, 87, 0.7)';
+          const isModelReady = data.llm_connected && data.llm_model && !data.llm_model.includes('No Local Models');
+          if (isModelReady) {
+            if (navModelText) navModelText.textContent = data.llm_model;
+            if (modelDot) {
+              modelDot.style.background = 'var(--accent-green)';
+              modelDot.style.boxShadow = '0 0 6px rgba(5, 163, 87, 0.7)';
+            }
+            if (btnModelPicker) btnModelPicker.title = `AI Engine: Local Ollama (${data.llm_model})`;
+          } else {
+            if (navModelText) navModelText.textContent = 'No Models Installed';
+            if (modelDot) {
+              modelDot.style.background = 'var(--accent-amber)';
+              modelDot.style.boxShadow = '0 0 6px rgba(234, 163, 0, 0.7)';
+            }
+            if (btnModelPicker) btnModelPicker.title = 'No local models detected. Click to switch to Cloud AI or start Ollama.';
           }
-          if (btnModelPicker) btnModelPicker.title = `AI Engine: Local Ollama (${localModelName})`;
         } else {
           // Cloud Provider
           if (data.llm_connected && data.llm_model) {
@@ -3845,10 +3849,10 @@
           }
         }
       } catch (_) {
-        if (navModelText) navModelText.textContent = 'llama3.2:latest';
+        if (navModelText) navModelText.textContent = 'No Models Installed';
         if (modelDot) {
-          modelDot.style.background = 'var(--accent-green)';
-          modelDot.style.boxShadow = '0 0 6px rgba(5, 163, 87, 0.7)';
+          modelDot.style.background = 'var(--accent-amber)';
+          modelDot.style.boxShadow = '0 0 6px rgba(234, 163, 0, 0.7)';
         }
       }
     }
@@ -3916,62 +3920,61 @@
         const res = await fetch(`${API_BASE}/llm/models?endpoint=${encodeURIComponent(endpoint)}`);
         const data = await res.json();
 
-        const standardModels = [
-          { id: 'llama3.2:latest', name: 'Llama 3.2 (3B · Fast · 2.0 GB)' },
-          { id: 'llama3.1:latest', name: 'Llama 3.1 (8B · Standard · 4.7 GB)' },
-          { id: 'qwen2.5:latest', name: 'Qwen 2.5 (7B · Fast · 4.7 GB)' },
-          { id: 'phi3.5:latest', name: 'Phi-3.5 Mini (3.8B · 2.2 GB)' },
-          { id: 'mistral:latest', name: 'Mistral (7B · 4.1 GB)' },
-          { id: 'gemma2:latest', name: 'Gemma 2 (2B · 1.6 GB)' }
-        ];
-
         localSelect.innerHTML = '';
         const detectedModels = (data && data.models && data.models.length > 0) ? data.models : [];
 
         if (detectedModels.length > 0) {
-          const groupDetected = document.createElement('optgroup');
-          groupDetected.label = `Detected on Machine (${detectedModels.length})`;
           detectedModels.forEach(m => {
             const opt = document.createElement('option');
             opt.value = m;
-            const match = standardModels.find(s => s.id === m);
-            opt.textContent = match ? match.name : `${m} (Installed)`;
+            opt.textContent = m;
             if (currentLlmConfig && currentLlmConfig.model === m) opt.selected = true;
-            groupDetected.appendChild(opt);
+            localSelect.appendChild(opt);
           });
-          localSelect.appendChild(groupDetected);
-        }
-
-        const groupStandard = document.createElement('optgroup');
-        groupStandard.label = 'Available Local Models';
-        standardModels.forEach(m => {
-          if (!detectedModels.includes(m.id)) {
-            const opt = document.createElement('option');
-            opt.value = m.id;
-            opt.textContent = m.name;
-            if (currentLlmConfig && currentLlmConfig.model === m.id) opt.selected = true;
-            groupStandard.appendChild(opt);
+          if (!localSelect.value) {
+            localSelect.value = (currentLlmConfig && currentLlmConfig.model && detectedModels.includes(currentLlmConfig.model)) 
+              ? currentLlmConfig.model 
+              : detectedModels[0];
           }
-        });
-        localSelect.appendChild(groupStandard);
+          if (statusMsg) {
+            statusMsg.innerHTML = `
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px; display: flex; align-items: center; justify-content: space-between;">
+                <span style="color: var(--accent-green); font-weight: 600;">✓ Ollama Online · ${detectedModels.length} Model(s) Ready</span>
+                <span>Endpoint: <code>${escapeHtml(endpoint)}</code></span>
+              </div>
+            `;
+          }
+        } else {
+          // No models detected or Ollama offline
+          const emptyOpt = document.createElement('option');
+          emptyOpt.value = '';
+          emptyOpt.disabled = true;
+          emptyOpt.selected = true;
+          emptyOpt.textContent = 'No local models detected on this system';
+          localSelect.appendChild(emptyOpt);
 
-        if (!localSelect.value) {
-          localSelect.value = (currentLlmConfig && currentLlmConfig.model) ? currentLlmConfig.model : 'llama3.2:latest';
-        }
+          const isOnlineNoModels = data && data.status === 'no_models';
+          const errorDetail = isOnlineNoModels 
+            ? `Ollama is running at <code>${escapeHtml(endpoint)}</code>, but no models are downloaded yet.` 
+            : `Ollama is not running or unreachable at <code>${escapeHtml(endpoint)}</code>.`;
 
-        if (statusMsg) {
-          statusMsg.innerHTML = `
-            <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span style="color: var(--accent-green); font-weight: 600;">✓ Local runner ready</span>
-              <span>Endpoint: <code>${escapeHtml(endpoint)}</code></span>
-            </div>
-          `;
+          if (statusMsg) {
+            statusMsg.innerHTML = `
+              <div style="font-size: 11px; color: var(--accent-amber); margin-top: 6px; line-height: 1.4;">
+                <span style="font-weight: 600;">⚠ ${errorDetail}</span>
+                <div style="color: var(--text-muted); margin-top: 3px;">
+                  Switch to <a href="javascript:void(0)" onclick="switchModalProvider('cloud')" style="color: var(--accent-blue); text-decoration: underline; font-weight: 600;">Personal Cloud Accounts</a> to use Claude / GPT-4o / Gemini, or start Ollama in your terminal (<code style="color: #fff;">ollama run llama3.2</code>).
+                </div>
+              </div>
+            `;
+          }
         }
       } catch (err) {
+        localSelect.innerHTML = '<option value="" disabled selected>No local models detected</option>';
         if (statusMsg) {
           statusMsg.innerHTML = `
-            <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">
-              Local Endpoint: <code>${escapeHtml(endpoint)}</code> (Select model & click Apply)
+            <div style="font-size: 11px; color: var(--accent-amber); margin-top: 6px;">
+              <span>⚠ Cannot connect to Ollama at <code>${escapeHtml(endpoint)}</code>. Switch to <a href="javascript:void(0)" onclick="switchModalProvider('cloud')" style="color: var(--accent-blue); text-decoration: underline; font-weight: 600;">Personal Cloud Accounts</a> or start Ollama.</span>
             </div>
           `;
         }

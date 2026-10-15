@@ -183,11 +183,18 @@ async def system_status():
     ollama_message = "Ollama is ready"
 
     if llm.provider == "local":
-        active_model = llm.model or "llama3.2:latest"
-        ollama_state = "ready"
-        ollama_message = f"Local model active: {active_model}"
+        if llm_ok and llm.model:
+            active_model = llm.model
+            ollama_state = "ready"
+            ollama_message = f"Local model active: {active_model}"
+        else:
+            active_model = "No Local Models Detected"
+            ollama_state = "offline"
+            ollama_message = "Ollama is not running or no models downloaded"
     else:
         active_model = llm.model if llm_ok else "Cloud AI Disconnected"
+        ollama_state = "ready" if llm_ok else "offline"
+        ollama_message = "Cloud AI Connected" if llm_ok else "Cloud AI Disconnected"
 
     import platform
     sys_name = platform.system().lower()
@@ -196,7 +203,7 @@ async def system_status():
     return SystemStatusResponse(
         api_status="ok",
         llm_connected=llm_ok,
-        llm_model=active_model or ("No Model Connected" if not llm_ok else "Active"),
+        llm_model=active_model,
         llm_provider=llm.provider,
         ollama_installed=ollama_installed,
         ollama_state=ollama_state,
@@ -258,17 +265,17 @@ async def get_models_from_endpoint(endpoint: Optional[str] = None):
                 "error": f"Endpoint returned HTTP {res.status_code}",
                 "message": f"Endpoint returned HTTP {res.status_code}",
             }
-    except Exception:
-        default_local_models = ["llama3.2:latest", "llama3.1:latest", "qwen2.5:latest", "phi3.5:latest", "mistral:latest", "gemma2:latest"]
+    except Exception as exc:
         return {
-            "status": "ready",
-            "connected": True,
-            "ollama_installed": True,
+            "status": "offline",
+            "connected": False,
+            "ollama_installed": ollama_installed,
             "endpoint": target,
-            "models": default_local_models,
-            "count": len(default_local_models),
+            "models": [],
+            "count": 0,
             "host_os": host_os,
-            "message": f"Local models available on {target}",
+            "error": str(exc),
+            "message": f"Cannot connect to Ollama at {target}. Ollama is not running or unreachable.",
         }
 
 @app.post("/api/llm/pull")
