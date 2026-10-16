@@ -116,6 +116,25 @@ class AuthStatusResponse(BaseModel):
     providers: List[ConnectedAccountSchema] = Field(default_factory=list)
 
 
-class PullModelRequest(BaseModel):
-    model: str = "llama3.1"
-    endpoint: Optional[str] = None
+class ScrapedContent(BaseModel):
+    title: str = ""
+    body: str = ""
+    headings: List[str] = Field(default_factory=list)
+    raw_duration: str = ""
+
+class ProposalPromptItem(BaseModel):
+    """Scraped page plus the prompts the browser sends to the user's own local Ollama."""
+    url: str
+    scraped: ScrapedContent
+    system_prompt: str
+    user_prompt: str
+
+class ProposalFinalizeRequest(BaseModel):
+    """Raw local-model reply for one URL, to be parsed into a course proposal."""
+    url: str
+    scraped: ScrapedContent
+    raw_response: str = ""
+    index: int = 0
+
+class ExtractedUrlsResponse(BaseModel):
+    urls: List[str]

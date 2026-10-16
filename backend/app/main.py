@@ -30,12 +30,14 @@ from .schemas import (
     ConnectedAccountSchema,
     ProviderConnectRequest,
     ProvidersStatusResponse,
-    PullModelRequest,
+    ProposalPromptItem,
+    ProposalFinalizeRequest,
+    ExtractedUrlsResponse,
 )
 from .services.scraper import WebScraper
-from .services.llm_client import UnifiedLLMClient, is_ollama_installed_on_system
+from .services.llm_client import build_proposal_prompts, parse_proposal_response
 from .services.course_builder import CourseBuilderService, OUTPUT_DIR, slugify
-from .services.auth_service import auth_service, PROVIDER_CATALOG
+from .services.session_store import session_store, UserSession, SESSION_COOKIE, SESSION_TTL_SECONDS
 
 
 # Initialize structured logging
@@ -94,7 +96,32 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
 
 app.add_middleware(RequestLoggingMiddleware)
 
-# 2. CORS Middleware
+# 2. Per-user session middleware: every browser gets its own LLM selection and
+#    cloud provider keys, so one user's settings never leak to other users.
+class UserSessionMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        incoming_sid = request.cookies.get(SESSION_COOKIE)
+        sid, session = session_store.get_or_create(incoming_sid)
+        request.state.session = session
+        response: Response = await call_next(request)
+        if sid != incoming_sid:
+            is_https = request.headers.get("x-forwarded-proto", request.url.scheme) == "https"
+            response.set_cookie(
+                SESSION_COOKIE,
+                sid,
+                max_age=int(SESSION_TTL_SECONDS),
+                httponly=True,
+                samesite="lax",
+                secure=is_https,
+            )
+        return response
+
+app.add_middleware(UserSessionMiddleware)
+
+def get_session(request: Request) -> UserSession:
+    return request.state.session
+
+# 3. CORS Middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -133,7 +160,6 @@ async def http_exception_handler(request: Request, exc: HTTPException):
     )
 
 scraper = WebScraper()
-llm = UnifiedLLMClient()
 builder = CourseBuilderService()
 
 # 4. Health & Production Probes
@@ -149,7 +175,6 @@ def liveness_probe():
 @app.get("/health/readiness")
 async def readiness_probe():
     """Kubernetes / Azure Container Apps Readiness Probe."""
-    llm_ready = await llm.check_health()
     storage_ready = OUTPUT_DIR.exists()
     status_code = 200 if storage_ready else 503
     return JSONResponse(
@@ -157,16 +182,19 @@ async def readiness_probe():
         content={
             "ready": storage_ready,
             "storage_mounted": storage_ready,
-            "llm_accessible": llm_ready,
         },
     )
 
 
 @app.get("/api/system-status", response_model=SystemStatusResponse)
-async def system_status():
-    """Live diagnostic check for UI status bar."""
+async def system_status(request: Request):
+    """Live diagnostic check for UI status bar.
+
+    For the local provider the server only reports the user's selected model; the browser
+    probes the user's own Ollama (http://localhost:11434 on their machine) directly."""
+    llm = get_session(request).llm
     llm_ok = await llm.check_health()
-    
+
     course_count = 0
     if OUTPUT_DIR.exists():
         course_count = sum(1 for item in OUTPUT_DIR.iterdir() if item.is_dir())
@@ -178,19 +206,10 @@ async def system_status():
     except Exception:
         pass
 
-    ollama_installed = is_ollama_installed_on_system()
-    ollama_state = "ready"
-    ollama_message = "Ollama is ready"
-
     if llm.provider == "local":
-        if llm_ok and llm.model:
-            active_model = llm.model
-            ollama_state = "ready"
-            ollama_message = f"Local model active: {active_model}"
-        else:
-            active_model = "No Local Models Detected"
-            ollama_state = "offline"
-            ollama_message = "Ollama is not running or no models downloaded"
+        active_model = llm.model
+        ollama_state = "client_side"
+        ollama_message = "Local models are detected by your browser on your own machine"
     else:
         active_model = llm.model if llm_ok else "Cloud AI Disconnected"
         ollama_state = "ready" if llm_ok else "offline"
@@ -205,115 +224,13 @@ async def system_status():
         llm_connected=llm_ok,
         llm_model=active_model,
         llm_provider=llm.provider,
-        ollama_installed=ollama_installed,
+        ollama_installed=False,
         ollama_state=ollama_state,
         ollama_message=ollama_message,
         host_os=host_os,
         output_courses_count=course_count,
         docker_available=docker_ok,
     )
-
-@app.get("/api/llm/models")
-async def get_models_from_endpoint(endpoint: Optional[str] = None):
-    """Dynamically query installed models from an Ollama endpoint (local or remote tunnel)
-    with detailed diagnostics for installation, service status, and model availability."""
-    target = (endpoint or llm.local_base_url).rstrip("/")
-    is_local_host = any(h in target for h in ["localhost", "127.0.0.1", "0.0.0.0"])
-    ollama_installed = is_ollama_installed_on_system() if is_local_host else True
-
-    import platform
-    sys_name = platform.system().lower()
-    host_os = "mac" if "darwin" in sys_name else ("windows" if "windows" in sys_name else "linux")
-
-    try:
-        import httpx
-        async with httpx.AsyncClient(timeout=3.0) as client:
-            res = await client.get(f"{target}/api/tags")
-            if res.status_code == 200:
-                data = res.json()
-                models = [m["name"] for m in data.get("models", []) if "name" in m]
-                if models:
-                    return {
-                        "status": "ready",
-                        "connected": True,
-                        "ollama_installed": True,
-                        "endpoint": target,
-                        "models": models,
-                        "count": len(models),
-                        "host_os": host_os,
-                        "message": f"Ollama is online with {len(models)} model(s) downloaded.",
-                    }
-                else:
-                    return {
-                        "status": "no_models",
-                        "connected": True,
-                        "ollama_installed": True,
-                        "endpoint": target,
-                        "models": [],
-                        "count": 0,
-                        "host_os": host_os,
-                        "message": "Ollama is running, but no AI models have been downloaded yet.",
-                    }
-            return {
-                "status": "http_error",
-                "connected": False,
-                "ollama_installed": ollama_installed,
-                "endpoint": target,
-                "models": [],
-                "count": 0,
-                "host_os": host_os,
-                "error": f"Endpoint returned HTTP {res.status_code}",
-                "message": f"Endpoint returned HTTP {res.status_code}",
-            }
-    except Exception as exc:
-        return {
-            "status": "offline",
-            "connected": False,
-            "ollama_installed": ollama_installed,
-            "endpoint": target,
-            "models": [],
-            "count": 0,
-            "host_os": host_os,
-            "error": str(exc),
-            "message": f"Cannot connect to Ollama at {target}. Ollama is not running or unreachable.",
-        }
-
-@app.post("/api/llm/pull")
-async def pull_ollama_model(req: PullModelRequest):
-    """Stream 1-click model download from Ollama using SSE events."""
-    from fastapi.responses import StreamingResponse
-    target = (req.endpoint or llm.local_base_url).rstrip("/")
-    pull_url = f"{target}/api/pull"
-
-    async def event_generator():
-        import json
-        import httpx
-        try:
-            async with httpx.AsyncClient(timeout=3600.0) as client:
-                async with client.stream("POST", pull_url, json={"name": req.model, "stream": True}) as response:
-                    if response.status_code != 200:
-                        yield f"data: {json.dumps({'status': 'error', 'message': f'Ollama returned HTTP {response.status_code}', 'done': True})}\n\n"
-                        return
-
-                    async for line in response.aiter_lines():
-                        if not line:
-                            continue
-                        try:
-                            item = json.loads(line)
-                            status_text = item.get("status", "")
-                            total = item.get("total", 0)
-                            completed = item.get("completed", 0)
-                            percent = round((completed / total * 100), 1) if total > 0 else 0
-
-                            yield f"data: {json.dumps({'status': status_text, 'total': total, 'completed': completed, 'percent': percent, 'done': False})}\n\n"
-                        except Exception:
-                            continue
-
-            yield f"data: {json.dumps({'status': 'success', 'done': True, 'message': f'Model {req.model} downloaded successfully.'})}\n\n"
-        except Exception as e:
-            yield f"data: {json.dumps({'status': 'error', 'done': True, 'message': str(e)})}\n\n"
-
-    return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 # 5. Live Operational Telemetry Logs Endpoint
 @app.get("/api/logs")
@@ -327,65 +244,71 @@ def get_recent_logs(level: Optional[str] = None, limit: int = 50):
 
 # 6. Personal Cloud Provider Connections (Claude, ChatGPT, Gemini, Grok)
 @app.get("/api/auth/providers", response_model=ProvidersStatusResponse)
-def get_providers_status():
+def get_providers_status(request: Request):
     """Retrieve connection status and unlocked models for Claude, ChatGPT, Gemini, and Grok."""
-    return auth_service.get_providers_status()
+    return get_session(request).auth.get_providers_status()
 
 @app.post("/api/auth/connect/{provider_id}", response_model=ConnectedAccountSchema)
-async def connect_provider(provider_id: str, payload: Optional[ProviderConnectRequest] = None):
+async def connect_provider(request: Request, provider_id: str, payload: Optional[ProviderConnectRequest] = None):
     """Authenticate and verify credentials directly with Claude, ChatGPT, Gemini, or Grok."""
+    session = get_session(request)
     if not payload or not payload.api_key or not payload.api_key.strip():
         raise HTTPException(
             status_code=400,
             detail=f"Please provide your authentic {provider_id.title()} API Key / Token to sign in.",
         )
     try:
-        connected = await auth_service.verify_and_connect(
+        connected = await session.auth.verify_and_connect(
             provider_id=provider_id,
             api_key=payload.api_key,
             email=payload.email,
             plan=payload.plan or "Personal Subscription",
         )
-        # Register verified key into LLM client for immediate usage
-        llm.api_key = payload.api_key.strip()
+        # Register verified key into this user's LLM client for immediate usage
+        session.llm.api_key = payload.api_key.strip()
         return connected
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 @app.post("/api/auth/disconnect/{provider_id}")
-def disconnect_provider(provider_id: str):
+def disconnect_provider(request: Request, provider_id: str):
     """Disconnect a personal provider account and revert to local if model is currently active."""
-    auth_service.disconnect_provider(provider_id)
-    if llm.provider == "cloud":
-        active_provider = auth_service.get_provider_for_model(llm.model)
+    session = get_session(request)
+    session.auth.disconnect_provider(provider_id)
+    if session.llm.provider == "cloud":
+        active_provider = session.auth.get_provider_for_model(session.llm.model)
         if active_provider == provider_id.lower():
-            llm.update_config(provider="local", model="llama3.1:latest")
+            session.llm.update_config(provider="local", model="")
     return {"success": True, "disconnected": provider_id}
 
 @app.get("/api/auth/status", response_model=AuthStatusResponse)
-def get_auth_status():
+def get_auth_status(request: Request):
     """Check overall personal provider connections status."""
-    return auth_service.get_auth_status()
+    return get_session(request).auth.get_auth_status()
 
 @app.post("/api/auth/logout", response_model=AuthStatusResponse)
-def logout():
+def logout(request: Request):
     """Disconnect all cloud providers and revert to local open-source models."""
+    session = get_session(request)
     for p in ["claude", "chatgpt", "gemini", "grok"]:
-        auth_service.disconnect_provider(p)
-    if llm.provider == "cloud":
-        llm.update_config(provider="local", model="llama3.1:latest")
-    return auth_service.get_auth_status()
+        session.auth.disconnect_provider(p)
+    if session.llm.provider == "cloud":
+        session.llm.update_config(provider="local", model="")
+    return session.auth.get_auth_status()
 
 # 7. LLM Configuration & Testing Routes
 @app.get("/api/llm/config", response_model=LLMConfigSchema)
-async def get_llm_config():
+async def get_llm_config(request: Request):
     """Retrieve current LLM provider, model, and endpoint configuration."""
+    llm = get_session(request).llm
     is_connected = await llm.check_health()
     return await llm.get_config(is_connected=is_connected)
 
 @app.post("/api/llm/config", response_model=LLMConfigSchema)
-async def update_llm_config(update: LLMConfigUpdateSchema):
+async def update_llm_config(request: Request, update: LLMConfigUpdateSchema):
     """Switch LLM provider (local <-> cloud), change active model or API key."""
+    session = get_session(request)
+    llm, auth_service = session.llm, session.auth
     if update.provider == "cloud":
         req_provider = auth_service.get_provider_for_model(update.model) or "cloud"
         if not auth_service.is_model_allowed(update.model):
@@ -403,9 +326,18 @@ async def update_llm_config(update: LLMConfigUpdateSchema):
     is_connected = await llm.check_health()
     return await llm.get_config(is_connected=is_connected)
 
+def _reject_server_side_local(provider: Optional[str]) -> None:
+    if provider == "local":
+        raise HTTPException(
+            status_code=409,
+            detail="Local Ollama runs on your own machine and is tested from your browser, not the server.",
+        )
+
 @app.post("/api/llm/test", response_model=LLMTestResponse)
-async def test_llm_connection(config: Optional[LLMConfigUpdateSchema] = None):
-    """Test connectivity to current active or specified LLM model."""
+async def test_llm_connection(request: Request, config: Optional[LLMConfigUpdateSchema] = None):
+    """Test connectivity to current active or specified cloud LLM model."""
+    llm = get_session(request).llm
+    _reject_server_side_local(config.provider if config else llm.provider)
     if config:
         result = await llm.test_connection(
             provider=config.provider,
@@ -419,13 +351,16 @@ async def test_llm_connection(config: Optional[LLMConfigUpdateSchema] = None):
 
 @app.get("/api/llm/test-stream")
 async def stream_test_llm_connection(
+    request: Request,
     provider: Optional[str] = None,
     model: Optional[str] = None,
     base_url: Optional[str] = None,
     api_key: Optional[str] = None,
 ):
-    """Stream real-time SSE diagnostic events for connection verification."""
+    """Stream real-time SSE diagnostic events for cloud connection verification."""
     from fastapi.responses import StreamingResponse
+    llm = get_session(request).llm
+    _reject_server_side_local(provider or llm.provider)
     return StreamingResponse(
         llm.stream_test_connection(
             provider=provider or llm.provider,
@@ -438,57 +373,89 @@ async def stream_test_llm_connection(
 
 
 # 7. Workflow Endpoints
-@app.post("/api/analyze-urls", response_model=List[CourseProposalSchema])
-async def analyze_urls(request: UrlAnalysisRequest):
-    """Scrape web pages and invoke local/cloud LLM to propose course brief metadata."""
-    proposals: List[CourseProposalSchema] = []
+def _build_proposal(url: str, index: int, scraped: dict, ai_data: dict) -> CourseProposalSchema:
+    course_name = ai_data.get("course_name") or scraped.get("title") or "Technical Course"
+    proposal_id = f"prop-{int(time.time() * 1000)}-{index}"
+    topics = [str(t) for t in ai_data.get("topics", []) if t]
+    try:
+        duration = max(1, int(ai_data.get("course_duration_minutes", 60)))
+    except (TypeError, ValueError):
+        duration = 60
+    level = str(ai_data.get("level", "beginner")).strip().lower()
+    if level not in ("beginner", "intermediate", "advanced"):
+        level = "beginner"
 
-    for index, url in enumerate(request.urls):
+    return CourseProposalSchema(
+        id=proposal_id,
+        source_url=url,
+        course_name=course_name,
+        course_overview=ai_data.get("course_overview", ""),
+        course_duration_minutes=duration,
+        level=level,
+        language="en-US",
+        audience=ai_data.get("audience", "Technical professionals"),
+        module_count=len(topics) or 1,
+        topics=topics,
+        # No reference videos are invented; the Videos activity says none were selected.
+        reference_videos=[],
+        is_approved=False,
+        status="pending",
+    )
+
+@app.post("/api/analyze-urls", response_model=List[CourseProposalSchema])
+async def analyze_urls(request: Request, body: UrlAnalysisRequest):
+    """Scrape web pages and invoke the user's cloud LLM to propose course brief metadata.
+
+    Local Ollama users go through /api/proposals/prepare + /api/proposals/finalize instead,
+    because their model runs on their own machine and is called by their browser."""
+    llm = get_session(request).llm
+    _reject_server_side_local(llm.provider)
+    pages = await _scrape_all(body.urls)
+    proposals = [
+        _build_proposal(url, index, scraped, await llm.extract_proposal(url, scraped))
+        for index, (url, scraped) in enumerate(pages)
+    ]
+    return proposals
+
+async def _scrape_all(urls: List[str]) -> List[tuple[str, dict]]:
+    """Scrape every URL; reject the request if any page cannot be opened, so no course is
+    ever invented from a URL whose content was never read."""
+    pages: List[tuple[str, dict]] = []
+    failures: List[str] = []
+    for url in urls:
         url = url.strip()
         if not url:
             continue
-
         scraped = await scraper.extract_content(url)
-        ai_data = await llm.extract_proposal(url, scraped)
-
-        course_name = ai_data.get("course_name") or scraped.get("title") or "Technical Course"
-        proposal_id = f"prop-{int(time.time() * 1000)}-{index}"
-
-        ref_videos = [
-            ReferenceVideoItem(
-                title=f"{course_name} - Architecture Overview",
-                url="https://www.youtube.com/watch?v=sample1",
-                publisher="Technical Community",
-                note="Covers fundamental concepts and architecture overview",
-            )
-        ]
-
-        proposals.append(
-            CourseProposalSchema(
-                id=proposal_id,
-                source_url=url,
-                course_name=course_name,
-                course_overview=ai_data.get("course_overview", ""),
-                course_duration_minutes=int(ai_data.get("course_duration_minutes", 60)),
-                level=ai_data.get("level", "beginner"),
-                language="en-US",
-                audience=ai_data.get("audience", "Technical professionals"),
-                module_count=len(ai_data.get("topics", [])) or 1,
-                topics=ai_data.get("topics", []),
-                reference_videos=ref_videos,
-                is_approved=False,
-                status="pending",
-            )
-        )
-
-    if not proposals:
+        if scraped.get("fetch_error"):
+            failures.append(f"{url} ({scraped['fetch_error']})")
+        else:
+            pages.append((url, scraped))
+    if failures:
+        raise HTTPException(status_code=400, detail="Could not open: " + "; ".join(failures))
+    if not pages:
         raise HTTPException(status_code=400, detail="No valid URLs provided")
+    return pages
 
-    return proposals
+@app.post("/api/proposals/prepare", response_model=List[ProposalPromptItem])
+async def prepare_proposals(body: UrlAnalysisRequest):
+    """Scrape pages and return the prompts for the browser to run on the user's local Ollama."""
+    items: List[ProposalPromptItem] = []
+    for url, scraped in await _scrape_all(body.urls):
+        system_prompt, user_prompt = build_proposal_prompts(url, scraped)
+        items.append(
+            ProposalPromptItem(url=url, scraped=scraped, system_prompt=system_prompt, user_prompt=user_prompt)
+        )
+    return items
 
-@app.post("/api/upload-spreadsheet", response_model=List[CourseProposalSchema])
-async def upload_spreadsheet(file: UploadFile = File(...)):
-    """Extract URLs from uploaded .xlsx or .csv and generate course proposals."""
+@app.post("/api/proposals/finalize", response_model=CourseProposalSchema)
+def finalize_proposal(body: ProposalFinalizeRequest):
+    """Turn the user's local model reply into a course proposal (heuristic fallback if unparseable)."""
+    scraped = body.scraped.model_dump()
+    ai_data = parse_proposal_response(body.raw_response, body.url, scraped)
+    return _build_proposal(body.url, body.index, scraped, ai_data)
+
+async def _extract_urls_from_upload(file: UploadFile) -> List[str]:
     import re
     content = await file.read()
     filename = file.filename or ""
@@ -521,7 +488,18 @@ async def upload_spreadsheet(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail="No valid HTTP URLs found in spreadsheet")
 
     # Analyze first 5 to keep batch fast
-    return await analyze_urls(UrlAnalysisRequest(urls=urls[:5]))
+    return urls[:5]
+
+@app.post("/api/extract-urls", response_model=ExtractedUrlsResponse)
+async def extract_urls(file: UploadFile = File(...)):
+    """Extract URLs from an uploaded .xlsx or .csv (used by the browser-side local Ollama flow)."""
+    return ExtractedUrlsResponse(urls=await _extract_urls_from_upload(file))
+
+@app.post("/api/upload-spreadsheet", response_model=List[CourseProposalSchema])
+async def upload_spreadsheet(request: Request, file: UploadFile = File(...)):
+    """Extract URLs from uploaded .xlsx or .csv and generate course proposals with the cloud LLM."""
+    urls = await _extract_urls_from_upload(file)
+    return await analyze_urls(request, UrlAnalysisRequest(urls=urls))
 
 @app.post("/api/jobs", response_model=GenerationJobResponse)
 async def start_generation_job(proposal: CourseProposalSchema):
@@ -561,16 +539,17 @@ def list_completed_courses():
                 try:
                     import json
                     data = json.loads(brief_path.read_text(encoding="utf-8"))
+                    minutes = data.get("learning_time_minutes") or int(data.get("estimated_learning_hours", 1)) * 60
                     courses.append(
                         CourseProposalSchema(
                             id=item.name,
                             source_url=data.get("source_url", ""),
                             course_name=data.get("topic", item.name),
                             course_overview=data.get("intended_learning_outcome", ""),
-                            course_duration_minutes=int(data.get("estimated_learning_hours", 1)) * 60,
+                            course_duration_minutes=int(minutes),
                             level=data.get("entry_level", "beginner"),
                             language=data.get("language", "en-US"),
-                            audience=data.get("target_audience", "General"),
+                            audience=data.get("audience") or data.get("target_audience") or "General",
                             module_count=len(data.get("sources", [])),
                             topics=[s.get("activity_name", "") for s in data.get("sources", [])],
                             is_approved=True,

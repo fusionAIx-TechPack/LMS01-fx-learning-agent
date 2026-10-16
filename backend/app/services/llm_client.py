@@ -83,41 +83,17 @@ class UnifiedLLMClient:
         return self.cloud_base_url if self.provider == "cloud" else self.local_base_url
 
     async def get_config(self, is_connected: bool = True) -> dict[str, Any]:
-        local_models: list[str] = []
-        is_ollama_reachable = False
-        try:
-            async with httpx.AsyncClient(timeout=2.0) as client:
-                res = await client.get(f"{self.local_base_url}/api/tags")
-                if res.status_code == 200:
-                    is_ollama_reachable = True
-                    data = res.json()
-                    names = [m["name"] for m in data.get("models", []) if "name" in m]
-                    if names:
-                        local_models = names
-        except Exception as e:
-            logger.debug("Could not fetch Ollama local tags (%s)", e)
-
-        # In local mode, determine model from actually installed models
-        active_model = self.model
-        if self.provider == "local":
-            if local_models:
-                if not active_model or active_model not in local_models:
-                    active_model = local_models[0]
-                    self.model = active_model
-            else:
-                active_model = ""
-
-        connected = is_connected if self.provider == "cloud" else (is_ollama_reachable and len(local_models) > 0)
-
+        # Local Ollama runs on each user's own machine and is probed by their browser,
+        # so the server never reports local models or local connectivity.
         return {
             "provider": self.provider,
-            "model": active_model,
+            "model": self.model,
             "base_url": self.current_base_url,
             "has_api_key": bool(self.api_key),
-            "available_local_models": local_models,
+            "available_local_models": [],
             "available_cloud_models": DEFAULT_CLOUD_MODELS,
             "recommended_local_models": RECOMMENDED_LOCAL_MODELS,
-            "is_connected": connected,
+            "is_connected": is_connected if self.provider == "cloud" else False,
         }
 
     def update_config(self, provider: str, model: str, base_url: str | None = None, api_key: str | None = None) -> None:
@@ -143,7 +119,11 @@ class UnifiedLLMClient:
         )
 
     async def check_health(self) -> bool:
-        """Check if active LLM endpoint (local or cloud) is reachable and has models."""
+        """Check if the active cloud LLM endpoint is reachable.
+
+        Local Ollama lives on the user's machine, not the server, so it is never probed here."""
+        if self.provider != "cloud":
+            return False
         try:
             headers = {}
             if self.provider == "cloud" and self.api_key:
@@ -433,13 +413,28 @@ class UnifiedLLMClient:
             return data["choices"][0]["message"]["content"]
 
     async def extract_proposal(self, url: str, scraped: dict[str, Any]) -> dict[str, Any]:
-        """Use active LLM (Local or Cloud) to extract structured Course Proposal."""
-        system_prompt = (
-            "You are an expert instructional designer converting web learning resources into "
-            "standardized Moodle courses. Respond ONLY with valid, raw JSON (no markdown fences, no explanation)."
-        )
+        """Use the active cloud LLM to extract a structured Course Proposal."""
+        system_prompt, user_prompt = build_proposal_prompts(url, scraped)
+        try:
+            logger.info("Invoking LLM (%s:%s) for curriculum proposal extraction on %s", self.provider, self.model, url)
+            raw_response = await self._call_chat_completion(system_prompt, user_prompt)
+        except Exception as e:
+            logger.warning("LLM call failed for %s (%s). Engaging deterministic heuristic fallback.", url, str(e))
+            raw_response = ""
+        return parse_proposal_response(raw_response, url, scraped)
 
-        user_prompt = f"""
+
+PROPOSAL_SYSTEM_PROMPT = (
+    "You are an expert instructional designer converting web learning resources into "
+    "standardized Moodle courses. Respond ONLY with valid, raw JSON (no markdown fences, no explanation)."
+)
+
+
+def build_proposal_prompts(url: str, scraped: dict[str, Any]) -> tuple[str, str]:
+    """Build the (system, user) prompts for proposal extraction.
+
+    Shared by the server-side cloud path and the browser-side local Ollama path."""
+    user_prompt = f"""
 Analyze this web resource and produce a Course Proposal.
 
 URL: {url}
@@ -454,7 +449,7 @@ Generate JSON with EXACTLY these keys:
   "course_name": "Short, clear professional title (under 50 chars)",
   "course_overview": "1-2 sentences on what the learner will accomplish and understand.",
   "course_duration_minutes": 90,
-  "level": "beginner", 
+  "level": "beginner",
   "audience": "Target learner persona",
   "topics": ["Module 1 title", "Module 2 title", "Module 3 title"]
 }}
@@ -464,43 +459,48 @@ Rules:
 - "course_duration_minutes" must be an integer (e.g. 60, 90, 120).
 - "topics" must contain 3 to 6 distinct module titles based on the text.
 """
+    return PROPOSAL_SYSTEM_PROMPT, user_prompt
 
-        try:
-            logger.info("Invoking LLM (%s:%s) for curriculum proposal extraction on %s", self.provider, self.model, url)
-            raw_response = await self._call_chat_completion(system_prompt, user_prompt)
-            cleaned = re.sub(r"^```(?:json)?\s*", "", raw_response.strip(), flags=re.MULTILINE)
-            cleaned = re.sub(r"```$", "", cleaned.strip(), flags=re.MULTILINE).strip()
-            data = json.loads(cleaned)
-            logger.info("LLM successfully generated proposal for '%s': course_name='%s'", url, data.get("course_name"))
-            return data
-        except Exception as e:
-            logger.warning("LLM generation failed for %s (%s). Engaging deterministic heuristic fallback.", url, str(e))
-            return self._heuristic_fallback(url, scraped)
 
-    def _heuristic_fallback(self, url: str, scraped: dict[str, Any]) -> dict[str, Any]:
-        title = scraped.get("title") or "Technical Learning Course"
-        title = re.sub(r"\s*[-|]\s*.*$", "", title).strip()[:50]
+def parse_proposal_response(raw_response: str, url: str, scraped: dict[str, Any]) -> dict[str, Any]:
+    """Parse the model's JSON reply, falling back to a heuristic proposal if it is empty or invalid."""
+    try:
+        cleaned = re.sub(r"^```(?:json)?\s*", "", (raw_response or "").strip(), flags=re.MULTILINE)
+        cleaned = re.sub(r"```$", "", cleaned.strip(), flags=re.MULTILINE).strip()
+        data = json.loads(cleaned)
+        if not isinstance(data, dict):
+            raise ValueError("LLM response is not a JSON object")
+        logger.info("LLM successfully generated proposal for '%s': course_name='%s'", url, data.get("course_name"))
+        return data
+    except Exception as e:
+        logger.warning("Could not parse LLM proposal for %s (%s). Engaging deterministic heuristic fallback.", url, str(e))
+        return heuristic_fallback(url, scraped)
 
-        topics = scraped.get("headings", [])
-        if not topics:
-            topics = [
-                "Foundational Concepts and Architecture",
-                "Core Implementation and Workflows",
-                "Best Practices and Governance",
-            ]
 
-        logger.info("Heuristic fallback synthesized proposal for '%s' (title='%s', %d topics)", url, title, len(topics))
-        return {
-            "course_name": title or "Introduction to Course Topics",
-            "course_overview": (
-                "Understand the core architecture, operational workflows, and practical techniques "
-                "to effectively design and implement enterprise solutions."
-            ),
-            "course_duration_minutes": 90,
-            "level": "beginner",
-            "audience": "Developers, architects, and technical analysts",
-            "topics": topics[:5],
-        }
+def heuristic_fallback(url: str, scraped: dict[str, Any]) -> dict[str, Any]:
+    title = scraped.get("title") or "Technical Learning Course"
+    title = re.sub(r"\s*[-|]\s*.*$", "", title).strip()[:50]
+
+    topics = scraped.get("headings", [])
+    if not topics:
+        topics = [
+            "Foundational Concepts and Architecture",
+            "Core Implementation and Workflows",
+            "Best Practices and Governance",
+        ]
+
+    logger.info("Heuristic fallback synthesized proposal for '%s' (title='%s', %d topics)", url, title, len(topics))
+    return {
+        "course_name": title or "Introduction to Course Topics",
+        "course_overview": (
+            "Understand the core architecture, operational workflows, and practical techniques "
+            "to effectively design and implement enterprise solutions."
+        ),
+        "course_duration_minutes": 90,
+        "level": "beginner",
+        "audience": "Developers, architects, and technical analysts",
+        "topics": topics[:5],
+    }
 
 # Backwards compatibility alias
 LocalLLMClient = UnifiedLLMClient

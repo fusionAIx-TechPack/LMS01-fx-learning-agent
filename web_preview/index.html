@@ -3044,7 +3044,7 @@
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
             <div>
               <div style="font-size: 18px; font-weight: 800; color: #fff;">Course Package Ready (.mbz)</div>
-              <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">Fully validated with 5 standard activities. Ready for Moodle restoration.</div>
+              <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;" id="build-complete-desc">Built with the 5 standard activities. Ready for Moodle restore.</div>
             </div>
             <div style="color: var(--accent-green);">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
@@ -3151,7 +3151,7 @@
         <div class="field-group" style="margin-bottom: 20px;">
           <div class="field-label">Local Host Endpoint</div>
           <input type="text" class="input-box" id="modal-local-endpoint" value="http://localhost:11434" onchange="scanLocalModels(true)" placeholder="http://localhost:11434 or tunnel URL">
-          <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Default is <code>http://localhost:11434</code>. If accessing a cloud deployment, provide an HTTPS tunnel URL (ngrok/localtunnel).</div>
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Default is <code>http://localhost:11434</code>. Your browser connects to Ollama on your own computer, so each person uses the models installed on their own laptop.</div>
         </div>
       </div>
 
@@ -3368,6 +3368,115 @@
       user: null,
       cloud_models_unlocked: false
     };
+
+    // ================= Browser-side Ollama client =================
+    // Local models live on each user's own machine, so the browser talks to that
+    // machine's Ollama directly. The server (e.g. Azure) can never see it.
+    const OLLAMA_DEFAULT_ENDPOINT = 'http://localhost:11434';
+    let lastOllamaProbe = { state: 'unknown', models: [], endpoint: OLLAMA_DEFAULT_ENDPOINT };
+
+    function getOllamaEndpoint() {
+      const input = document.getElementById('modal-local-endpoint');
+      let stored = null;
+      try { stored = localStorage.getItem('fx_ollama_endpoint'); } catch (_) {}
+      const v = (input && input.value.trim()) || stored || OLLAMA_DEFAULT_ENDPOINT;
+      return v.replace(/\/+$/, '');
+    }
+
+    function rememberOllamaEndpoint(endpoint) {
+      try { localStorage.setItem('fx_ollama_endpoint', endpoint); } catch (_) {}
+    }
+
+    function getSavedLocalModel() {
+      try { return localStorage.getItem('fx_local_model') || ''; } catch (_) { return ''; }
+    }
+
+    function rememberLocalModel(model) {
+      try { localStorage.setItem('fx_local_model', model); } catch (_) {}
+    }
+
+    async function fetchWithTimeout(url, options = {}, timeoutMs = 3000) {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+      try {
+        return await fetch(url, { ...options, signal: ctrl.signal });
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    // Returns { state, models, endpoint } where state is:
+    //   'ready' | 'no_models' | 'blocked' (running, but this site is not in OLLAMA_ORIGINS) | 'offline'
+    async function probeOllama(endpoint = getOllamaEndpoint()) {
+      let result;
+      try {
+        const res = await fetchWithTimeout(`${endpoint}/api/tags`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        const models = (data.models || []).map(m => m.name).filter(Boolean);
+        result = { state: models.length ? 'ready' : 'no_models', models, endpoint };
+      } catch (_) {
+        // A CORS rejection and "nothing listening" look identical to fetch().
+        // An opaque no-cors request still succeeds if the server is up, which tells them apart.
+        let reachable = false;
+        try {
+          await fetchWithTimeout(`${endpoint}/api/version`, { mode: 'no-cors' });
+          reachable = true;
+        } catch (_) {}
+        result = { state: reachable ? 'blocked' : 'offline', models: [], endpoint };
+      }
+      lastOllamaProbe = result;
+      return result;
+    }
+
+    function pickLocalModel(models) {
+      const saved = getSavedLocalModel() || (currentLlmConfig && currentLlmConfig.model) || '';
+      return models.includes(saved) ? saved : (models[0] || '');
+    }
+
+    // Body is sent without a JSON Content-Type so the request stays "simple" (no CORS preflight).
+    async function ollamaChat(endpoint, model, systemPrompt, userPrompt, { numPredict = 1500, numCtx = 8192, timeoutMs = 300000 } = {}) {
+      const res = await fetchWithTimeout(`${endpoint}/api/chat`, {
+        method: 'POST',
+        body: JSON.stringify({
+          model,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt },
+          ],
+          stream: false,
+          options: { temperature: 0.2, num_predict: numPredict, num_ctx: numCtx },
+        }),
+      }, timeoutMs);
+      if (!res.ok) {
+        const txt = await res.text().catch(() => '');
+        throw new Error(`Ollama returned HTTP ${res.status} ${txt.slice(0, 120)}`);
+      }
+      const data = await res.json();
+      return (data.message && data.message.content) || '';
+    }
+
+    function ollamaOriginHelpHtml() {
+      const origin = window.location.origin;
+      return `
+        <div style="margin-top: 6px; color: var(--text-muted); line-height: 1.5;">
+          Ollama is running on your computer but is blocking this website. Allow it once:
+          <div style="margin-top: 4px;"><b>Windows</b> (PowerShell), then quit Ollama from the tray and reopen it:</div>
+          <code style="color: #fff; user-select: all;">setx OLLAMA_ORIGINS "${escapeHtml(origin)}"</code>
+          <div style="margin-top: 4px;"><b>Mac</b> (Terminal), then quit and reopen Ollama:</div>
+          <code style="color: #fff; user-select: all;">launchctl setenv OLLAMA_ORIGINS "${escapeHtml(origin)}"</code>
+          <div style="margin-top: 4px;">If your browser asks to allow access to devices on your local network, click <b>Allow</b>.</div>
+        </div>`;
+    }
+
+    function ollamaStateMessage(probe) {
+      switch (probe.state) {
+        case 'ready': return `Ollama online on your computer · ${probe.models.length} model(s)`;
+        case 'no_models': return 'Ollama is running on your computer, but no models are downloaded yet.';
+        case 'blocked': return 'Ollama is running on your computer but is blocking this website (OLLAMA_ORIGINS).';
+        default: return `Ollama was not detected on your computer at ${probe.endpoint}.`;
+      }
+    }
 
     // Show Toast with Spring Micro-animation
     function showToast(msg) {
@@ -3805,22 +3914,37 @@
         const data = await res.json();
         
         if (data.llm_provider === 'local') {
-          if (banner) banner.style.display = 'none';
-          const isModelReady = data.llm_connected && data.llm_model && !data.llm_model.includes('No Local Models');
-          if (isModelReady) {
-            if (navModelText) navModelText.textContent = data.llm_model;
+          currentLlmConfig.provider = 'local';
+          const probe = await probeOllama();
+          if (probe.state === 'ready') {
+            const model = pickLocalModel(probe.models);
+            currentLlmConfig.model = model;
+            if (banner) banner.style.display = 'none';
+            if (navModelText) navModelText.textContent = model;
             if (modelDot) {
               modelDot.style.background = 'var(--accent-green)';
               modelDot.style.boxShadow = '0 0 6px rgba(5, 163, 87, 0.7)';
             }
-            if (btnModelPicker) btnModelPicker.title = `AI Engine: Local Ollama (${data.llm_model})`;
+            if (btnModelPicker) btnModelPicker.title = `AI Engine: Local Ollama on your computer (${model})`;
           } else {
-            if (navModelText) navModelText.textContent = 'No Models Installed';
+            const navLabel = { no_models: 'No Models Installed', blocked: 'Ollama Blocked', offline: 'Ollama Not Detected' }[probe.state];
+            if (navModelText) navModelText.textContent = navLabel;
             if (modelDot) {
-              modelDot.style.background = 'var(--accent-amber)';
-              modelDot.style.boxShadow = '0 0 6px rgba(234, 163, 0, 0.7)';
+              modelDot.style.background = probe.state === 'offline' ? 'var(--accent-red)' : 'var(--accent-amber)';
+              modelDot.style.boxShadow = probe.state === 'offline' ? '0 0 6px rgba(225, 29, 72, 0.7)' : '0 0 6px rgba(234, 163, 0, 0.7)';
             }
-            if (btnModelPicker) btnModelPicker.title = 'No local models detected. Click to switch to Cloud AI or start Ollama.';
+            if (btnModelPicker) btnModelPicker.title = ollamaStateMessage(probe);
+            if (banner) {
+              banner.className = 'engine-diagnostic-banner banner-danger';
+              banner.style.display = 'flex';
+              if (bannerPill) bannerPill.textContent = 'Required';
+              if (bannerText) bannerText.textContent = ollamaStateMessage(probe);
+              if (bannerSub) bannerSub.textContent = {
+                no_models: 'Download a model (e.g. ollama run llama3.2) or switch to Cloud AI.',
+                blocked: 'Click Configure AI Engine for the one-time setup command.',
+                offline: 'Install or start Ollama on this computer, or switch to Cloud AI.',
+              }[probe.state];
+            }
           }
         } else {
           // Cloud Provider
@@ -3904,7 +4028,8 @@
     async function scanLocalModels(forceRefresh = false) {
       const localSelect = document.getElementById('modal-local-model');
       const statusMsg = document.getElementById('local-model-status-message');
-      const endpoint = (document.getElementById('modal-local-endpoint').value || 'http://localhost:11434').trim();
+      const endpoint = getOllamaEndpoint();
+      rememberOllamaEndpoint(endpoint);
       const scanIcon = document.getElementById('scan-icon');
       const scanSpinner = document.getElementById('scan-spinner');
 
@@ -3913,29 +4038,23 @@
         scanSpinner.style.display = 'inline';
       }
       if (statusMsg) {
-        statusMsg.innerHTML = '<span style="color: var(--text-muted); font-size: 11px;">Scanning for installed models on this machine...</span>';
+        statusMsg.innerHTML = '<span style="color: var(--text-muted); font-size: 11px;">Scanning for installed models on your computer...</span>';
       }
 
       try {
-        const res = await fetch(`${API_BASE}/llm/models?endpoint=${encodeURIComponent(endpoint)}`);
-        const data = await res.json();
+        const data = await probeOllama(endpoint);
 
         localSelect.innerHTML = '';
-        const detectedModels = (data && data.models && data.models.length > 0) ? data.models : [];
+        const detectedModels = data.models;
 
         if (detectedModels.length > 0) {
           detectedModels.forEach(m => {
             const opt = document.createElement('option');
             opt.value = m;
             opt.textContent = m;
-            if (currentLlmConfig && currentLlmConfig.model === m) opt.selected = true;
             localSelect.appendChild(opt);
           });
-          if (!localSelect.value) {
-            localSelect.value = (currentLlmConfig && currentLlmConfig.model && detectedModels.includes(currentLlmConfig.model)) 
-              ? currentLlmConfig.model 
-              : detectedModels[0];
-          }
+          localSelect.value = pickLocalModel(detectedModels);
           if (statusMsg) {
             statusMsg.innerHTML = `
               <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px; display: flex; align-items: center; justify-content: space-between;">
@@ -3953,15 +4072,13 @@
           emptyOpt.textContent = 'No local models detected on this system';
           localSelect.appendChild(emptyOpt);
 
-          const isOnlineNoModels = data && data.status === 'no_models';
-          const errorDetail = isOnlineNoModels 
-            ? `Ollama is running at <code>${escapeHtml(endpoint)}</code>, but no models are downloaded yet.` 
-            : `Ollama is not running or unreachable at <code>${escapeHtml(endpoint)}</code>.`;
+          const errorDetail = escapeHtml(ollamaStateMessage(data));
 
           if (statusMsg) {
             statusMsg.innerHTML = `
               <div style="font-size: 11px; color: var(--accent-amber); margin-top: 6px; line-height: 1.4;">
                 <span style="font-weight: 600;">⚠ ${errorDetail}</span>
+                ${data.state === 'blocked' ? ollamaOriginHelpHtml() : ''}
                 <div style="color: var(--text-muted); margin-top: 3px;">
                   Switch to <a href="javascript:void(0)" onclick="switchModalProvider('cloud')" style="color: var(--accent-blue); text-decoration: underline; font-weight: 600;">Personal Cloud Accounts</a> to use Claude / GPT-4o / Gemini, or start Ollama in your terminal (<code style="color: #fff;">ollama run llama3.2</code>).
                 </div>
@@ -3987,7 +4104,7 @@
     }
 
     async function downloadOllamaModel(modelName) {
-      const endpoint = (document.getElementById('modal-local-endpoint').value || 'http://localhost:11434').trim();
+      const endpoint = getOllamaEndpoint();
       const container = document.getElementById('pull-progress-container');
       const statusTxt = document.getElementById('pull-progress-status');
       const percentTxt = document.getElementById('pull-progress-percent');
@@ -4002,14 +4119,14 @@
       if (percentTxt) percentTxt.textContent = '0%';
 
       try {
-        const res = await fetch(`${API_BASE}/llm/pull`, {
+        // Pull straight into the user's own Ollama; it streams NDJSON progress lines.
+        const res = await fetch(`${endpoint}/api/pull`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ model: modelName, endpoint: endpoint })
+          body: JSON.stringify({ name: modelName, stream: true })
         });
 
         if (!res.ok) {
-          throw new Error(`Download service returned HTTP ${res.status}`);
+          throw new Error(`Ollama returned HTTP ${res.status}`);
         }
 
         const reader = res.body.getReader();
@@ -4020,39 +4137,33 @@
           const { value, done } = await reader.read();
           if (done) break;
           buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split('\n\n');
+          const lines = buffer.split('\n');
           buffer = lines.pop();
 
           for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              try {
-                const data = JSON.parse(line.slice(6));
-                if (data.status) {
-                  if (statusTxt) statusTxt.textContent = `Downloading ${modelName}: ${data.status}`;
-                }
-                if (data.percent !== undefined && data.percent > 0) {
-                  if (percentTxt) percentTxt.textContent = `${data.percent}%`;
-                  if (bar) bar.style.width = `${data.percent}%`;
-                }
-                if (data.total && data.completed) {
-                  const mbDone = (data.completed / (1024 * 1024 * 1024)).toFixed(2);
-                  const mbTot = (data.total / (1024 * 1024 * 1024)).toFixed(2);
-                  if (subTxt) subTxt.textContent = `${mbDone} GB / ${mbTot} GB transferred`;
-                }
-                if (data.done) {
-                  if (data.status === 'success') {
-                    showToast(`Model ${modelName} downloaded successfully.`);
-                    await scanLocalModels(true);
-                  } else {
-                    showToast(`Download failed: ${data.message || 'Error'}`);
-                  }
-                  pullBtns.forEach(b => b.disabled = false);
-                  return;
-                }
-              } catch (_) {}
+            if (!line.trim()) continue;
+            let data;
+            try { data = JSON.parse(line); } catch (_) { continue; }
+            if (data.error) throw new Error(data.error);
+            if (data.status && statusTxt) statusTxt.textContent = `Downloading ${modelName}: ${data.status}`;
+            if (data.total && data.completed) {
+              const percent = Math.round(data.completed / data.total * 1000) / 10;
+              if (percentTxt) percentTxt.textContent = `${percent}%`;
+              if (bar) bar.style.width = `${percent}%`;
+              const gbDone = (data.completed / (1024 * 1024 * 1024)).toFixed(2);
+              const gbTot = (data.total / (1024 * 1024 * 1024)).toFixed(2);
+              if (subTxt) subTxt.textContent = `${gbDone} GB / ${gbTot} GB transferred`;
+            }
+            if (data.status === 'success') {
+              showToast(`Model ${modelName} downloaded successfully.`);
+              pullBtns.forEach(b => b.disabled = false);
+              await scanLocalModels(true);
+              checkSystemStatus();
+              return;
             }
           }
         }
+        throw new Error('Download stream ended before completion');
       } catch (err) {
         showToast(`Download error: ${err.message}`);
         pullBtns.forEach(b => b.disabled = false);
@@ -4076,11 +4187,11 @@
           currentLlmConfig = await res.json();
           activeModalProvider = currentLlmConfig.provider || 'local';
           switchModalProvider(activeModalProvider);
-          if (currentLlmConfig.base_url && activeModalProvider === 'local') {
-            document.getElementById('modal-local-endpoint').value = currentLlmConfig.base_url;
-          }
         }
       } catch (_) {}
+      let savedEndpoint = null;
+      try { savedEndpoint = localStorage.getItem('fx_ollama_endpoint'); } catch (_) {}
+      document.getElementById('modal-local-endpoint').value = savedEndpoint || OLLAMA_DEFAULT_ENDPOINT;
       await scanLocalModels(false);
     }
 
@@ -4117,13 +4228,17 @@
       const selectedModel = isCloud 
         ? document.getElementById('modal-cloud-model').value 
         : document.getElementById('modal-local-model').value;
-      const endpoint = isCloud 
-        ? 'https://api.openai.com/v1' 
-        : document.getElementById('modal-local-endpoint').value;
+      const endpoint = isCloud
+        ? 'https://api.openai.com/v1'
+        : getOllamaEndpoint();
 
       if (!isCloud && !selectedModel) {
         showToast('Please select or install a local model first, or switch to Cloud Accounts.');
         return;
+      }
+      if (!isCloud) {
+        rememberOllamaEndpoint(endpoint);
+        rememberLocalModel(selectedModel);
       }
 
       try {
@@ -4170,9 +4285,9 @@
       const selectedModel = isCloud 
         ? (document.getElementById('modal-cloud-model').value || 'claude-3-5-sonnet')
         : document.getElementById('modal-local-model').value;
-      const endpoint = isCloud 
-        ? 'https://api.openai.com/v1' 
-        : (document.getElementById('modal-local-endpoint').value || 'http://localhost:11434');
+      const endpoint = isCloud
+        ? 'https://api.openai.com/v1'
+        : getOllamaEndpoint();
 
       if (!isCloud && !selectedModel) {
         showToast('No installed model selected. Scan installed models or run ollama run <model>.');
@@ -4213,8 +4328,13 @@
         }
       }, 100);
 
+      if (!isCloud) {
+        await runLocalPingTest(endpoint, selectedModel, btn);
+        return;
+      }
+
       // Establish SSE event connection
-      const sseUrl = `${API_BASE}/llm/test-stream?provider=${encodeURIComponent(activeModalProvider)}&model=${encodeURIComponent(selectedModel)}&base_url=${encodeURIComponent(endpoint)}`;
+      const sseUrl =`${API_BASE}/llm/test-stream?provider=${encodeURIComponent(activeModalProvider)}&model=${encodeURIComponent(selectedModel)}&base_url=${encodeURIComponent(endpoint)}`;
       modelTestEventSource = new EventSource(sseUrl);
 
       modelTestEventSource.onmessage = (e) => {
@@ -4283,6 +4403,60 @@
           btn.disabled = false;
         }
       };
+    }
+
+    // Same 3-step diagnostic as the cloud SSE test, run from the browser against the user's own Ollama.
+    async function runLocalPingTest(endpoint, model, btn) {
+      const curMsg = document.getElementById('test-status-msg');
+      const elapsed = () => ((Date.now() - modelTestStartTime) / 1000).toFixed(2);
+      const fail = (step, message) => {
+        if (modelTestTimer) clearInterval(modelTestTimer);
+        setTestStepStatus(step, 'error', message, elapsed());
+        if (curMsg) curMsg.dataset.customError = 'true';
+        showToast(`Connection failed: ${message}`);
+        if (btn) {
+          btn.textContent = 'Retest Ping';
+          btn.disabled = false;
+        }
+      };
+      if (curMsg) delete curMsg.dataset.customError;
+
+      setTestStepStatus(1, 'running', `Connecting to Ollama on your computer: ${endpoint}...`);
+      const probe = await probeOllama(endpoint);
+      if (probe.state === 'offline' || probe.state === 'blocked') {
+        fail(1, ollamaStateMessage(probe));
+        return;
+      }
+      setTestStepStatus(1, 'success', '', elapsed());
+
+      setTestStepStatus(2, 'running', `Verifying installed weights for '${model}'...`);
+      if (!probe.models.includes(model)) {
+        fail(2, `Model '${model}' is not installed in your Ollama. Run 'ollama pull ${model}' or pick an installed model.`);
+        return;
+      }
+      setTestStepStatus(2, 'success', '', elapsed());
+
+      setTestStepStatus(3, 'running', `Sending test PING to ${model} (fast 2k context)...`);
+      try {
+        await ollamaChat(endpoint, model, 'You are a test assistant. Answer with PONG.', 'PING',
+          { numPredict: 10, numCtx: 2048, timeoutMs: 120000 });
+      } catch (err) {
+        fail(3, err.name === 'AbortError'
+          ? `Timed out waiting for ${model}. Try a lighter model such as llama3.2 or restart Ollama.`
+          : `Handshake failed: ${err.message}`);
+        return;
+      }
+
+      if (modelTestTimer) clearInterval(modelTestTimer);
+      const latency = elapsed();
+      setTestStepStatus(3, 'success', '', latency);
+      setCompactStatus('success', '✓',
+        `PONG 200 OK (${latency}s) — ${model} is connected & ready! Click 'Apply & Switch' or 'Cancel / Back'.`);
+      showToast(`Connected to ${model} (Pong 200 OK)`);
+      if (btn) {
+        btn.textContent = 'Retest Ping';
+        btn.disabled = false;
+      }
     }
 
     // Escape key listener to close modal and go back anytime
@@ -4527,24 +4701,23 @@
       }
 
       // Pre-flight check: ensure AI engine is ready before starting pipeline
+      let useLocalOllama = false;
+      let localEndpoint = getOllamaEndpoint();
+      let localModel = '';
       try {
         const sysRes = await fetch(`${API_BASE}/system-status`);
         if (sysRes.ok) {
           const sys = await sysRes.json();
           if (sys.llm_provider === 'local') {
-            if (sys.ollama_state === 'not_installed') {
-              showToast('Ollama is not installed on this machine. Please install Ollama or switch to Cloud AI.');
-              openModelModal();
-              return;
-            } else if (sys.ollama_state === 'not_running') {
-              showToast('Ollama service is not running. Run "ollama serve" in your Terminal or switch to Cloud AI.');
-              openModelModal();
-              return;
-            } else if (sys.ollama_state === 'no_models') {
-              showToast('No models downloaded in Ollama yet. Download a model in Model Settings.');
+            const probe = await probeOllama(localEndpoint);
+            if (probe.state !== 'ready') {
+              showToast(ollamaStateMessage(probe) + ' Open Model Settings or switch to Cloud AI.');
               openModelModal();
               return;
             }
+            useLocalOllama = true;
+            localModel = pickLocalModel(probe.models);
+            currentLlmConfig.model = localModel;
           } else if (!sys.llm_connected) {
             showToast('Cloud AI provider is disconnected. Please connect your API key in Model Settings.');
             openModelModal();
@@ -4560,7 +4733,9 @@
       startAnalysisAnimation(activeModelLabel);
 
       try {
-        if (selectedMode === 'single') {
+        if (useLocalOllama) {
+          proposalsList = await analyzeWithLocalOllama(localEndpoint, localModel);
+        } else if (selectedMode === 'single') {
           const urlInput = document.getElementById('source-url');
           const url = urlInput ? urlInput.value.trim() : '';
 
@@ -4612,6 +4787,56 @@
         finishAnalysisAnimation(false);
         showToast(err.message || 'Scrape failed. Check the URL and backend connection.');
       }
+    }
+
+    // Local flow: server scrapes + builds prompts, the browser runs them on the user's own Ollama,
+    // and the server turns each reply into a proposal.
+    async function analyzeWithLocalOllama(endpoint, model) {
+      let urls = [];
+      if (selectedMode === 'single') {
+        const urlInput = document.getElementById('source-url');
+        urls = [urlInput ? urlInput.value.trim() : ''];
+      } else if (selectedMode === 'batch') {
+        urls = document.getElementById('batch-urls').value.split('\n').map(l => l.trim()).filter(l => l.startsWith('http'));
+      } else if (selectedMode === 'excel') {
+        const formData = new FormData();
+        formData.append('file', pickedExcelFile);
+        const res = await fetch(`${API_BASE}/extract-urls`, { method: 'POST', body: formData });
+        if (!res.ok) throw new Error('Failed to process spreadsheet');
+        urls = (await res.json()).urls;
+      }
+
+      const prepRes = await fetch(`${API_BASE}/proposals/prepare`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ urls })
+      });
+      if (!prepRes.ok) {
+        const errData = await prepRes.json().catch(() => ({}));
+        throw new Error(errData.message || errData.detail || 'Could not extract curriculum from URL');
+      }
+      const items = await prepRes.json();
+
+      const proposals = [];
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        let raw = '';
+        try {
+          raw = await ollamaChat(endpoint, model, item.system_prompt, item.user_prompt);
+        } catch (err) {
+          // The server falls back to a heuristic proposal when the reply is empty.
+          console.warn(`Local model failed for ${item.url}:`, err);
+          showToast(`Local model error on ${item.url}: ${err.message}. Using page structure instead.`);
+        }
+        const finRes = await fetch(`${API_BASE}/proposals/finalize`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ url: item.url, scraped: item.scraped, raw_response: raw, index: i })
+        });
+        if (!finRes.ok) throw new Error('Failed to build course proposal');
+        proposals.push(await finRes.json());
+      }
+      return proposals;
     }
 
     // Populate Review Gate Form
@@ -4770,8 +4995,7 @@
       const proposal = proposalsList[currentProposalIndex];
 
       switchView('progress');
-      document.getElementById('progress-course-name').textContent = proposal.course_name;
-      document.getElementById('build-complete-card').style.display = 'none';
+      resetBuildView(proposal.course_name);
 
       try {
         const res = await fetch(`${API_BASE}/jobs`, {
@@ -4783,7 +5007,7 @@
         const job = await res.json();
         trackJob(job.job_id);
       } catch (err) {
-        simulateBuild();
+        showBuildStopped('Failed', `Could not start the build: ${err.message}`);
       }
     }
 
@@ -4791,8 +5015,7 @@
     async function dispatchBuildAll() {
       saveCurrentProposalEdits();
       switchView('progress');
-      document.getElementById('progress-course-name').textContent = `Batch Pipeline: ${proposalsList.length} Courses`;
-      document.getElementById('build-complete-card').style.display = 'none';
+      resetBuildView(`Batch Pipeline: ${proposalsList.length} Courses`);
 
       try {
         const res = await fetch(`${API_BASE}/jobs/batch`, {
@@ -4800,19 +5023,70 @@
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({ proposals: proposalsList })
         });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const batchData = await res.json();
-        if (batchData.jobs && batchData.jobs.length > 0) {
-          trackJob(batchData.jobs[0].job_id);
-        }
+        const jobs = batchData.jobs || [];
+        let finished = 0;
+        // Track each course in turn so every package's progress is visible.
+        const trackNext = (i) => {
+          if (i >= jobs.length) return;
+          document.getElementById('progress-course-name').textContent =
+            `Batch Pipeline: course ${i + 1} of ${jobs.length} · ${jobs[i].course_name}`;
+          trackJob(jobs[i].job_id, {
+            onFinished: (ok) => {
+              if (ok) finished++;
+              if (i + 1 < jobs.length) {
+                trackNext(i + 1);
+              } else {
+                document.getElementById('build-complete-desc').textContent =
+                  `${finished} of ${jobs.length} course packages built. Download each from the Course Library.`;
+              }
+            },
+            isLast: i + 1 === jobs.length,
+          });
+        };
+        trackNext(0);
       } catch (err) {
-        simulateBuild();
+        showBuildStopped('Failed', `Could not start the batch build: ${err.message}`);
       }
     }
 
+    function resetBuildView(title) {
+      document.getElementById('progress-course-name').textContent = title;
+      const badge = document.getElementById('build-status-badge');
+      badge.textContent = 'In Progress';
+      badge.style.color = '';
+      document.getElementById('step-badge').textContent = '1 / 5';
+      document.getElementById('step-label').textContent = 'Writing Course Brief...';
+      document.getElementById('step-desc').textContent = 'Building from the approved proposal';
+      document.getElementById('progress-bar').style.width = '10%';
+      document.getElementById('telemetry-box').innerHTML = '> Build requested...';
+      document.getElementById('build-complete-desc').textContent = 'Built with the 5 standard activities. Ready for Moodle restore.';
+      document.getElementById('build-complete-card').style.display = 'none';
+    }
+
+    function showBuildStopped(badgeText, message, { appendToLog = true } = {}) {
+      const box = document.getElementById('telemetry-box');
+      const failed = badgeText === 'Failed';
+      const badge = document.getElementById('build-status-badge');
+      badge.textContent = badgeText;
+      badge.style.color = failed ? '#f87171' : '#fbbf24';
+      document.getElementById('step-label').textContent = failed ? 'Build failed' : 'Course Definition ready · Not packaged';
+      document.getElementById('step-desc').textContent = message;
+      if (!failed) document.getElementById('step-badge').textContent = '3 / 5';
+      document.getElementById('build-complete-card').style.display = 'none';
+      if (box && appendToLog) {
+        box.innerHTML += `<br>> ${escapeHtml(message)}`;
+        box.scrollTop = box.scrollHeight;
+      }
+      showToast(message);
+    }
+
     // Poll live telemetry for active job
-    function trackJob(jobId) {
+    function trackJob(jobId, { onFinished = null, isLast = true } = {}) {
       const box = document.getElementById('telemetry-box');
       const progressBar = document.getElementById('progress-bar');
+      const finish = (ok) => { if (onFinished) onFinished(ok); };
       const timer = setInterval(async () => {
         try {
           const res = await fetch(`${API_BASE}/jobs/${jobId}`);
@@ -4837,56 +5111,43 @@
             document.getElementById('step-label').textContent = 'Packaging Native Moodle 5.x Archive (.mbz)';
           }
 
+          if (job.step === 'failed') {
+            clearInterval(timer);
+            // The server log already contains the error line; don't repeat it.
+            showBuildStopped('Failed', job.error || 'The build failed.', { appendToLog: false });
+            finish(false);
+            return;
+          }
+          if (job.step === 'packagingUnavailable') {
+            clearInterval(timer);
+            showBuildStopped('Not Packaged', job.error || 'Moodle packaging is not available on this server.', { appendToLog: false });
+            finish(false);
+            return;
+          }
+
+          if (job.step === 'completed' && !isLast) {
+            clearInterval(timer);
+            showToast(`Packaged: ${job.course_name}`);
+            finish(true);
+            return;
+          }
+
           if (job.step === 'completed') {
             clearInterval(timer);
             progressBar.style.width = '100%';
             document.getElementById('step-badge').textContent = '5 / 5';
             document.getElementById('step-label').textContent = 'Moodle Package Ready!';
             document.getElementById('step-desc').textContent = '5 standard activities verified and packaged into .mbz.';
-            document.getElementById('build-status-badge').textContent = 'Completed';
+            const doneBadge = document.getElementById('build-status-badge');
+            doneBadge.textContent = 'Completed';
+            doneBadge.style.color = '#34d399';
             document.getElementById('build-complete-card').style.display = 'block';
             document.getElementById('download-link').href = `${API_BASE}/download/${job.course_slug}.mbz`;
             showToast('Course built and packaged successfully!');
+            finish(true);
           }
         } catch (_) {}
       }, 1200);
-    }
-
-    function simulateBuild() {
-      const box = document.getElementById('telemetry-box');
-      const progressBar = document.getElementById('progress-bar');
-      let step = 1;
-
-      const timer = setInterval(() => {
-        step++;
-        if (step === 2) {
-          progressBar.style.width = '40%';
-          document.getElementById('step-badge').textContent = '2 / 5';
-          document.getElementById('step-label').textContent = 'AI Synthesizing Modules & Reference Videos';
-          box.innerHTML += '<br>> Synthesizing module metadata and instructional objectives...';
-        } else if (step === 3) {
-          progressBar.style.width = '65%';
-          document.getElementById('step-badge').textContent = '3 / 5';
-          document.getElementById('step-label').textContent = 'Validating Course Definition JSON Schema';
-          box.innerHTML += '<br>> Verified course-definition schema against repository standards...';
-        } else if (step === 4) {
-          progressBar.style.width = '85%';
-          document.getElementById('step-badge').textContent = '4 / 5';
-          document.getElementById('step-label').textContent = 'Moodle Packaging Engine Executing';
-          box.innerHTML += '<br>> Compiling standard 5 activities (Overview, URL, Videos, Assignment, Forum)...';
-        } else if (step >= 5) {
-          progressBar.style.width = '100%';
-          document.getElementById('step-badge').textContent = '5 / 5';
-          document.getElementById('step-label').textContent = 'Package Delivered!';
-          document.getElementById('step-desc').textContent = 'Moodle archive verified with 5 standard activities.';
-          document.getElementById('build-status-badge').textContent = 'Completed';
-          document.getElementById('build-complete-card').style.display = 'block';
-          document.getElementById('download-link').href = '#';
-          box.innerHTML += '<br>> Ready for download.';
-          clearInterval(timer);
-        }
-        box.scrollTop = box.scrollHeight;
-      }, 1400);
     }
 
     // Helper: Escape HTML
@@ -5083,9 +5344,13 @@
               <button type="button" class="btn-inspect-details" id="btn-details-${c.id}" onclick="toggleCourseDetails('${c.id}')" title="Inspect verified Moodle activities and module outline">
                 Inspect Modules
               </button>
-              <a class="btn-download-mbz" href="${API_BASE}/download/${c.id}.mbz" download="${c.id}.mbz" title="Download native Moodle backup archive directly to your computer">
-                Download .mbz
-              </a>
+              ${c.status === 'completed' ? `
+                <a class="btn-download-mbz" href="${API_BASE}/download/${c.id}.mbz" download="${c.id}.mbz" title="Download native Moodle backup archive directly to your computer">
+                  Download .mbz
+                </a>
+              ` : `
+                <span style="font-size: 11px; color: var(--accent-amber); font-weight: 700;" title="Course Definition is ready; the Moodle package has not been built yet">Not packaged</span>
+              `}
             </div>
           </div>
 

@@ -42,6 +42,7 @@ class WebScraper:
                 "body": f"Could not fetch full page content ({str(e)}). Using URL context.",
                 "headings": [],
                 "raw_duration": "",
+                "fetch_error": str(e),
             }
 
         soup = BeautifulSoup(html, "html.parser")

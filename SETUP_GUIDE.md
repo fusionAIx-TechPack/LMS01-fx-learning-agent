@@ -138,6 +138,27 @@ That's literally all!
 
 ---
 
+### Using the Shared Web Link (Azure) with Your Own Local Models
+
+You can also open the team's shared web link instead of running `start.bat`. The AI still runs on **your own laptop**: your browser connects to Ollama on your computer at `http://localhost:11434`, so you see only the models you have downloaded, and your settings are separate from everyone else's.
+
+Ollama only accepts websites you allow, so do this **once** (replace the URL with your team's link):
+
+- **Windows** (PowerShell):
+  ```powershell
+  setx OLLAMA_ORIGINS "https://fx-moodle-studio.bravewater-f333a261.swedencentral.azurecontainerapps.io"
+  ```
+- **Mac** (Terminal):
+  ```bash
+  launchctl setenv OLLAMA_ORIGINS "https://fx-moodle-studio.bravewater-f333a261.swedencentral.azurecontainerapps.io"
+  ```
+
+Then **quit Ollama** (right-click the 🦙 tray icon → Quit) and open it again. If your browser asks to allow access to devices on your local network, click **Allow**.
+
+If the top bar says **"Ollama Blocked"**, this step has not been done yet. If it says **"Ollama Not Detected"**, Ollama is not installed or not running. Safari may block this connection, so use Edge, Chrome or Firefox.
+
+---
+
 ## 📱 5. How to Use the App (Step-by-Step)
 
 ### Step 1: Paste Any Web Link

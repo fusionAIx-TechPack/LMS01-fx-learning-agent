@@ -1,15 +1,18 @@
 from __future__ import annotations
 import asyncio
 import json
-import os
 import re
+import shutil
 import sys
+import uuid
 from datetime import datetime
+from urllib.parse import urlparse
 from pathlib import Path
 from typing import Any
 
 from ..schemas import CourseProposalSchema, GenerationJobResponse
 from ..logger import get_logger
+from .mbz_builder import build_mbz
 
 logger = get_logger("course_builder")
 
@@ -31,9 +34,21 @@ class CourseBuilderService:
         OUTPUT_DIR.mkdir(exist_ok=True)
         logger.info("CourseBuilderService initialized with OUTPUT_DIR: %s", OUTPUT_DIR)
 
+    @staticmethod
+    def _reserve_course_dir(base_slug: str) -> str:
+        """Claim a fresh output folder so a new build never overwrites an existing course."""
+        for n in range(1, 1000):
+            slug = base_slug if n == 1 else f"{base_slug}-{n}"
+            try:
+                (OUTPUT_DIR / slug).mkdir(parents=True, exist_ok=False)
+                return slug
+            except FileExistsError:
+                continue
+        raise RuntimeError(f"Could not allocate an output folder for {base_slug}")
+
     async def create_job(self, proposal: CourseProposalSchema) -> GenerationJobResponse:
-        slug = slugify(proposal.course_name)
-        job_id = f"job-{int(datetime.now().timestamp() * 1000)}"
+        slug = self._reserve_course_dir(slugify(proposal.course_name))
+        job_id = f"job-{uuid.uuid4().hex[:12]}"
 
         logger.info("Creating generation job %s for '%s' (slug=%s)", job_id, proposal.course_name, slug)
 
@@ -100,122 +115,117 @@ class CourseBuilderService:
         logger.info("[%s] Pipeline started in %s", job_id, course_dir)
 
         try:
-            # Step 1: Synthesize AI & Sources
+            # Step 1: Course Brief
             job["step"] = "synthesizingAi"
             job["progress"] = 0.3
-            job["logs"].append("Writing Course Brief and assembling selected sources...")
-            await asyncio.sleep(1)
+            job["logs"].append("Writing Course Brief from the approved proposal...")
 
             brief_path = course_dir / "course-brief.json"
             brief_data = self._generate_brief_dict(proposal, slug)
             with brief_path.open("w", encoding="utf-8") as f:
                 json.dump(brief_data, f, indent=2)
-            job["logs"].append(f"Generated {brief_path.name}")
-            logger.info("[%s] Generated course brief: %s (%d sources)", job_id, brief_path.name, len(brief_data.get("sources", [])))
+            job["logs"].append(f"Generated {brief_path.name} ({len(brief_data['sources'])} modules)")
+            logger.info("[%s] Generated course brief: %s (%d sources)", job_id, brief_path.name, len(brief_data["sources"]))
 
-            # Step 2: Compile Course Definition
+            # Step 2: Course Definition (validates the brief and checks every source URL is reachable)
             job["step"] = "compilingDefinition"
             job["progress"] = 0.5
-            job["logs"].append("Compiling Course Definition via course_research engine...")
-            await asyncio.sleep(1)
+            job["logs"].append("Compiling Course Definition and checking source URLs are reachable...")
 
             def_path = course_dir / "course-definition.json"
-            self._compile_definition(brief_path, def_path)
+            await asyncio.to_thread(self._compile_definition, brief_path, def_path)
             job["logs"].append(f"Course Definition validated: {def_path.name}")
             logger.info("[%s] Course definition compiled: %s", job_id, def_path.name)
 
-            # Step 3: Moodle Packaging
-            job["step"] = "instantiatingMoodle"
-            job["progress"] = 0.7
-            job["logs"].append("Connecting to Moodle environment for package generation...")
-            await asyncio.sleep(1)
-
+            # Step 3: Moodle packaging from the engine-produced five-activity template.
             job["step"] = "packagingMbz"
             job["progress"] = 0.85
-            job["logs"].append("Executing Moodle course generator with 5 standard activities...")
-            await asyncio.sleep(1)
+            job["logs"].append("Packaging Moodle 5.x backup (.mbz) with the 5 standard activities...")
 
-            # Packaging .mbz
+            definition = json.loads(def_path.read_text(encoding="utf-8"))
             mbz_path = course_dir / "course-package.mbz"
-            if not mbz_path.exists():
-                mbz_path.write_bytes(b"PK\x03\x04" + b"\x00" * 200)
+            await asyncio.to_thread(build_mbz, definition, mbz_path)
 
             job["step"] = "completed"
             job["progress"] = 1.0
-            job["logs"].append("Moodle Course Package (.mbz) created successfully!")
-            job["logs"].append("Verified: Overview, Topic URL, Videos, Assignment, Forum.")
+            job["logs"].append(f"Moodle Course Package created: {mbz_path.name} ({mbz_path.stat().st_size} bytes)")
+            job["logs"].append("Activities: Course overview, resources link, reference videos, certification assignment, discussion forum.")
             job["mbz_download_url"] = f"/api/download/{slug}.mbz"
-            logger.info("[%s] Pipeline completed successfully for '%s'. MBZ package: %s", job_id, slug, mbz_path)
+            logger.info("[%s] Pipeline completed for '%s'. MBZ package: %s", job_id, slug, mbz_path)
 
         except Exception as e:
             job["step"] = "failed"
             job["error"] = str(e)
             job["logs"].append(f"ERROR: {str(e)}")
             logger.error("[%s] Pipeline execution failed: %s", job_id, e, exc_info=True)
+            # The folder was reserved for this job only; drop it so a failed build
+            # does not show up in the Course Library.
+            shutil.rmtree(course_dir, ignore_errors=True)
 
     def _generate_brief_dict(self, proposal: dict[str, Any], slug: str) -> dict[str, Any]:
-        """Convert UI proposal into validated course-brief schema."""
-        topics = proposal.get("topics") or ["Overview and Core Concepts"]
+        """Convert the approved UI proposal into the Course Brief schema that course_research accepts."""
+        course_name = proposal["course_name"].strip()
+        source_url = proposal["source_url"].strip()
+        publisher = urlparse(source_url).netloc or "Web Resource"
+        topics = [t.strip() for t in (proposal.get("topics") or []) if t and t.strip()] or ["Overview and Core Concepts"]
+        total_minutes = max(len(topics), int(proposal.get("course_duration_minutes") or 60))
+        # Module minutes must fit inside the course learning-time budget.
+        per_module = total_minutes // len(topics)
+
         sources = []
         for i, t in enumerate(topics):
             sources.append({
-                "activity_name": t[:40],
+                "title": f"{course_name} - {t}",
+                "activity_name": t[:40].rstrip(),
+                "url": source_url,
+                "publisher": publisher,
+                "provider_item_id": f"{source_url}#module-{i + 1}",
+                "source_type": "article",
+                "language": "en-US",
+                "duration_minutes": per_module,
+                "activity_duration_minutes": per_module,
                 "activity_purpose": f"Understand and apply concepts for {t}.",
-                "title": f"{proposal['course_name']} - {t}",
-                "url": proposal["source_url"],
-                "provider": "Web Resource",
-                "availability": "available",
-                "estimated_source_duration_minutes": 20,
-                "estimated_activity_duration_minutes": 30,
+                "access": {
+                    "free": True,
+                    "basis": "Publicly accessible web page entered by the course requester",
+                    "evidence_url": source_url,
+                },
             })
 
-        videos = []
-        for v in proposal.get("reference_videos", []):
-            videos.append({
-                "title": v.get("title", "Supplementary Lecture"),
-                "url": v.get("url", "https://www.youtube.com/watch?v=sample"),
-                "publisher": v.get("publisher", "Technical Community"),
-                "note": v.get("note", "Recommended overview"),
-                "availability": "available",
-            })
+        videos = [
+            {
+                "title": v["title"],
+                "url": v["url"],
+                "publisher": v["publisher"],
+                "note": v["note"],
+            }
+            for v in proposal.get("reference_videos", [])
+            if all(v.get(k) for k in ("title", "url", "publisher", "note"))
+        ]
 
-        return {
-            "topic": proposal["course_name"][:40],
-            "source_url": proposal["source_url"],
+        overview = (proposal.get("course_overview") or "").strip()
+        brief = {
+            "topic": course_name,
+            "audience": (proposal.get("audience") or "").strip() or "General learners",
+            "entry_level": proposal.get("level") or "beginner",
             "language": "en-US",
-            "entry_level": proposal.get("level", "beginner"),
-            "estimated_learning_hours": max(1, proposal.get("course_duration_minutes", 60) // 60),
-            "intended_learning_outcome": proposal.get("course_overview", ""),
-            "target_audience": proposal.get("audience", ""),
+            "intended_learning_outcome": overview or f"Understand the core concepts of {course_name}",
+            "learning_time_minutes": total_minutes,
+            "source_url": source_url,
             "sources": sources,
             "reference_videos": videos,
         }
+        if overview:
+            brief["course_description"] = overview
+        return brief
 
     def _compile_definition(self, brief_path: Path, output_path: Path) -> None:
-        """Call course_research generator to produce course-definition.json."""
-        cmd = [
-            sys.executable,
-            "-m",
-            "course_research.cli",
-            "build",
-            "--brief",
-            str(brief_path),
-            "--output",
-            str(output_path),
-        ]
-        env = os.environ.copy()
-        env["PYTHONPATH"] = str(REPO_ROOT) + os.pathsep + env.get("PYTHONPATH", "")
-        import subprocess
-        logger.debug("Executing course_research definition compiler: %s", " ".join(cmd))
-        res = subprocess.run(cmd, cwd=str(REPO_ROOT), env=env, capture_output=True, text=True)
-        if res.returncode != 0:
-            logger.warning("course_research CLI returned non-zero code (%d): %s. Executing fallback serializer.", res.returncode, res.stderr)
-            try:
-                from course_research.cli import write_course_definition, CourseBrief
-                brief = CourseBrief.model_validate_json(brief_path.read_text(encoding="utf-8"))
-                write_course_definition(brief, output_path)
-            except Exception as ex:
-                logger.warning("Direct CourseBrief model validation fallback triggered (%s)", ex)
-                with brief_path.open(encoding="utf-8") as f:
-                    raw = json.load(f)
-                output_path.write_text(json.dumps(raw, indent=2), encoding="utf-8")
+        """Validate the brief and write course-definition.json via course_research.
+
+        Raises CourseDefinitionError with a requester-facing message if the brief is invalid
+        or a source URL is unreachable; the job is then marked failed rather than faked."""
+        from course_research.cli import load_course_brief
+        from course_research.generator import write_course_definition
+
+        logger.debug("Compiling course definition %s -> %s", brief_path, output_path)
+        write_course_definition(load_course_brief(brief_path), output_path)

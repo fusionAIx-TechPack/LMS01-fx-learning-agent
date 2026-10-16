@@ -1,485 +1,419 @@
-# LMS01 FX Learning Agent - System Architecture & Operations Manual
+# FX Learning Studio (Moodle Studio): Architecture
 
-## 1. Executive Overview
+FX Learning Studio turns a public learning URL (an article, documentation page, or
+curriculum) into a native **Moodle 5.0.x course backup (`.mbz`)** that a Moodle
+administrator restores as a new course.
 
-The **FX Learning Agent (FusionAIx Moodle Studio)** is an enterprise AI-powered course generation platform that transforms raw web documentation, technical articles, and curriculum URLs into production-ready, native Moodle 5.x course backup archives (`.mbz`).
+It is built in two layers:
 
-The platform incorporates:
-- An **Interactive Human Review Gate** where instructional designers inspect and fine-tune AI-derived course metadata before packaging.
-- A **Dual-Pane Live Preview Canvas** that simulates the student learner experience in Moodle 5.x in real time.
-- A **Hybrid LLM Execution Engine** supporting local open-source models via Ollama (zero-cost, private, offline) as well as personal cloud LLMs (Claude, OpenAI, Gemini, Groq).
+| Layer | Built by | What it is |
+| :--- | :--- | :--- |
+| **Course engine** | Kamil Janeczek (extended by Dinesh Panda) | Command-line tools that validate a Course Brief, build a Course Definition, and package it in a real Moodle. No AI inside. |
+| **Web platform** | Abdus | A web app (FastAPI + Web Studio UI) that lets many users create courses from a browser, with AI running on each user's own laptop, deployed on Azure. |
+
+Contents: [1. End-to-end workflow](#1-end-to-end-workflow) ·
+[2. Why local models](#2-why-local-models) ·
+[3. Kamil's course engine](#3-kamils-course-engine) ·
+[4. Abdus's web platform](#4-abduss-web-platform) ·
+[5. What is covered and what is not](#5-what-is-covered-and-what-is-not) ·
+[6. Running it](#6-running-it) ·
+[7. Deployment](#7-deployment-azure-container-apps) ·
+[8. Reference](#8-reference)
 
 ---
 
-## 2. Collaborative Engineering Breakdown: Kamil & Abdus
+## 1. End-to-end workflow
 
-The platform is built on two complementary engineering pillars that work seamlessly together: **Kamil's Foundational Moodle Engine** (the low-level course compiler) and **Abdus's Full-Stack Web Platform** (the user interface, asynchronous API services, multi-model router, and cloud deployment).
+### 1.1 The picture
 
-### 2.1 Complete 7-Step End-to-End Workflow
-
+```text
+ USER'S LAPTOP                                   AZURE (FastAPI container)
+ ─────────────                                   ─────────────────────────
+ Browser ── 1. paste URL ─────────────────────►  scrape page (reject broken links)
+         ◄─ page text + AI prompt ────────────
+    │
+    ▼
+ User's own Ollama (llama / gemma / qwen ...)
+    2. AI writes the course proposal on the laptop
+    │
+ Browser ── 3. AI reply ──────────────────────►  parse into a proposal
+         ◄─ proposal ─────────────────────────
+    │
+    ▼
+ 4. Review Gate: user edits & approves
+    │
+ Browser ── 5. Build ─────────────────────────►  a. write course-brief.json
+                                                 b. course-definition.json  ← Kamil's course_research
+                                                    (validates brief, checks every link is live)
+                                                 c. course-package.mbz      ← template produced by
+                                                                               Kamil's Moodle engine
+         ◄─ 6. Download .mbz ─────────────────   stored in output/<course-slug>/
+    │
+    ▼
+ 7. Moodle: Site administration → Courses → Restore course
 ```
-[ USER in Web Studio ]
-        │
-        ▼ (Step 1: Paste URL)
-[ WebScraper Service ] ──────► Crawls & cleans public web page
-        │
-        ▼ (Step 2: Synthesize)
-[ Unified LLM Router ] ──────► Local Ollama (LLaMA/Qwen) OR Cloud (Claude/OpenAI/Gemini)
-        │
-        ▼ (Step 3: Human Approval)
-[ Review Gate & Canvas ] ────► User verifies modules & sees live Moodle preview
-        │
-        ▼ (Step 4: Click "Build Course")
-[ CourseBuilder Engine ] ────► Writes output/<slug>/course-brief.json
-        │
-        ▼ (Step 5: Kamil's Core Engine - UNTOUCHED)
-[ course_research.cli ] ─────► Compiles & validates output/<slug>/course-definition.json
-        │
-        ▼ (Step 6: Native Moodle Bundler)
-[ .mbz Packager Engine ] ────► Generates output/<slug>/course-package.mbz
-        │
-        ▼ (Step 7: 1-Click Delivery)
-[ Course Library Tab ] ──────► Direct browser download (no File Explorer / SSH needed)
-```
 
----
-
-### 2.2 Kamil's Foundational Work (Core Moodle Packaging Engine)
-Kamil designed and built the robust, low-level course packaging engine that interacts directly with Moodle's native backup formats:
-1. **Core Data Schemas (`course_research/`)**: Developed the Pydantic v2 schemas (`CourseBrief` and `CourseDefinition`) that establish the 5 standard Moodle learning activities:
-   * Activity 1: Course Overview & Learning Outcomes
-   * Activity 2: Official Source Documentation Link
-   * Activity 3: Video References
-   * Activity 4: Assessment Quiz & Knowledge Check
-   * Activity 5: Discussion Forum
-2. **Moodle 5.x Packaging & Verification Environment (`docker/moodle/` & `bin/`)**: Set up the containerized MariaDB database seed, clean Moodle test instance, and low-level bash tooling (`bin/course-definition` and `bin/course-package`) that package and verify native `.mbz` backup tarballs.
-3. **Domain Contracts & Quality Checks**: Formulated the strict schema rules that ensure every generated course restores without XML errors in standard Moodle LMS installations.
-
----
-
-### 2.3 Abdus's Work (Full-Stack Web Studio, Multi-Model AI & Cloud Deployment)
-Abdus built the modern, full-stack application layer around Kamil's foundational engine, turning it into a visual, self-service enterprise platform accessible to all users:
-
-1. **Enterprise Web Studio Frontend (`web_preview/`)**:
-   * **Visual Interface**: Designed and built the Web Studio UI using the best enterprise design practices and responsive components.
-   * **Interactive Review Gate**: Created the blueprint editor form paired with a **Live Simulated Moodle 5.x Canvas**, allowing instructional designers to preview the exact learner experience in real-time before compiling.
-   * **Course Library**: Built the real-time course catalog with instant keyword search, difficulty level filter pills, collapsible activity inspector, and direct 1-click `.mbz` browser download (eliminating the need for SSH or File Explorer).
-   * **Model Switcher Modal**: Built the provider management dialog supporting live SSE diagnostic tests.
-
-2. **Asynchronous FastAPI Backend Orchestration (`backend/`)**:
-   * **REST API Layer (`app/main.py`)**: Built the complete REST API (`/api/analyze-urls`, `/api/jobs`, `/api/courses`, `/api/download/{id}.mbz`, `/health`) with structured JSON logging, UUID tracing, and CORS.
-   * **Autonomous Pipeline Engine (`app/services/course_builder.py`)**: Seamlessly connects to Kamil's core engine, programmatically generating course briefs and running `course_research.cli` in non-blocking background workers without requiring manual terminal commands.
-   * **Automated Web Scraper (`app/services/scraper.py`)**: Built the automated scraper extracting clean curriculum outlines from documentation URLs.
-
-3. **Unified Multi-LLM Router (`app/services/llm_client.py`)**:
-   * **Zero Cloud GPU Cost Support**: Enabled support for free, offline local open-source models (Ollama: LLaMA 3.1, Qwen 2.5 Coder) optimized for standard 16GB laptops.
-   * **Multi-Provider Flexibility**: Integrated support for personal cloud accounts (Anthropic Claude 3.5 Sonnet, OpenAI GPT-4o, Google Gemini, and Groq) so users can choose whichever AI model they prefer.
-
-4. **Production Containerization & Azure Cloud Deployment**:
-   * **Dockerization**: Authored the production monolithic `Dockerfile` packaging FastAPI and the Web Studio on port `8080`.
-   * **Azure Container Apps**: Deployed the live container as **`fx-moodle-studio`** in `karthik-playground-rg` (`swedencentral`) with external HTTPS ingress.
-   * **CI/CD**: Configured GitHub Actions automation (`.github/workflows/deploy-containerapp.yml`).
-
----
-
-## 3. End-to-End Workflow with Open-Source Models (From Deployed Azure Link)
-
-This section details how an end-user runs **100% free, private open-source models** (such as LLaMA 3.1 or Qwen 2.5) on their local machine or self-hosted endpoint while accessing the live **deployed Azure cloud application** with zero cloud GPU expenses.
-
-### 3.1 Network Architecture & Sequence
-
-Because the production application is deployed in a cloud container (Azure Container Apps in Sweden Central), it cannot directly resolve `localhost:11434` on a user's private laptop without a public ingress bridge. The user simply runs a lightweight, zero-cost tunnel (`localtunnel` or `ngrok`), or provides a self-hosted cloud Ollama/vLLM URL.
+### 1.2 Sequence
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User as Instructional Designer
-    participant Ollama as Local Ollama on Laptop
-    participant Tunnel as Free Secure Tunnel
-    participant AzureApp as Azure Container App
-    participant KamilEngine as Kamils Core Packaging Engine
-    participant TargetWeb as Public Web Documentation
+    actor User
+    participant Browser as Web Studio (browser)
+    participant Ollama as User's Ollama (localhost:11434)
+    participant API as FastAPI on Azure
+    participant Engine as Kamil's course_research
+    participant Web as Public web page
 
-    Note over User,AzureApp: Phase 1: Setup and Connection
-    User->>AzureApp: Opens deployed studio URL
-    User->>Ollama: Starts local model via ollama run llama3.1
-    User->>Tunnel: Starts npx localtunnel on port 11434
-    User->>AzureApp: Enters tunnel HTTPS URL in Model Switcher and verifies ping
-
-    Note over User,TargetWeb: Phase 2: Ingestion and Synthesis
-    User->>AzureApp: Pastes course URL and clicks Analyze Curriculum
-    AzureApp->>TargetWeb: Scrapes webpage and extracts curriculum outline
-    AzureApp->>Tunnel: Forwards prompt payload to user tunnel endpoint
-    Tunnel->>Ollama: Local LLaMA 3.1 synthesizes metadata at zero cloud cost
-    Ollama-->>AzureApp: Returns structured JSON proposal
-    
-    Note over User,AzureApp: Phase 3: Review Gate and Simulation
-    AzureApp-->>User: Displays Blueprint Editor and Live Moodle Canvas
-    User->>AzureApp: Reviews syllabus topics and clicks Build Course
-
-    Note over AzureApp,KamilEngine: Phase 4: Packaging and Delivery
-    AzureApp->>KamilEngine: Executes python -m course_research.cli build
-    KamilEngine->>KamilEngine: Validates 5 standard activities and compiles course package
-    AzureApp-->>User: Lists ready package in Course Library
-    User->>AzureApp: Clicks Download to save .mbz archive to local drive
-    User->>User: Restores .mbz package into target Moodle LMS
+    Browser->>Ollama: GET /api/tags (detect installed models)
+    User->>Browser: Paste URL, click Analyze
+    Browser->>API: POST /api/proposals/prepare
+    API->>Web: Fetch page (fail fast on 404 / unreachable)
+    API-->>Browser: Page text + system/user prompts
+    Browser->>Ollama: POST /api/chat (user's chosen model)
+    Ollama-->>Browser: JSON course proposal
+    Browser->>API: POST /api/proposals/finalize
+    API-->>Browser: Structured proposal
+    User->>Browser: Edit & approve in Review Gate
+    Browser->>API: POST /api/jobs
+    API->>API: Write course-brief.json
+    API->>Engine: load_course_brief + write_course_definition
+    Engine->>Web: Check every source URL is reachable
+    Engine-->>API: course-definition.json (5 activities)
+    API->>API: build_mbz (fill Kamil-engine template)
+    Browser->>API: Poll GET /api/jobs/{id} until completed
+    User->>API: GET /api/download/{slug}.mbz
 ```
 
-### 3.2 Step-by-Step Execution Guide
+### 1.3 Step by step
 
-#### Step 1: Open the Deployed Azure Application
-Access the production application in any browser:
-* **Live Studio Link:** `https://fx-moodle-studio.bravewater-f333a261.swedencentral.azurecontainerapps.io/`
+1. **Detect models.** On page load the browser calls the user's own Ollama at
+   `http://localhost:11434` and lists the models installed on *that* laptop. The
+   choice is stored per browser.
+2. **Analyze.** The user pastes a URL (or a batch list, or uploads `.xlsx`/`.csv`).
+   The server scrapes the page. If the page cannot be opened (for example HTTP 404)
+   the request is rejected with *"Could not open: …"*; no course is invented from a
+   URL that was never read.
+3. **AI proposal.** The server returns the page text and the prompts. The browser
+   runs them on the user's local model, then the server parses the reply into a
+   proposal (course name, overview, duration, level, audience, module titles).
+   If the reply is not valid JSON, a proposal is built from the page's headings.
+4. **Review Gate.** The user edits any field and approves.
+5. **Build** (a background job, tracked live in the Pipeline Tracker):
+   - **a. Course Brief.** Written in the exact format Kamil's engine requires.
+   - **b. Course Definition.** Kamil's `course_research` validates the brief and
+     checks every source link is live. A broken link fails the job with a clear
+     message, and the job's folder is removed.
+   - **c. Course Package.** The `.mbz` is written from a five-activity template
+     that Kamil's Moodle engine produced (see [4.4](#44-the-mbz-builder)).
+6. **Download.** The tracker shows *Completed* with a download button; the course
+   also appears in the Course Library.
+7. **Import.** A Moodle administrator restores the `.mbz` into Moodle 5.0.x.
 
-#### Step 2: Start Local Open-Source Model on Your Laptop
-On your local machine (16GB RAM recommended):
-1. Open terminal and run your preferred model:
-   ```bash
-   ollama run llama3.1:latest
-   ```
-2. In a second terminal window, expose the local Ollama port to a temporary HTTPS address:
-   ```bash
-   npx localtunnel --port 11434
-   ```
-   *(Alternative: `ngrok http 11434`)*
-3. Copy the generated HTTPS tunnel URL (e.g. `https://fair-lion-42.loca.lt`).
-   *(Note: If you have a self-hosted cloud VM running Ollama or vLLM, you can directly use its public IP or domain name without localtunnel).*
+Every generated course has the same five activities (see
+[docs/course-structure.md](docs/course-structure.md)):
 
-#### Step 3: Connect Model in Web Studio
-1. In FX Moodle Studio, click the **Model Switcher** (Settings icon) in the top-right navigation bar.
-2. In the **Local Host Endpoint** box, replace `http://localhost:11434` with your HTTPS tunnel URL.
-3. Click **Retest Ping**. All 3 diagnostic health checks (Host reachable, Model verified, Neural PONG received) will pass and turn green.
-
-#### Step 4: Analyze Learning URL
-1. Navigate to the **Create Course** tab.
-2. Paste any public curriculum or documentation link (e.g., Microsoft Learn, official technical docs).
-3. Click **Analyze Curriculum**.
-4. The Azure backend extracts the webpage content, sends the text payload through your tunnel directly to your local LLaMA 3.1 model, and receives the structured course outline with zero cloud GPU billing.
-
-#### Step 5: Review Gate & Live Canvas Simulation
-1. The application automatically advances to the **Review Gate** tab.
-2. On the left pane (Blueprint Editor), review and adjust course title, difficulty level, target audience, and curriculum modules.
-3. On the right pane, observe the **Live Simulated Moodle 5.x Canvas** dynamically reflecting your edits.
-4. Click **Build Moodle Package**.
-
-#### Step 6: Native Packaging via Kamil's Core Engine
-1. The backend writes the verified specifications to `output/<course-slug>/course-brief.json`.
-2. It programmatically executes Kamil's foundational `course_research.cli build` engine to generate `course-definition.json` with the 5 standard Moodle activities (Overview, Documentation URL, Videos, Assessment Quiz, Discussion Forum).
-3. It packages the native `course-package.mbz` archive.
-
-#### Step 7: 1-Click Browser Download & Moodle Restoration
-1. Navigate to the **Course Library** tab.
-2. Filter or search for your newly compiled course.
-3. Click **Inspect Modules** to verify the learning activity tree.
-4. Click **Download .mbz** to download the archive directly in your browser.
-5. In your target Moodle LMS, navigate to **Site administration → Courses → Restore course** and upload the downloaded file.
-
----
-
-## 4. High-Level Architecture Diagram
-
-```mermaid
-flowchart TD
-    subgraph UI ["Frontend Clients"]
-        WebPreview["Web Preview Studio<br/>Port 3000 or 8080"]
-        FlutterApp["Flutter Web and Desktop App<br/>frontend directory"]
-    end
-
-    subgraph API ["Backend Orchestration - FastAPI"]
-        Router["FastAPI Application and Middlewares<br/>Request Tracing, CORS, Error Handlers"]
-        Scraper["WebScraper Service<br/>httpx, BeautifulSoup4, Trafilatura"]
-        LLM["UnifiedLLMClient<br/>Ollama and Cloud Hybrid Router"]
-        Builder["CourseBuilderService<br/>Async Pipeline, Job Queue"]
-        Auth["Auth and Provider Service<br/>Local Tokens / Cloud IdP"]
-    end
-
-    subgraph LLM_Engines ["LLM Inference Layer"]
-        OllamaLocal["Local Models - Ollama<br/>Port 11434<br/>llama3.1, qwen2.5, gemma"]
-        CloudLLM["Cloud AI APIs<br/>OpenAI, Anthropic, Gemini, Groq"]
-    end
-
-    subgraph Storage ["Persistent Storage and Artifacts"]
-        OutputDir["output/course-slug/<br/>- course-brief.json<br/>- course-definition.json<br/>- course-package.mbz"]
-    end
-
-    WebPreview -->|HTTP REST| Router
-    FlutterApp -->|HTTP REST| Router
-
-    Router --> Scraper
-    Router --> LLM
-    Router --> Builder
-    Router --> Auth
-
-    Scraper -->|Scrapes URL| WebTarget["Target Learning Website<br/>Microsoft Learn, technical docs"]
-    LLM -->|Local Inference| OllamaLocal
-    LLM -->|Cloud API Call| CloudLLM
-
-    Builder -->|Packages MBZ Archive| OutputDir
-    Router -->|Streams MBZ Archive| OutputDir
-```
-
----
-
-## 5. Frontend Architecture
-
-### 5.1 Technology Stack
-- **Framework**: Semantic HTML5, Modular CSS Design System, Vanilla ES6 JavaScript.
-- **Design Tokens**: FusionAIx Obsidian & Slate Dark Theme (`--bg-black: #000000`, `--card-bg: #111111`, `--border: #262626`, `--accent-green: #05A357`, `--accent-blue: #276EF1`).
-- **Typography**: Google Fonts (*Plus Jakarta Sans* & *JetBrains Mono*).
-
-### 5.2 Navigation & Layout Hierarchy
-1. **Centered Header Navigation**:
-   - **Left Wing**: Brand badge (`fusionAIx` logo + `Moodle Studio` pill).
-   - **Center Segmented Control**: 4 tabs centered using balanced flex wings:
-     - `Create Course` (`#view-input`)
-     - `Review Gate` (`#view-review`)
-     - `Build Tracker` (`#view-progress`)
-     - `Course Library` (`#view-library`)
-   - **Right Wing**: Live AI Model Switcher button with real-time status beacon.
-
-2. **Core Views**:
-   - **Create Course Tab**: URL input, batch URLs input, Excel/CSV spreadsheet upload, provider settings.
-   - **Review Gate Tab (Dual-Pane Layout)**:
-     - **Left Pane (Blueprint Editor)**: Compact, high-density form fields for Course Title, Overview, Duration, Learner Level (Beginner / Intermediate / Advanced), Target Audience, and Curriculum Module chips.
-     - **Right Pane (Live Moodle 5.x Canvas)**: Simulated LMS student course player with window controls, breadcrumbs, pulsing live sync indicator, Course Hero banner, and Moodle activity cards (Page, Resource, Book, Assignment, Forum).
-   - **Build Tracker Tab**: Dynamic 5-stage progress meter and real-time telemetry console.
-   - **Course Library Tab**: Real-time disk inventory scanning `output/`, client-side multi-facet search/filtering, and direct `.mbz` download links.
-
----
-
-## 6. Backend Architecture
-
-### 6.1 High-Level Backend Architecture Diagram
-
-```mermaid
-flowchart TD
-    Client["Frontend Clients<br/>Web Studio / API Consumers"]
-
-    subgraph BackendGateway ["Backend API Gateway - FastAPI"]
-        Router["FastAPI Application main.py"]
-        Middleware["Middlewares<br/>Request Tracing, Latency Headers, CORS"]
-    end
-
-    subgraph CoreServices ["Application Services Layer"]
-        Scraper["WebScraper Service<br/>httpx, BeautifulSoup4, Trafilatura"]
-        LLMClient["UnifiedLLMClient<br/>Hybrid Multi-Model Router"]
-        Builder["CourseBuilderService<br/>Async Worker Pipeline"]
-        Auth["AuthService<br/>Personal Cloud Provider Vault"]
-    end
-
-    subgraph ExternalAI ["AI Inference Layer"]
-        Ollama["Local Models - Ollama<br/>LLaMA 3.1, Qwen 2.5, Gemma<br/>Private, Zero Cloud Cost"]
-        CloudAI["Personal Cloud APIs<br/>Claude 3.5, GPT-4o, Gemini, Groq"]
-    end
-
-    subgraph KamilEngine ["Kamils Foundational Moodle Compiler - Untouched"]
-        CLI["course_research.cli build"]
-        Brief["course-brief.json Contract"]
-        Definition["course-definition.json 5 Standard Activities"]
-        MoodlePackager["Moodle Native backup and .mbz Generator"]
-    end
-
-    subgraph Storage ["Persistent File Storage"]
-        OutputStore["output/course-slug/<br/>- course-brief.json<br/>- course-definition.json<br/>- course-package.mbz"]
-    end
-
-    Client -->|HTTPS REST / JSON / SSE| Middleware
-    Middleware --> Router
-
-    Router --> Scraper
-    Router --> LLMClient
-    Router --> Builder
-    Router --> Auth
-
-    Scraper -->|Crawls and Cleans| Web["Target Webpage / Docs URL"]
-    LLMClient -->|Local HTTP Port 11434| Ollama
-    LLMClient -->|Secure Cloud API| CloudAI
-
-    Builder -->|Writes| Brief
-    Builder -->|Executes in Background| CLI
-    CLI -->|Validates and Compiles| Definition
-    Definition --> MoodlePackager
-    MoodlePackager -->|Saves Archive| OutputStore
-
-    Router -->|Streams .mbz to Browser| OutputStore
-```
-
-### 6.2 Technology Stack
-- **Runtime**: Python 3.10+
-- **Web Framework**: FastAPI & Starlette
-- **ASGI Server**: Uvicorn
-- **HTTP Client**: HTTPX (async)
-- **HTML Parsing**: BeautifulSoup4, Trafilatura
-- **Data Validation**: Pydantic v2 schemas
-
-### 6.3 Core Service Components
-
-| Service | File Location | Responsibility |
+| # | Activity | Moodle type |
 | :--- | :--- | :--- |
-| **FastAPI Core** | `backend/app/main.py` | API endpoints, CORS, request tracing middleware with UUIDs, health probes. |
-| **WebScraper** | `backend/app/services/scraper.py` | Extracts syllabus, headings, duration, and text from public course URLs with resilient fallbacks. |
-| **UnifiedLLMClient** | `backend/app/services/llm_client.py` | Hybrid client routing between local Ollama (`http://localhost:11434`) and Cloud APIs. |
-| **CourseBuilderService**| `backend/app/services/course_builder.py` | Asynchronous job runner creating course briefs, definitions, and native `.mbz` bundles. |
-| **AuthService** | `backend/app/services/auth_service.py` | Manages connection status for OpenAI, Claude, Gemini, and Groq personal accounts. |
+| 1 | Course overview (outcome, module count, estimated time, instruction) | Page |
+| 2 | Link to the entered URL (opens in a new window) | URL |
+| 3 | Watch reference videos | Page |
+| 4 | Submit Course Certification (upload certificate/badge/screenshot) | Assignment |
+| 5 | Discussion Forum | Forum |
 
-### 6.4 REST API Endpoints Reference
+### 1.4 Cloud models instead of Ollama
+
+A user without Ollama can connect their own Claude, ChatGPT, Gemini, or Grok key
+in **Model Settings → Personal Cloud Accounts**. Step 3 then runs on the server with
+that user's key (`POST /api/analyze-urls`); every other step is identical.
+
+---
+
+## 2. Why local models
+
+The default AI is **Ollama running on each user's own laptop**, reached directly by
+their browser.
+
+| Reason | Detail |
+| :--- | :--- |
+| **No AI bill** | No per-token API charges and no paid subscriptions. |
+| **No GPU on Azure** | Azure Container Apps runs CPU-only containers. Hosting an LLM for everyone would need a costly GPU service. |
+| **Scales with users** | Each user brings their own compute, so 10 or 100 users do not slow each other down or add server load. |
+| **Privacy of AI processing** | Prompts and model output stay on the user's laptop. (The page itself is fetched by the server.) |
+| **User choice** | Each user picks any model they have installed (llama3.1, llama3.2, gemma3, qwen2.5 …), independently of other users. |
+
+Trade-offs, and how they are handled:
+
+- **Quality.** Small local models are weaker than frontier models; the Review Gate
+  lets the user correct the proposal, and cloud models remain available.
+- **Hardware.** A 7B–8B model needs roughly 5 GB of free RAM (16 GB laptops are
+  fine; see [SETUP_GUIDE.md](SETUP_GUIDE.md) for recommended models).
+- **One-time setup.** Ollama blocks websites it does not know. Each user runs
+  `setx OLLAMA_ORIGINS "<deployed URL>"` (Windows) or the `launchctl` equivalent
+  (Mac) once and restarts Ollama. The app detects this case and shows
+  **"Ollama Blocked"** with the exact command.
+
+The server never calls Ollama itself. An Azure container cannot see a user's
+`localhost`, which is why an earlier version always reported "Ollama not
+installed" on the deployed link.
+
+---
+
+## 3. Kamil's course engine
+
+Kamil built the engine that defines what a course is and produces real Moodle
+packages. Dinesh Panda later restored the fixed five-activity structure, automated
+packaging, and spreadsheet input. **The engine contains no AI.** In its original
+workflow an AI coding assistant (Codex or Claude Code) does the research and writes
+the brief; the engine validates and packages.
+
+| Part | Location | What it does |
+| :--- | :--- | :--- |
+| Brief loader & contract | `course_research/cli.py`, `course_research/domain.py` | Strict validation of the Course Brief: learning-time budget, unique sources, free-access evidence, en-US, entry level, activity-name length. |
+| Source validation | `course_research/source_validation.py` | HTTP check that every source, the entered URL, and each reference video is reachable. |
+| Definition generator | `course_research/generator.py` | Builds `course-definition.json`: identity, settings, and the five-activity structure. Refuses to overwrite. |
+| Moodle scripts | `moodle-cli/*.php` | Inside a real Moodle: generate the course (`generate.php`), render activity HTML (`activity_content.php`), back up to `.mbz` (`backup.php`), restore and verify (`restore.php`, `verify.php`, learner checks). |
+| CLI tools | `bin/course-definition`, `bin/course-package`, `bin/course-urls` | Bash entry points; `course-package` runs Moodle 5.0.3 + MariaDB via Docker Compose. |
+| Moodle environment | `docker/moodle/`, `docker/mariadb-seed/`, `compose.yaml` | Disposable source and restore Moodle sites (ports 8080/8081); DB seed for fast builds. |
+| Agent workflow | `.agents/skills/create-course/SKILL.md`, [docs/create-course.md](docs/create-course.md) | Instructions an AI coding agent follows: propose → research sources and videos → brief → definition → package. |
+
+### 3.1 Kamil's original workflow (no web app)
+
+```text
+AI coding agent (Claude Code / Codex) following create-course skill
+  1. Read URL, propose course → user confirms
+  2. Research a source page per module + 1–3 YouTube videos
+  3. Write output/<slug>/source-candidates-<date>.md and course-brief.json
+        │
+        ▼
+bin/course-definition build      (course_research: validate + link checks)
+        │
+        ▼
+bin/course-package build --accept --skip-restore --reuse
+        (real Moodle in Docker: generate → learner check → backup → .mbz)
+        │
+        ▼
+bin/course-package verify        (optional: restore into a clean Moodle)
+```
+
+How to run it locally is described in [6.2](#62-kamils-engine-on-its-own).
+
+---
+
+## 4. Abdus's web platform
+
+Abdus built the self-service layer around the engine so that non-technical users can
+create courses from a browser, and deployed it on Azure.
+
+### 4.1 Components
+
+| Component | File | Responsibility |
+| :--- | :--- | :--- |
+| Web Studio UI | `web_preview/index.html` | Create Course, Pipeline Tracker, Review Gate, Course Library, Model Settings. Contains the **browser-side Ollama client** (detect, test, pull, chat). |
+| API | `backend/app/main.py` | REST endpoints, request tracing, per-user session middleware, static hosting of the UI. |
+| Sessions | `backend/app/services/session_store.py` | One session per browser (cookie `fx_sid`): model choice and cloud keys are never shared between users. In memory, idle sessions expire after 24 h. |
+| Scraper | `backend/app/services/scraper.py` | Fetches the page and extracts title, headings, body; reports fetch failures. |
+| LLM client | `backend/app/services/llm_client.py` | Builds the proposal prompts and parses replies (shared by local and cloud paths); calls cloud providers. |
+| Cloud accounts | `backend/app/services/auth_service.py` | Verifies a user's Claude/OpenAI/Gemini/Grok key with the provider. |
+| Course builder | `backend/app/services/course_builder.py` | Background job: brief → Kamil's definition → `.mbz`. Reserves a unique folder per course. |
+| `.mbz` builder | `backend/app/services/mbz_builder.py` + `backend/app/mbz_template/` | Writes the Moodle package without running Moodle. |
+| Container & CI/CD | `Dockerfile`, `.github/workflows/deploy-containerapp.yml` | Single container serving UI + API on port 8080; deploys to Azure Container Apps on push to `main`. |
+
+### 4.2 How the web platform uses Kamil's engine
+
+| Engine part | Used by the web platform? |
+| :--- | :--- |
+| `course_research` (brief validation, link checks, definition) | **Yes, called directly** (`load_course_brief`, `write_course_definition`). Unmodified. |
+| `moodle-cli` + `bin/course-package` (real Moodle) | **Not at runtime.** Azure Container Apps cannot run Docker. Its output is used as the `.mbz` template, and `bin/course-package verify` is the proof that web-built packages restore. |
+| Agent research (per-module sources, videos) | **Not yet** (see [section 5](#5-what-is-covered-and-what-is-not)). |
+
+No file in `course_research/`, `moodle-cli/`, `bin/`, or `docker/` is modified by the
+web platform.
+
+### 4.3 Multiple users
+
+- **Model choice.** Each browser remembers its own model and talks to its own laptop's Ollama.
+- **Server state.** Each browser has its own session for provider choice and cloud keys.
+- **Course folders.** Each course gets its own folder: building the same course name twice creates `<slug>-2`, never overwriting.
+- **Tested:** two concurrent users on llama3.2 and gemma3 each got their own model and their own course.
+
+### 4.4 The `.mbz` builder
+
+Every generated course has identical Moodle structure and internal IDs; only
+course-specific text differs. The template is a real package produced by Kamil's
+engine. `mbz_builder.py` replaces exactly these fields and leaves the rest
+byte-for-byte unchanged:
+
+- **Course:** full name, short name, summary, visibility.
+- **Section:** name and introduction.
+- **Overview page:** HTML.
+- **Resources link:** name and URL.
+- **Videos page:** HTML.
+- **Backup header:** names, backup ID, date.
+- **Timestamps,** plus the archive index sizes.
+
+Activity HTML is rendered exactly as `moodle-cli/activity_content.php` does.
+
+How it was verified:
+
+1. **Round trip.** Two existing engine-built courses were rebuilt from their own
+   `course-definition.json`. All 64 files matched the originals (apart from
+   timestamps and backup ID).
+2. **Restore proof.** A package built through the web app passed
+   `bin/course-package verify`. It restored into a clean Moodle 5.0.3 and passed
+   Kamil's structure, package, and learner-session checks.
+
+> If the engine's course shape or activity HTML changes, regenerate
+> `backend/app/mbz_template/five-activity-course.mbz` from a new engine-built
+> package and re-run the round-trip check.
+
+---
+
+## 5. What is covered and what is not
+
+| Capability | Status |
+| :--- | :--- |
+| Single URL, batch URL list, `.xlsx`/`.csv` upload | ✅ |
+| Local Ollama per user, auto-detected; "Blocked" / "Not detected" guidance | ✅ |
+| Personal cloud models (Claude, ChatGPT, Gemini, Grok) | ✅ |
+| Independent users (per-browser model, per-session keys, unique course folders) | ✅ |
+| Broken links rejected (at analyze time and by Kamil's validator) | ✅ |
+| Review Gate editing | ✅ |
+| Course Definition via Kamil's engine | ✅ |
+| Real, restorable `.mbz` (5 activities) with live build tracking | ✅ |
+| Course Library with download | ✅ |
+| **Research a separate source page per module** | ❌ All modules point to the entered URL |
+| **Reference videos** | ❌ Videos activity states that none were selected |
+| Per-course trial restore inside the web app | ❌ Run `bin/course-package verify` before production import of important courses |
+
+The two research gaps are what the AI agent does in Kamil's original workflow. Closing
+them needs a search source the app can call (for example the YouTube Data API for
+videos, or links on the entered page for sources); a local model cannot browse the
+web by itself.
+
+---
+
+## 6. Running it
+
+### 6.1 Web platform on a laptop
+
+Requirements: Python 3.11+, Ollama with at least one model (`ollama run llama3.2`).
+
+- **Windows:** double-click `start.bat`
+- **Mac/Linux:** run `./start.sh`
+
+Each script installs dependencies if needed and opens `http://localhost:8088/`.
+Ollama allows `localhost` by default, so `OLLAMA_ORIGINS` is only needed for the
+deployed link. Packaging needs no Docker.
+
+### 6.2 Kamil's engine on its own
+
+Requirements: Python 3.11+, Docker Desktop running, Git Bash (the `bin/` tools are
+bash), ports 8080/8081 free.
+
+- **With an AI agent (as in the KT session).** Start Claude Code or Codex in the
+  repository root and have it follow `.agents/skills/create-course/SKILL.md` with a
+  URL, or `build from input` for the spreadsheet in `input/`. Codex discovers it as
+  `$create-course`. For Claude Code, copy it to `.claude/skills/create-course/` to
+  use `/create-course`.
+- **By hand.** Write `output/<slug>/course-brief.json` using
+  `examples/copilot-studio-course-brief.json`, then:
+
+  ```bash
+  bin/course-definition build --brief output/<slug>/course-brief.json \
+    --output output/<slug>/course-definition.json
+  bin/course-package build --definition output/<slug>/course-definition.json \
+    --output output/<slug>/course-package.mbz --accept --skip-restore --reuse
+  bin/course-package verify --package output/<slug>/course-package.mbz \
+    --definition output/<slug>/course-definition.json      # optional restore proof
+  bin/course-package down                                     # remove disposable Moodle
+  ```
+
+---
+
+## 7. Deployment (Azure Container Apps)
+
+- **App:** `fx-moodle-studio` in `karthik-playground-rg` (Sweden Central), external
+  HTTPS ingress, container port 8080.
+- **Image:** `Dockerfile`, built from `python:3.11-slim`. It contains the UI, API,
+  `course_research`, and the `.mbz` template. There is no Moodle or Docker inside.
+- **CI/CD:** `.github/workflows/deploy-containerapp.yml` builds and deploys on push
+  to `main` or `master`.
+- **Environment:**
+
+  | Variable | Value |
+  | :--- | :--- |
+  | `PORT` | `8080` |
+  | `LOG_LEVEL` | `INFO` |
+  | `LLM_PROVIDER` | `local` (default for new sessions) |
+
+**Before scaling up:**
+
+| Concern | Detail | Action |
+| :--- | :--- | :--- |
+| Courses are lost on restart or redeploy | The container's `output/` folder is temporary | Mount an Azure Files share at `/app/output` |
+| Settings and build progress can disappear | Sessions and build jobs are kept in memory, per instance | Run a single instance, or enable sticky sessions |
+| One-time user setup | Each user must allow the deployed URL in Ollama | Point users to the `OLLAMA_ORIGINS` step in [SETUP_GUIDE.md](SETUP_GUIDE.md) |
+
+---
+
+## 8. Reference
+
+### 8.1 API endpoints
 
 ```http
-# Health & Monitoring Probes
-GET  /health                      # Basic service health
-GET  /health/readiness            # K8s readiness probe (checks LLM and storage)
-GET  /health/liveness             # K8s liveness probe
+# Health
+GET  /health
+GET  /health/liveness
+GET  /health/readiness              # storage mounted
 
-# Course Analysis & Proposals
-POST /api/analyze-urls            # Scrapes URL and returns AI course proposal
-POST /api/upload-spreadsheet      # Extracts URLs from .xlsx/.csv and analyzes
+# Status & logs
+GET  /api/system-status             # provider + selected model (local models are probed by the browser)
+GET  /api/logs                      # recent server logs
 
-# Generation Pipeline Jobs
-POST /api/jobs                    # Trigger background .mbz build job
-GET  /api/jobs/{job_id}           # Poll job status, progress, and logs
-POST /api/jobs/batch              # Trigger batch build for multiple proposals
+# Local-model flow (AI runs in the user's browser → their Ollama)
+POST /api/proposals/prepare         # scrape URLs, return page text + prompts
+POST /api/proposals/finalize        # parse a model reply into a proposal
+POST /api/extract-urls              # URLs from an uploaded .xlsx/.csv
 
-# Course Package Library & Downloads
-GET  /api/courses                 # List all completed packages from output/
-GET  /api/download/{slug}.mbz     # Stream binary Moodle .mbz archive
+# Cloud-model flow (AI runs on the server with the user's key)
+POST /api/analyze-urls
+POST /api/upload-spreadsheet
 
-# Engine & Model Configuration
-GET  /api/config/llm              # Get active LLM provider, model, and Ollama tags
-POST /api/config/llm              # Update active LLM model or provider at runtime
-POST /api/test/llm                # Test connectivity to active LLM
+# Model settings (per user session)
+GET  /api/llm/config
+POST /api/llm/config
+POST /api/llm/test                  # cloud only
+GET  /api/llm/test-stream           # cloud only (SSE)
+
+# Cloud accounts (per user session)
+GET  /api/auth/providers
+POST /api/auth/connect/{provider_id}
+POST /api/auth/disconnect/{provider_id}
+GET  /api/auth/status
+POST /api/auth/logout
+
+# Build & library
+POST /api/jobs                      # build one approved proposal
+POST /api/jobs/batch                # build several
+GET  /api/jobs/{job_id}             # status, progress, logs
+GET  /api/courses                   # Course Library
+GET  /api/download/{slug}.mbz
 ```
 
----
+Job steps reported by `GET /api/jobs/{job_id}`:
+`scrapingUrl` → `synthesizingAi` → `compilingDefinition` → `packagingMbz` →
+`completed` (or `failed`, with the reason in `error`).
 
-## 7. How to Access and Run the System Locally
+### 8.2 Output layout
 
-### 7.1 Prerequisites
-- Python 3.10+ installed
-- Node.js or Python `http.server` for serving the web preview
-- Git
-
-### 7.2 Step 1: Install Backend Dependencies
-Open your terminal in the repository root:
-```bash
-# Navigate to backend directory
-cd backend
-
-# Create and activate a virtual environment (optional but recommended)
-python -m venv venv
-# Windows:
-venv\Scripts\activate
-# Linux/macOS:
-# source venv/bin/activate
-
-# Install required packages
-pip install -r requirements.txt
+```text
+output/<course-slug>/
+├── course-brief.json        # written by the web app (or the AI agent)
+├── course-definition.json   # written by Kamil's course_research
+└── course-package.mbz       # Moodle 5.0.x backup
 ```
 
-### 7.3 Step 2: Start the FastAPI Backend
-```bash
-# Start backend on port 8088
-python -m uvicorn app.main:app --host 0.0.0.0 --port 8088 --reload
-```
-- **Backend API**: `http://localhost:8088`
-- **Interactive Swagger Docs**: `http://localhost:8088/docs`
-- **Health Check**: `http://localhost:8088/health`
-
-### 7.4 Step 3: Start the Web Preview UI
-In a separate terminal:
-```bash
-# Serve the web_preview directory on port 3000
-python -m http.server 3000 --directory web_preview
-```
-- **Web UI URL**: `http://localhost:3000`
-
----
-
-## 8. How to Install and Configure Local Models (Ollama)
-
-The system default is configured to use **local open-source models** through **Ollama**. Local execution provides:
-- **100% Data Privacy**: No curriculum content or prompts leave your machine.
-- **Zero Cloud Cost**: Completely free and offline-capable.
-- **Fast Local Latency**: Ideal for workstations with GPUs or unified memory (Apple Silicon / NVIDIA RTX).
-
-### 8.1 Step 1: Install Ollama
-Download and install Ollama for your operating system:
-- **Windows**: Download the installer from [ollama.com/download/windows](https://ollama.com/download/windows) and run setup.
-- **macOS**: Download from [ollama.com/download/mac](https://ollama.com/download/mac) or install via Homebrew:
-  ```bash
-  brew install ollama
-  ```
-- **Linux**:
-  ```bash
-  curl -fsSL https://ollama.com/install.sh | sh
-  ```
-
-### 8.2 Step 2: Download and Run Recommended Models
-Open PowerShell, Command Prompt, or Terminal, and run one or more of the following:
-
-#### Recommended General Model (Balanced Speed & Quality)
-```bash
-ollama run llama3.1:latest
-```
-
-#### Lightweight Model (Ideal for laptops with 8GB RAM)
-```bash
-ollama run llama3.2:latest
-```
-
-#### High-Precision Coding & Technical Model
-```bash
-ollama run qwen2.5-coder:14b
-```
-
-#### Google Open Weights Model
-```bash
-ollama run gemma2:9b
-```
-
-### 8.3 Step 3: Verify Ollama is Running
-Check that the local Ollama server is responding:
-```bash
-curl http://localhost:11434/api/tags
-```
-You will receive a JSON list of installed local models.
-
-### 8.4 Step 4: Configure Backend Environment Variables
-Create or update your `.env` file in `backend/.env`:
-```env
-# LLM Provider Configuration
-LLM_PROVIDER=local
-LLM_LOCAL_BASE_URL=http://localhost:11434
-LLM_MODEL=llama3.1:latest
-LLM_TIMEOUT=60.0
-
-# Server Configuration
-PORT=8088
-LOG_LEVEL=INFO
-```
-
-### 8.5 Step 5: Switch Models Live from the UI
-You can switch active models without restarting the server:
-1. Open the UI at `http://localhost:3000`.
-2. Click the model pill in the top-right corner of the navigation bar (e.g., `llama3.1:latest ▾`).
-3. Select any installed local model detected from your Ollama instance.
-4. Click **Apply Settings**. The backend immediately routes new course extraction requests through that model.
-
----
-
-## 9. Storage & Output Directory Structure
-
-Generated course artifacts are persisted in the `output/` directory in accordance with repository standards:
-
-```
-output/
-├── <course-slug-1>/
-│   ├── course-brief.json          # High-level curriculum syllabus & metadata
-│   ├── course-definition.json     # Full Moodle activity specification
-│   └── course-package.mbz         # Native, restorable Moodle 5.x backup archive
-└── <course-slug-2>/
-    ├── course-brief.json
-    ├── course-definition.json
-    └── course-package.mbz
-```
-
-Each course package can be restored directly into any standard Moodle 4.x / 5.x instance via **Course Administration > Restore**.
+Courses created with Kamil's agent workflow also contain
+`source-candidates-<date>.md` (the research dossier) and may have versioned files
+(`-v2`, `-v3`).
